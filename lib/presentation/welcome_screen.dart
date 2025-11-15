@@ -1,6 +1,10 @@
+import 'package:Gourmet360/bloc/login/login_bloc.dart';
+import 'package:Gourmet360/data/auth_repository.dart';
+import 'package:Gourmet360/presentation/admin/admin_dashboard_screen.dart';
 import 'package:Gourmet360/presentation/home_screen.dart';
 import 'package:Gourmet360/presentation/login_pin_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({Key? key}) : super(key: key);
@@ -135,7 +139,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => LoginPinScreen(),
+                                builder: (_) => BlocProvider(
+                                  create: (_) => LoginBloc(
+                                    authRepository: AuthRepository(),
+                                  ),
+                                  child: const AdminDashboardScreen(),
+                                ),
                               ),
                             );
                           },

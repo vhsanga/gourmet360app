@@ -1,7 +1,9 @@
+import 'package:Gourmet360/bloc/user/user_bloc.dart';
 import 'package:Gourmet360/presentation/templates/drawer_driver_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:Gourmet360/presentation/productos_inventory_screen.dart';
 import 'package:Gourmet360/presentation/user_profile_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomePortalScreen extends StatefulWidget {
   const HomePortalScreen({Key? key}) : super(key: key);
@@ -43,6 +45,8 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final userState = context.watch<UserBloc>().state;
+
     return Scaffold(
       key: _scaffoldKey,
       endDrawer: DrawerDriverWidget(),
@@ -123,14 +127,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  '¡Buen día, Jacobo!',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                nombreChofer(),
                 const SizedBox(height: 4),
                 Text(
                   'Martes, 28 de Octubre',
@@ -151,6 +148,29 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
         ],
       ),
     );
+  }
+
+  Text nombreChofer() {
+    final userState = context.watch<UserBloc>().state;
+    if (userState is UserLoaded) {
+      return Text(
+        userState.usuario.nombre,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      );
+    } else {
+      return const Text(
+        'nombre del chofer',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      );
+    }
   }
 
   Widget _buildStatsCards() {

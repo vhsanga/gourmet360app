@@ -1,6 +1,11 @@
+import 'package:Gourmet360/bloc/login/login_bloc.dart';
+import 'package:Gourmet360/bloc/login/login_event.dart';
+import 'package:Gourmet360/bloc/login/login_state.dart';
+import 'package:Gourmet360/bloc/user/user_bloc.dart';
 import 'package:Gourmet360/presentation/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginPinScreen extends StatefulWidget {
   const LoginPinScreen({Key? key}) : super(key: key);
@@ -56,23 +61,31 @@ class _LoginPinScreenState extends State<LoginPinScreen> {
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    final phone = _usernameController.text;
+    final pin = _pinControllers.map((c) => c.text).join();
 
-    // Simular proceso de login
-    await Future.delayed(const Duration(seconds: 2));
+    final loginBloc = BlocProvider.of<LoginBloc>(context);
 
-    setState(() {
-      _isLoading = false;
-    });
+    loginBloc.add(LoginSubmitted(phone: phone, pin: pin));
 
-    // Aquí iría la lógica real de autenticación
-    _showSnackBar('¡Inicio de sesión exitoso!', isError: false);
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => HomePortalScreen()),
-    );
+    await for (final state in loginBloc.stream) {
+      if (state is LoginLoading) {
+        setState(() => _isLoading = true);
+      } else if (state is LoginSuccess) {
+        setState(() => _isLoading = false);
+        context.read<UserBloc>().add(SaveUserEvent(state.usuario));
+        _showSnackBar('¡Inicio de sesión exitoso!', isError: false);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePortalScreen()),
+        );
+        break;
+      } else if (state is LoginFailure) {
+        setState(() => _isLoading = false);
+        _showSnackBar('Error al iniciar sesión: ${state.error}', isError: true);
+        break;
+      }
+    }
   }
 
   void _showSnackBar(String message, {required bool isError}) {
