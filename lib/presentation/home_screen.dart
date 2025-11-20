@@ -126,17 +126,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                nombreChofer(),
-                const SizedBox(height: 4),
-                Text(
-                  'Martes, 28 de Octubre',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 14,
-                  ),
-                ),
-              ],
+              children: [nombreChofer()],
             ),
           ),
           IconButton(

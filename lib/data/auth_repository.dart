@@ -27,7 +27,7 @@ class AuthRepository {
         throw Exception(errorMessage);
       }
       final data = response.data['data'];
-      Usuario usuario = Usuario.fromJson(data, data['access_token']);
+      Usuario usuario = Usuario.fromJson(data['user'], data['access_token']);
       return usuario;
     } on DioException catch (e) {
       // Captura específicamente errores de Dio

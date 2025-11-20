@@ -161,7 +161,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: const [
                               Text(
-                                'Comenzar',
+                                'Comenzar.',
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
