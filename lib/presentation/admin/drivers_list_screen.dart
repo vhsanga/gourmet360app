@@ -1,4 +1,5 @@
 import 'package:Gourmet360/presentation/admin/despacho_screen.dart';
+import 'package:Gourmet360/presentation/admin/sales_report_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -265,6 +266,49 @@ class _DriversListScreenState extends State<DriversListScreen> {
     );
   }
 
+  Widget _buildMenuDriverCard() {
+    return PopupMenuButton<int>(
+      icon: const Icon(Icons.more_vert, color: const Color(0xFF6B2A02)),
+      color: Colors.white,
+      onSelected: (value) {
+        if (value == 1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const SalesReportScreen()),
+          );
+        } else if (value == 2) {
+          // Abrir Reportes
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const DespachoScreen()),
+          );
+        }
+      },
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: 1,
+          child: Row(
+            children: const [
+              Icon(Icons.monetization_on, color: Color(0xFF6B2A02)),
+              SizedBox(width: 10),
+              Text("Reporte de ventas"),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 2,
+          child: Row(
+            children: const [
+              Icon(Icons.local_shipping_outlined, color: Color(0xFF6B2A02)),
+              SizedBox(width: 10),
+              Text("Asignar Despacho"),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildDriverCard(Driver driver) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -283,12 +327,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const DespachoScreen()),
-            );
-          },
+          onTap: () {},
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -348,28 +387,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
                         ],
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: driver.isActive
-                            ? Colors.green.shade50
-                            : Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        driver.isActive ? 'Activo' : 'Inactivo',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: driver.isActive
-                              ? Colors.green.shade700
-                              : Colors.grey.shade600,
-                        ),
-                      ),
-                    ),
+                    _buildMenuDriverCard(),
                   ],
                 ),
                 const SizedBox(height: 16),

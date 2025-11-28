@@ -1,7 +1,10 @@
+import 'package:Gourmet360/bloc/user/user_bloc.dart';
 import 'package:Gourmet360/presentation/clients_list_screen.dart';
 import 'package:Gourmet360/presentation/home_screen.dart';
 import 'package:Gourmet360/presentation/user_profile_screen.dart';
+import 'package:Gourmet360/presentation/welcome_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DrawerDriverWidget extends StatefulWidget {
   const DrawerDriverWidget({super.key});
@@ -141,6 +144,14 @@ class _DrawerDriverWidgetState extends State<DrawerDriverWidget> {
                     textColor: Colors.red,
                     onTap: () {
                       Navigator.pop(context);
+                      context.read<UserBloc>().add(DeleteUserEvent());
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const WelcomeScreen(),
+                        ),
+                        (Route<dynamic> route) => false,
+                      );
                     },
                   ),
                   const SizedBox(height: 16),

@@ -2,6 +2,7 @@ import 'package:Gourmet360/bloc/login/login_bloc.dart';
 import 'package:Gourmet360/bloc/login/login_event.dart';
 import 'package:Gourmet360/bloc/login/login_state.dart';
 import 'package:Gourmet360/bloc/user/user_bloc.dart';
+import 'package:Gourmet360/presentation/admin/admin_dashboard_screen.dart';
 import 'package:Gourmet360/presentation/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -74,11 +75,22 @@ class _LoginPinScreenState extends State<LoginPinScreen> {
       } else if (state is LoginSuccess) {
         setState(() => _isLoading = false);
         context.read<UserBloc>().add(SaveUserEvent(state.usuario));
-        _showSnackBar('¡Inicio de sesión exitoso!', isError: false);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomePortalScreen()),
-        );
+        if (state.usuario.rol == 'admin') {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AdminDashboardScreen(),
+            ),
+            (Route<dynamic> route) => false,
+          );
+        } else {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePortalScreen()),
+            (Route<dynamic> route) => false,
+          );
+        }
+
         break;
       } else if (state is LoginFailure) {
         setState(() => _isLoading = false);

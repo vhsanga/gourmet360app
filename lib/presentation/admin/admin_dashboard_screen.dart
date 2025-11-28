@@ -1,5 +1,10 @@
-import 'package:Gourmet360/presentation/templates/drawer_admin_widget.dart';
+import 'package:Gourmet360/bloc/user/user_bloc.dart';
+import 'package:Gourmet360/presentation/admin/cliente_report_screen.dart';
+import 'package:Gourmet360/presentation/admin/despacho_screen.dart';
+import 'package:Gourmet360/presentation/admin/drivers_list_screen.dart';
+import 'package:Gourmet360/presentation/welcome_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({Key? key}) : super(key: key);
@@ -63,15 +68,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        backgroundColor: const Color(0xFF6B2A02),
-        icon: const Icon(Icons.assessment, color: Colors.white),
-        label: Text(
-          'Reportes',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-      ),
     );
   }
 
@@ -80,6 +76,67 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       expandedHeight: 100,
       pinned: true,
       backgroundColor: const Color(0xFF6B2A02),
+
+      // 👉 ACTIONS: Menú 3 puntos
+      actions: [
+        PopupMenuButton<int>(
+          icon: const Icon(Icons.more_vert, color: Colors.white),
+          color: Colors.white,
+          onSelected: (value) {
+            if (value == 1) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => DriversListScreen()),
+              );
+            } else if (value == 2) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ClientsReportScreen()),
+              );
+            } else if (value == 3) {
+              context.read<UserBloc>().add(DeleteUserEvent());
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+                (Route<dynamic> route) => false,
+              );
+            }
+          },
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              value: 1,
+              child: Row(
+                children: const [
+                  Icon(Icons.local_shipping_outlined, color: Color(0xFF6B2A02)),
+                  SizedBox(width: 10),
+                  Text("Conductores"),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 2,
+              child: Row(
+                children: const [
+                  Icon(Icons.bar_chart, color: Color(0xFF6B2A02)),
+                  SizedBox(width: 10),
+                  Text("Reportes"),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 3,
+              child: Row(
+                children: const [
+                  Icon(Icons.logout, color: Colors.red),
+                  SizedBox(width: 10),
+                  Text("Cerrar Sesión"),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           child: Padding(
@@ -107,7 +164,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+                        children: const [
                           Text(
                             '¡Hola, Admin!',
                             style: TextStyle(
