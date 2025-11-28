@@ -94,6 +94,86 @@ class _ClientsReportScreenState extends State<ClientsReportScreen> {
       accumulatedDebt: 0.00,
       clientType: ClientType.especial,
     ),
+    ClientData(
+      id: "9",
+      name: "Carlos Mendoza",
+      businessName: "Panadería San José",
+      todaySales: 485.75,
+      accumulatedDebt: 0.0,
+      clientType: ClientType.especial,
+    ),
+    ClientData(
+      id: "10",
+      name: "Ana López",
+      businessName: "Restaurante El Sol",
+      todaySales: 892.30,
+      accumulatedDebt: 156.80,
+      clientType: ClientType.normal,
+    ),
+    ClientData(
+      id: "11",
+      name: "Miguel Torres",
+      businessName: "Tienda Central",
+      todaySales: 234.15,
+      accumulatedDebt: 89.45,
+      clientType: ClientType.normal,
+    ),
+    ClientData(
+      id: "12",
+      name: "Laura García",
+      businessName: "Supermercado Premium",
+      todaySales: 1123.90,
+      accumulatedDebt: 0.0,
+      clientType: ClientType.normal,
+    ),
+    ClientData(
+      id: "13",
+      name: "Diego Vargas",
+      businessName: "Farmacia La Luna",
+      todaySales: 678.25,
+      accumulatedDebt: 234.10,
+      clientType: ClientType.especial,
+    ),
+    ClientData(
+      id: "14",
+      name: "Sofia Rodríguez",
+      businessName: "Librería Del Norte",
+      todaySales: 345.60,
+      accumulatedDebt: 67.35,
+      clientType: ClientType.normal,
+    ),
+    ClientData(
+      id: "15",
+      name: "Jorge Hernández",
+      businessName: "Ropa Express",
+      todaySales: 756.80,
+      accumulatedDebt: 0.0,
+      clientType: ClientType.especial,
+    ),
+    ClientData(
+      id: "16",
+      name: "Elena Castro",
+      businessName: "Electrónica Moderna",
+      todaySales: 1892.45,
+      accumulatedDebt: 456.90,
+      clientType: ClientType.normal,
+    ),
+    ClientData(
+      id: "17",
+      name: "Pedro Silva",
+      businessName: "Juguetería Tradicional",
+      todaySales: 278.95,
+      accumulatedDebt: 123.25,
+      clientType: ClientType.normal,
+    ),
+    ClientData(
+      id: "18",
+      name: "Carmen Morales",
+      businessName: "Florería Del Sur",
+      todaySales: 412.70,
+      accumulatedDebt: 0.0,
+      clientType: ClientType.especial,
+    ),
   ];
 
   int _sortColumnIndex = 0;
@@ -140,14 +220,16 @@ class _ClientsReportScreenState extends State<ClientsReportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildSearchBar(),
-            _buildFilterChips(),
-            _buildSummaryCards(),
-            Expanded(child: _buildDataTable()),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _buildHeader(),
+              _buildSearchBar(),
+              _buildFilterChips(),
+              _buildSummaryCards(),
+              Expanded(child: _buildDataTable()),
+            ],
+          ),
         ),
       ),
     );
@@ -366,233 +448,203 @@ class _ClientsReportScreenState extends State<ClientsReportScreen> {
     final filtered = filteredClients;
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(12),
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: SingleChildScrollView(
-            child: DataTable(
-              sortColumnIndex: _sortColumnIndex,
-              sortAscending: _sortAscending,
-              headingRowColor: MaterialStateProperty.all(
-                const Color(0xFF6B2A02),
+          child: DataTable(
+            columnSpacing: 16, // <<< MUCHO MÁS PEQUEÑO
+            horizontalMargin: 8, // <<< REDUCIDO
+            dataRowMinHeight: 32, // <<< MÁS COMPACTO
+            dataRowMaxHeight: 48, // <<< MÁS COMPACTO
+            sortColumnIndex: _sortColumnIndex,
+            sortAscending: _sortAscending,
+            headingRowColor: MaterialStateProperty.all(const Color(0xFF6B2A02)),
+            headingTextStyle: GoogleFonts.montserrat(
+              fontSize: 11, // <<< REDUCIDO
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            dataTextStyle: GoogleFonts.montserrat(
+              fontSize: 11, // <<< REDUCIDO
+              color: const Color(0xFF6B2A02),
+            ),
+
+            columns: [
+              DataColumn(
+                label: const Text('Cliente'),
+                onSort: (i, a) => _sortBy(filtered, i, a, (e) => e.name),
               ),
-              headingTextStyle: GoogleFonts.montserrat(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+              DataColumn(
+                label: const Text('Hoy'),
+                numeric: true,
+                onSort: (i, a) => _sortBy(filtered, i, a, (e) => e.todaySales),
               ),
-              dataRowColor: MaterialStateProperty.resolveWith<Color>((
-                Set<MaterialState> states,
-              ) {
-                if (states.contains(MaterialState.selected)) {
-                  return const Color(0xFFF5E2C8).withOpacity(0.5);
-                }
-                return Colors.white;
-              }),
-              dataTextStyle: GoogleFonts.montserrat(
-                fontSize: 13,
-                color: const Color(0xFF6B2A02),
+              DataColumn(
+                label: const Text('Deuda'),
+                numeric: true,
+                onSort: (i, a) =>
+                    _sortBy(filtered, i, a, (e) => e.accumulatedDebt),
               ),
-              columns: [
-                DataColumn(
-                  label: Text('Cliente'),
-                  onSort: (columnIndex, ascending) {
-                    setState(() {
-                      _sortColumnIndex = columnIndex;
-                      _sortAscending = ascending;
-                      filtered.sort((a, b) {
-                        return ascending
-                            ? a.name.compareTo(b.name)
-                            : b.name.compareTo(a.name);
-                      });
-                    });
-                  },
-                ),
-                DataColumn(
-                  label: Text('Venta de Hoy'),
-                  numeric: true,
-                  onSort: (columnIndex, ascending) {
-                    setState(() {
-                      _sortColumnIndex = columnIndex;
-                      _sortAscending = ascending;
-                      filtered.sort((a, b) {
-                        return ascending
-                            ? a.todaySales.compareTo(b.todaySales)
-                            : b.todaySales.compareTo(a.todaySales);
-                      });
-                    });
-                  },
-                ),
-                DataColumn(
-                  label: Text('Deuda Acumulada'),
-                  numeric: true,
-                  onSort: (columnIndex, ascending) {
-                    setState(() {
-                      _sortColumnIndex = columnIndex;
-                      _sortAscending = ascending;
-                      filtered.sort((a, b) {
-                        return ascending
-                            ? a.accumulatedDebt.compareTo(b.accumulatedDebt)
-                            : b.accumulatedDebt.compareTo(a.accumulatedDebt);
-                      });
-                    });
-                  },
-                ),
-                DataColumn(
-                  label: Text('Tipo de Cliente'),
-                  onSort: (columnIndex, ascending) {
-                    setState(() {
-                      _sortColumnIndex = columnIndex;
-                      _sortAscending = ascending;
-                      filtered.sort((a, b) {
-                        return ascending
-                            ? a.clientType.name.compareTo(b.clientType.name)
-                            : b.clientType.name.compareTo(a.clientType.name);
-                      });
-                    });
-                  },
-                ),
-              ],
-              rows: filtered.map((client) {
-                return DataRow(
-                  cells: [
-                    DataCell(
-                      Container(
-                        constraints: const BoxConstraints(minWidth: 200),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              client.businessName,
-                              style: GoogleFonts.montserrat(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                                color: const Color(0xFF6B2A02),
-                              ),
+              DataColumn(
+                label: const Text('Tipo'),
+                onSort: (i, a) =>
+                    _sortBy(filtered, i, a, (e) => e.clientType.name),
+              ),
+            ],
+
+            rows: filtered.map((client) {
+              return DataRow(
+                cells: [
+                  DataCell(
+                    SizedBox(
+                      width: 140, // <<< ANTES 200 – AHORA COMPACTO
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            client.businessName,
+                            style: GoogleFonts.montserrat(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12, // <<< REDUCIDO
+                              color: const Color(0xFF6B2A02),
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              client.name,
-                              style: GoogleFonts.montserrat(
-                                fontSize: 12,
-                                color: Colors.grey.shade600,
-                              ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            client.name,
+                            style: GoogleFonts.montserrat(
+                              fontSize: 10, // <<< REDUCIDO
+                              color: Colors.grey.shade600,
                             ),
-                          ],
-                        ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
                     ),
-                    DataCell(
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
+                  ),
+
+                  DataCell(
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 3,
+                      ), // <<< REDUCIDO
+                      decoration: BoxDecoration(
+                        color: client.todaySales > 0
+                            ? Colors.green.shade50
+                            : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        '\$${client.todaySales.toStringAsFixed(1)}',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
                           color: client.todaySales > 0
-                              ? Colors.green.shade50
-                              : Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          '\$${client.todaySales.toStringAsFixed(2)}',
-                          style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.bold,
-                            color: client.todaySales > 0
-                                ? Colors.green.shade700
-                                : Colors.grey.shade600,
-                          ),
+                              ? Colors.green.shade800
+                              : Colors.grey.shade600,
                         ),
                       ),
                     ),
-                    DataCell(
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
+                  ),
+
+                  DataCell(
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 3,
+                      ), // <<< REDUCIDO
+                      decoration: BoxDecoration(
+                        color: client.accumulatedDebt > 0
+                            ? Colors.orange.shade50
+                            : Colors.green.shade50,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        '\$${client.accumulatedDebt.toStringAsFixed(1)}',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
                           color: client.accumulatedDebt > 0
-                              ? Colors.orange.shade50
-                              : Colors.green.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          '\$${client.accumulatedDebt.toStringAsFixed(2)}',
-                          style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.bold,
-                            color: client.accumulatedDebt > 0
-                                ? Colors.orange.shade700
-                                : Colors.green.shade700,
-                          ),
+                              ? Colors.orange.shade700
+                              : Colors.green.shade700,
                         ),
                       ),
                     ),
-                    DataCell(
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: client.clientType == ClientType.especial
-                              ? const Color(0xFF6B2A02)
-                              : const Color(0xFFF5E2C8),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              client.clientType == ClientType.especial
-                                  ? Icons.star
-                                  : Icons.person,
-                              size: 14,
+                  ),
+
+                  DataCell(
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 3,
+                      ), // <<< REDUCIDO
+                      decoration: BoxDecoration(
+                        color: client.clientType == ClientType.especial
+                            ? const Color(0xFF6B2A02)
+                            : const Color(0xFFF5E2C8),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            client.clientType == ClientType.especial
+                                ? Icons.star
+                                : Icons.person,
+                            size: 12, // <<< REDUCIDO
+                            color: client.clientType == ClientType.especial
+                                ? Colors.white
+                                : const Color(0xFF6B2A02),
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            client.clientType == ClientType.especial
+                                ? 'Esp.'
+                                : 'Norm.',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 10, // <<< REDUCIDO
+                              fontWeight: FontWeight.bold,
                               color: client.clientType == ClientType.especial
                                   ? Colors.white
                                   : const Color(0xFF6B2A02),
                             ),
-                            const SizedBox(width: 4),
-                            Text(
-                              client.clientType == ClientType.especial
-                                  ? 'Especial'
-                                  : 'Normal',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: client.clientType == ClientType.especial
-                                    ? Colors.white
-                                    : const Color(0xFF6B2A02),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                  onSelectChanged: (selected) {
-                    // Aquí podrías navegar a detalles del cliente
-                  },
-                );
-              }).toList(),
-            ),
+                  ),
+                ],
+              );
+            }).toList(),
           ),
         ),
       ),
     );
+  }
+
+  void _sortBy(List list, int index, bool asc, Function key) {
+    setState(() {
+      _sortColumnIndex = index;
+      _sortAscending = asc;
+      list.sort(
+        (a, b) => asc
+            ? Comparable.compare(key(a), key(b))
+            : Comparable.compare(key(b), key(a)),
+      );
+    });
   }
 }

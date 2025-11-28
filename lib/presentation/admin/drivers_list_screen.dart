@@ -1,5 +1,6 @@
 import 'package:Gourmet360/presentation/admin/despacho_screen.dart';
 import 'package:Gourmet360/presentation/admin/sales_report_screen.dart';
+import 'package:Gourmet360/presentation/admin/truck_map_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -282,6 +283,12 @@ class _DriversListScreenState extends State<DriversListScreen> {
             context,
             MaterialPageRoute(builder: (context) => const DespachoScreen()),
           );
+        } else if (value == 3) {
+          // Acción 3
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const TruckMapScreen()),
+          );
         }
       },
       itemBuilder: (context) => [
@@ -302,6 +309,16 @@ class _DriversListScreenState extends State<DriversListScreen> {
               Icon(Icons.local_shipping_outlined, color: Color(0xFF6B2A02)),
               SizedBox(width: 10),
               Text("Asignar Despacho"),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 3,
+          child: Row(
+            children: const [
+              Icon(Icons.location_on, color: Color(0xFF6B2A02)),
+              SizedBox(width: 10),
+              Text("Ver ubicación"),
             ],
           ),
         ),
