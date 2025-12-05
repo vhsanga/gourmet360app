@@ -1,4 +1,11 @@
+import 'package:Gourmet360/bloc/home/home_bloc.dart';
+import 'package:Gourmet360/bloc/home/home_event.dart';
+import 'package:Gourmet360/bloc/home/home_state.dart';
 import 'package:Gourmet360/bloc/user/user_bloc.dart';
+import 'package:Gourmet360/core/models/cliente.dart';
+import 'package:Gourmet360/core/models/producto_asignados.dart';
+import 'package:Gourmet360/data/home_repository.dart'; // added import
+import 'package:Gourmet360/presentation/entrega_producto_screen.dart';
 import 'package:Gourmet360/presentation/templates/drawer_driver_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:Gourmet360/presentation/productos_inventory_screen.dart';
@@ -14,73 +21,77 @@ class HomePortalScreen extends StatefulWidget {
 
 class _HomePortalScreenState extends State<HomePortalScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final List<Delivery> pendingDeliveries = [
-    Delivery(
-      id: '001',
-      client: 'Minimarket La Favorita',
-      address: 'Av. la prensa y reina pacha',
-      products: 12,
-      status: DeliveryStatus.pending,
-      time: '08:30 AM',
-    ),
-    Delivery(
-      id: '002',
-      client: 'Supermercado La dolorosa',
-      address: 'Calle García Moreno 234',
-      products: 25,
-      status: DeliveryStatus.inProgress,
-      time: '09:15 AM',
-    ),
-    Delivery(
-      id: '003',
-      client: 'Restaurant El Buen Sabor',
-      address: 'Av. 12 de Octubre y Chile',
-      products: 8,
-      status: DeliveryStatus.pending,
-      time: '10:00 AM',
-    ),
-  ];
+  Map<String, dynamic> dataHome = {};
+  List<Cliente> clientes = [];
+  List<ProductoAsignado> productos = [];
 
   int completedToday = 8;
+
+  @override
+  void initState() {
+    super.initState();
+    // Removed direct dispatch here — HomeBloc will be created and dispatched in build via BlocProvider
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   try {
+    //     context.read<HomeBloc>().add(LoadClientes('5'));
+    //   } catch (_) {}
+    // });
+  }
 
   @override
   Widget build(BuildContext context) {
     final userState = context.watch<UserBloc>().state;
 
-    return Scaffold(
-      key: _scaffoldKey,
-      endDrawer: DrawerDriverWidget(),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildStatsCards(),
-                      const SizedBox(height: 24),
-                      _buildSectionTitle('Entregas Pendientes'),
-                      const SizedBox(height: 16),
-                      _buildDeliveryList(),
-                    ],
+    // Provide HomeBloc here so BlocListener can find it
+    return BlocProvider<HomeBloc>(
+      create: (context) =>
+          HomeBloc(repository: HomeRepository())..add(LoadClientes('5')),
+      child: Scaffold(
+        key: _scaffoldKey,
+        endDrawer: DrawerDriverWidget(),
+        body: BlocListener<HomeBloc, HomeState>(
+          listener: (context, state) {
+            if (state is HomeLoaded) {
+              setState(() {
+                clientes = state.dataHome['clientes'] as List<Cliente>;
+                productos =
+                    state.dataHome['productos'] as List<ProductoAsignado>;
+              });
+            }
+          },
+          child: SafeArea(
+            child: Column(
+              children: [
+                _buildHeader(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildStatsCards(),
+                          const SizedBox(height: 24),
+                          _buildSectionTitle('Entregas Pendientes'),
+                          const SizedBox(height: 16),
+                          _buildDeliveryList(),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        backgroundColor: const Color(0xFF6B2A02),
-        icon: const Icon(Icons.route, color: Colors.white),
-        label: const Text(
-          'Ver Ruta',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () {},
+          backgroundColor: const Color(0xFF6B2A02),
+          icon: const Icon(Icons.route, color: Colors.white),
+          label: const Text(
+            'Ver Ruta',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
         ),
       ),
     );
@@ -178,8 +189,8 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
         Expanded(
           child: _buildStatCard(
             icon: Icons.pending_outlined,
-            value: '${pendingDeliveries.length}',
-            label: 'Pendientes',
+            value: '${clientes.length}',
+            label: 'Clientes',
             color: Colors.orange,
           ),
         ),
@@ -263,25 +274,20 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
 
   Widget _buildDeliveryList() {
     return Column(
-      children: pendingDeliveries
+      children: clientes
           .map((delivery) => _buildDeliveryCard(delivery))
           .toList(),
     );
   }
 
-  Widget _buildDeliveryCard(Delivery delivery) {
+  Widget _buildDeliveryCard(Cliente cliente) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: delivery.status == DeliveryStatus.inProgress
-              ? const Color(0xFF6B2A02)
-              : Colors.transparent,
-          width: 2,
-        ),
+        border: Border.all(color: Colors.transparent, width: 2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -293,43 +299,9 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: delivery.status == DeliveryStatus.inProgress
-                      ? const Color(0xFF6B2A02)
-                      : const Color(0xFFF5E2C8),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  delivery.status == DeliveryStatus.inProgress
-                      ? 'EN RUTA'
-                      : 'PENDIENTE',
-                  style: TextStyle(
-                    color: delivery.status == DeliveryStatus.inProgress
-                        ? Colors.white
-                        : const Color(0xFF6B2A02),
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const Spacer(),
-              Text(
-                delivery.time,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF6B2A02),
-                ),
-              ),
-            ],
-          ),
           const SizedBox(height: 12),
           Text(
-            delivery.client,
+            cliente.nombreCliente,
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -347,24 +319,9 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
-                  delivery.address,
+                  cliente.direccionCliente,
                   style: const TextStyle(fontSize: 14, color: Colors.grey),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(
-                Icons.inventory_2_outlined,
-                size: 16,
-                color: Colors.grey,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '${delivery.products} productos',
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
               ),
             ],
           ),
@@ -385,15 +342,25 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 12),
               Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.check, size: 18),
-                  label: const Text('Iniciar'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6B2A02),
-                    foregroundColor: Colors.white,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EntregaProductoScreen(
+                          cliente: cliente,
+                          productos: productos,
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.arrow_circle_right_outlined, size: 18),
+                  label: const Text('Entregar'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF6B2A02),
+                    side: const BorderSide(color: Color(0xFF6B2A02)),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -406,24 +373,4 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
       ),
     );
   }
-}
-
-enum DeliveryStatus { pending, inProgress, completed }
-
-class Delivery {
-  final String id;
-  final String client;
-  final String address;
-  final int products;
-  final DeliveryStatus status;
-  final String time;
-
-  Delivery({
-    required this.id,
-    required this.client,
-    required this.address,
-    required this.products,
-    required this.status,
-    required this.time,
-  });
 }
