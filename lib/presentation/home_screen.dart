@@ -1,9 +1,11 @@
+import 'package:Gourmet360/bloc/entrega_producto/entrega_producto_bloc.dart';
 import 'package:Gourmet360/bloc/home/home_bloc.dart';
 import 'package:Gourmet360/bloc/home/home_event.dart';
 import 'package:Gourmet360/bloc/home/home_state.dart';
 import 'package:Gourmet360/bloc/user/user_bloc.dart';
 import 'package:Gourmet360/core/models/cliente.dart';
 import 'package:Gourmet360/core/models/producto_asignados.dart';
+import 'package:Gourmet360/data/chofer_repository.dart';
 import 'package:Gourmet360/data/home_repository.dart'; // added import
 import 'package:Gourmet360/presentation/entrega_producto_screen.dart';
 import 'package:Gourmet360/presentation/templates/drawer_driver_widget.dart';
@@ -349,9 +351,14 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => EntregaProductoScreen(
-                          cliente: cliente,
-                          productos: productos,
+                        builder: (context) => BlocProvider(
+                          create: (context) => EntregaProductoBloc(
+                            repository: ChoferRepository(),
+                          ),
+                          child: EntregaProductoScreen(
+                            cliente: cliente,
+                            productos: productos,
+                          ),
                         ),
                       ),
                     );

@@ -1,7 +1,12 @@
+import 'package:Gourmet360/bloc/entrega_producto/entrega_producto_bloc.dart';
+import 'package:Gourmet360/bloc/entrega_producto/entrega_producto_event.dart';
+import 'package:Gourmet360/bloc/entrega_producto/entrega_producto_state.dart';
+import 'package:Gourmet360/bloc/user/user_bloc.dart';
 import 'package:Gourmet360/core/models/cliente.dart';
 import 'package:Gourmet360/core/models/producto_asignados.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class OrderItem {
   final ProductoAsignado product;
@@ -119,35 +124,67 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
     });
   }
 
-  void _confirmOrder() {
+  void _confirmOrder() async {
     if (orderItems.isEmpty) {
       _showSnackBar('Agrega productos al pedido', isError: true);
       return;
     }
+    var idDespacho = orderItems.first.product.despachoId;
 
     // Aquí iría la lógica para guardar el pedido
     final orderData = {
       'detalles': orderItems
           .map(
             (item) => {
-              'idProducto': item.product.productoId,
+              'idProducto': int.parse(item.product.productoId),
               'cantidad': item.quantity,
               'precioUnitario': item.product.precioUnitario,
-              'subtotal': item.subtotal,
             },
           )
           .toList(),
       'total': totalAmount,
       'tipoPago': selectedPaymentType.name,
-      'idCliente': widget.cliente.idCliente,
+      'idCliente': int.parse(widget.cliente.idCliente),
+      'idDespacho': int.parse(idDespacho),
     };
 
     print(orderData); // Para debug
+    final userState = context.read<UserBloc>().state;
+    String userToken = '';
+    if (userState is UserLoaded) {
+      userToken = userState.usuario.accessToken;
+    }
+
+    final entregaProductoBloc = BlocProvider.of<EntregaProductoBloc>(context);
+    entregaProductoBloc.add(SubmitEntregaProducto(orderData, userToken));
+    await for (final state in entregaProductoBloc.stream) {
+      if (state is EntregaProductoLoading) {
+        //mostrar dialogo de cargando
+      } else if (state is EntregaProductoSuccess) {
+        _showSnackBar(state.mensaje, isError: false);
+        setState(() {
+          reinicarVenta();
+        });
+        break;
+      } else if (state is EntregaProductoFailed) {
+        _showSnackBar(state.error, isError: true);
+        break;
+      }
+    }
 
     _showSnackBar(
       'Venta registrada: \$${totalAmount.toStringAsFixed(2)} - ${selectedPaymentType == PaymentType.contado ? 'Contado' : 'Crédito'}',
       isError: false,
     );
+  }
+
+  void reinicarVenta() {
+    setState(() {
+      orderItems.clear();
+      selectedProduct = null;
+      quantityController.clear();
+      selectedPaymentType = PaymentType.contado;
+    });
   }
 
   void _showSnackBar(String message, {required bool isError}) {
