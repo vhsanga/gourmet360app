@@ -1,63 +1,128 @@
+import 'package:Gourmet360/bloc/get/get_bloc.dart';
+import 'package:Gourmet360/bloc/get/get_event.dart';
+import 'package:Gourmet360/bloc/get/get_state.dart';
+import 'package:Gourmet360/bloc/post/post_bloc.dart';
+import 'package:Gourmet360/bloc/post/post_event.dart';
+import 'package:Gourmet360/bloc/post/post_state.dart';
+import 'package:Gourmet360/bloc/user/user_bloc.dart';
+import 'package:Gourmet360/core/models/camion_asignado.dart';
+import 'package:Gourmet360/core/models/producto.dart';
+import 'package:Gourmet360/data/http_repository.dart';
+import 'package:Gourmet360/presentation/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DespachoScreen extends StatefulWidget {
-  const DespachoScreen({Key? key}) : super(key: key);
+  CamionAsignado? camionAsignado;
+  DespachoScreen({Key? key, required this.camionAsignado}) : super(key: key);
 
   @override
   State<DespachoScreen> createState() => _DespachoScreenState();
 }
 
 class _DespachoScreenState extends State<DespachoScreen> {
+  List<Producto> _productos = [];
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Asignar Productos',
-          style: TextStyle(color: Colors.white),
+    final userState = context.read<UserBloc>().state;
+    String userToken = '';
+    if (userState is UserLoaded) {
+      userToken = userState.usuario.accessToken;
+    }
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<GetBloc>(
+          create: (context) {
+            return GetBloc(httpRepository: HttpRepository())
+              ..add(ExecuteGet({}, '/admin/productos', userToken));
+          },
         ),
-        backgroundColor: const Color(0xFF6B2A02),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+        BlocProvider<PostBloc>(
+          create: (context) {
+            return PostBloc(httpRepository: HttpRepository());
+          },
         ),
-      ),
-      body: CustomScrollView(
-        slivers: [
-          // AppBar con imagen de perfil
+      ],
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Asignar Productos',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: const Color(0xFF6B2A02),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        body: BlocListener<GetBloc, GetState>(
+          listener: (context, state) {
+            if (state is GetSuccess) {
+              setState(() {
+                _productos = state.response.data
+                    .map((e) => Producto.fromJson(e as Map<String, dynamic>))
+                    .toList()
+                    .cast<Producto>();
+              });
+            }
+          },
+          child: BlocListener<PostBloc, PostState>(
+            listener: (context, state) {
+              if (state is PostLoading) {
+                DialogsWidget.showLoading(context, message: 'Procesando...');
+              }
 
-          // Contenido del perfil
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildChoferCard(),
-                  SizedBox(height: 20),
-                  _buildFormularioAsignacion(),
-                  _buildListaAsignados(),
+              if (state is PostSuccess) {
+                Navigator.pop(context);
+                DialogsWidget.showSuccess(
+                  context,
+                  title: 'Muy bien',
+                  message: 'Productos asignados correctamente',
+                );
+                Navigator.pop(context);
+              }
 
-                  const SizedBox(height: 20),
-                ],
-              ),
+              if (state is PostError) {
+                Navigator.pop(context);
+                DialogsWidget.showError(
+                  context,
+                  title: 'Atención',
+                  message: state.message,
+                );
+              }
+            },
+            child: CustomScrollView(
+              slivers: [
+                // AppBar con imagen de perfil
+
+                // Contenido del perfil
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildChoferCard(),
+                        SizedBox(height: 20),
+                        _buildFormularioAsignacion(),
+                        _buildListaAsignados(),
+
+                        const SizedBox(height: 60),
+                        if (_itemsAsignados.isNotEmpty) _buildActionButtons(),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 
-  // ===============================
-  // CONTROLADORES Y VARIABLES
-  // ===============================
-  final List<String> _productos = [
-    "Pan Francés",
-    "Pan Dulce",
-    "Pastel",
-    "Torta",
-  ];
-  String? _productoSeleccionado;
+  Producto? _productoSeleccionado;
   final TextEditingController _cantidadController = TextEditingController();
 
   final List<Map<String, dynamic>> _itemsAsignados = [];
@@ -129,14 +194,14 @@ class _DespachoScreenState extends State<DespachoScreen> {
         const SizedBox(height: 20),
 
         // Dropdown Productos
-        DropdownButtonFormField<String>(
+        DropdownButtonFormField<Producto>(
           decoration: InputDecoration(
             labelText: "Producto",
             border: OutlineInputBorder(),
           ),
           value: _productoSeleccionado,
           items: _productos
-              .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+              .map((p) => DropdownMenuItem(value: p, child: Text(p.nombre)))
               .toList(),
           onChanged: (v) => setState(() => _productoSeleccionado = v),
         ),
@@ -163,9 +228,12 @@ class _DespachoScreenState extends State<DespachoScreen> {
             icon: Icon(Icons.add),
             label: Text("Agregar"),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF6B2A02),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              foregroundColor: const Color(0xFF6B2A02),
+              side: const BorderSide(color: Color(0xFF6B2A02), width: 2),
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
             ),
           ),
         ),
@@ -197,7 +265,7 @@ class _DespachoScreenState extends State<DespachoScreen> {
           (item) => Card(
             child: ListTile(
               leading: Icon(Icons.shopping_bag, color: Color(0xFF6B2A02)),
-              title: Text(item["producto"]),
+              title: Text(item["producto"].nombre),
               subtitle: Text("Cantidad: ${item["cantidad"]}"),
             ),
           ),
@@ -418,10 +486,10 @@ class _DespachoScreenState extends State<DespachoScreen> {
           width: double.infinity,
           height: 56,
           child: ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () => submitGuardar(),
             icon: const Icon(Icons.edit),
             label: Text(
-              'Editar Perfil',
+              'Guardar',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             style: ElevatedButton.styleFrom(
@@ -434,27 +502,29 @@ class _DespachoScreenState extends State<DespachoScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: OutlinedButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.logout),
-            label: Text(
-              'Cerrar Sesión',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFF6B2A02),
-              side: const BorderSide(color: Color(0xFF6B2A02), width: 2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-          ),
-        ),
       ],
+    );
+  }
+
+  submitGuardar() async {
+    List<Map<String, dynamic>> detalles = _itemsAsignados.map((item) {
+      final producto = item['producto'] as Producto;
+      return {'producto_id': producto.id, 'cantidad': item['cantidad']};
+    }).toList();
+
+    Map<String, dynamic> data = {
+      'camion_id': widget.camionAsignado?.camionId ?? '',
+      'chofer_id': widget.camionAsignado?.uId ?? '',
+      'detalles': detalles,
+    };
+
+    final userState = context.read<UserBloc>().state;
+    String userToken = '';
+    if (userState is UserLoaded) {
+      userToken = userState.usuario.accessToken;
+    }
+    context.read<PostBloc>().add(
+      ExecutePost(data, '/admin/productos', userToken),
     );
   }
 }

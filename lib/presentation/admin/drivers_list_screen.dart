@@ -1,8 +1,15 @@
+import 'package:Gourmet360/bloc/get/get_bloc.dart';
+import 'package:Gourmet360/bloc/get/get_event.dart';
+import 'package:Gourmet360/bloc/get/get_state.dart';
+import 'package:Gourmet360/bloc/user/user_bloc.dart';
+import 'package:Gourmet360/core/models/camion_asignado.dart';
+import 'package:Gourmet360/data/http_repository.dart';
 import 'package:Gourmet360/presentation/admin/despacho_screen.dart';
 import 'package:Gourmet360/presentation/admin/sales_report_screen.dart';
 import 'package:Gourmet360/presentation/admin/truck_map_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Driver {
   final String id;
@@ -38,75 +45,73 @@ class DriversListScreen extends StatefulWidget {
 }
 
 class _DriversListScreenState extends State<DriversListScreen> {
-  final List<Driver> drivers = [
-    Driver(
-      id: '1',
-      nombre: 'Jacobo Urquizo',
-      celular: '0991234567',
-      rol: 'chofer',
-      pin: '123456',
-      placa: 'PBX-1234',
-      marca: 'Chevrolet',
-      modelo: 'NPR 2020',
-      capacidad: 3000,
-      isActive: true,
-    ),
-    Driver(
-      id: '2',
-      nombre: 'Ancres Cepeda',
-      celular: '0369654100',
-      rol: 'chofer',
-      pin: '123456',
-      placa: 'HBC-5678',
-      marca: 'JAC',
-      modelo: 'Camion 2020',
-      capacidad: 3000,
-      isActive: true,
-    ),
-  ];
+  List<CamionAsignado> camiones = [];
 
   String searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
     final filteredDrivers = _getFilteredDrivers();
-
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Expanded(
-              child: filteredDrivers.isEmpty
-                  ? _buildEmptyState()
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: filteredDrivers.length,
-                      itemBuilder: (context, index) {
-                        return _buildDriverCard(filteredDrivers[index]);
-                      },
-                    ),
+    final userState = context.read<UserBloc>().state;
+    String userToken = '';
+    if (userState is UserLoaded) {
+      userToken = userState.usuario.accessToken;
+    }
+    return BlocProvider(
+      create: (context) =>
+          GetBloc(httpRepository: HttpRepository())
+            ..add(ExecuteGet({}, '/admin/camiones', userToken)),
+      child: Scaffold(
+        body: BlocListener<GetBloc, GetState>(
+          listener: (context, state) {
+            if (state is GetSuccess) {
+              setState(() {
+                camiones = state.response.data
+                    .map(
+                      (e) => CamionAsignado.fromJson(e as Map<String, dynamic>),
+                    )
+                    .toList()
+                    .cast<CamionAsignado>();
+              });
+            }
+          },
+          child: SafeArea(
+            child: Column(
+              children: [
+                _buildHeader(),
+                Expanded(
+                  child: filteredDrivers.isEmpty
+                      ? _buildEmptyState()
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: filteredDrivers.length,
+                          itemBuilder: (context, index) {
+                            return _buildDriverCard(filteredDrivers[index]);
+                          },
+                        ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showAddDriverDialog(context),
-        backgroundColor: const Color(0xFF6B2A02),
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: Text(
-          'Nuevo Conductor',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => _showAddDriverDialog(context),
+          backgroundColor: const Color(0xFF6B2A02),
+          icon: const Icon(Icons.add, color: Colors.white),
+          label: Text(
+            'Nuevo Conductor',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
         ),
       ),
     );
   }
 
-  List<Driver> _getFilteredDrivers() {
-    if (searchQuery.isEmpty) return drivers;
-    return drivers.where((driver) {
-      return driver.nombre.toLowerCase().contains(searchQuery.toLowerCase()) ||
-          driver.placa.toLowerCase().contains(searchQuery.toLowerCase());
+  List<CamionAsignado> _getFilteredDrivers() {
+    if (searchQuery.isEmpty) return camiones;
+    return camiones.where((driver) {
+      return driver.uNombre.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          driver.camionPlaca.toLowerCase().contains(searchQuery.toLowerCase());
     }).toList();
   }
 
@@ -144,7 +149,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${drivers.length} conductores registrados',
+                  '${camiones.length} conductores registrados',
                   style: TextStyle(
                     fontSize: 13,
                     color: const Color(0xFFF5E2C8),
@@ -196,8 +201,8 @@ class _DriversListScreenState extends State<DriversListScreen> {
   }
 
   Widget _buildStatsRow() {
-    final activeDrivers = drivers.where((d) => d.isActive).length;
-    final inactiveDrivers = drivers.length - activeDrivers;
+    final activeDrivers = 0;
+    final inactiveDrivers = camiones.length - activeDrivers;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -267,7 +272,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
     );
   }
 
-  Widget _buildMenuDriverCard() {
+  Widget _buildMenuDriverCard(CamionAsignado driver) {
     return PopupMenuButton<int>(
       icon: const Icon(Icons.more_vert, color: const Color(0xFF6B2A02)),
       color: Colors.white,
@@ -281,7 +286,9 @@ class _DriversListScreenState extends State<DriversListScreen> {
           // Abrir Reportes
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const DespachoScreen()),
+            MaterialPageRoute(
+              builder: (context) => DespachoScreen(camionAsignado: driver),
+            ),
           );
         } else if (value == 3) {
           // Acción 3
@@ -326,7 +333,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
     );
   }
 
-  Widget _buildDriverCard(Driver driver) {
+  Widget _buildDriverCard(CamionAsignado driver) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -361,7 +368,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
                       ),
                       child: Center(
                         child: Text(
-                          driver.nombre[0].toUpperCase(),
+                          driver.uNombre[0].toUpperCase(),
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -376,7 +383,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            driver.nombre,
+                            driver.uNombre,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -393,7 +400,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                driver.celular,
+                                driver.uCelular,
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: Colors.grey.shade600,
@@ -404,7 +411,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
                         ],
                       ),
                     ),
-                    _buildMenuDriverCard(),
+                    _buildMenuDriverCard(driver),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -443,7 +450,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            driver.placa,
+                            driver.camionPlaca,
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -461,7 +468,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              '${driver.capacidad} kg',
+                              '${driver.camionCapacidad} kg',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
@@ -476,7 +483,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              '${driver.marca} ${driver.modelo}',
+                              '${driver.camionMarca} ${driver.camionModelo}',
                               style: TextStyle(
                                 fontSize: 13,
                                 color: const Color(0xFFF5E2C8),
