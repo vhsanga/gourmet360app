@@ -45,9 +45,9 @@ class HttpRepository {
     Map<String, dynamic> params,
     String userToken,
   ) async {
-    final uri = Uri.parse(
-      ApiConstants.baseUrl + path,
-    ).replace(queryParameters: params);
+    print("params:");
+    print(json.encode(params));
+    final uri = Uri.parse(ApiConstants.baseUrl + path);
     final response = await client
         .post(
           uri,
@@ -67,7 +67,11 @@ class HttpRepository {
       final res = HttpResponse.fromMap(body);
       return res;
     } else {
-      throw Exception('Error consultar información: ${response.statusCode}');
+      throw Exception(
+        response.body.isNotEmpty
+            ? 'Error al enviar información: ${json.decode(response.body)['mensaje']}'
+            : 'Error al enviar información: ${response.statusCode}',
+      );
     }
   }
 }

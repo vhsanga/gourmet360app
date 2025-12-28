@@ -1,5 +1,5 @@
 class Producto {
-  final String id;
+  final int id;
   final String nombre;
   final String unidad;
   final double precioUnitario;
@@ -22,7 +22,7 @@ class Producto {
   // Método para crear una instancia desde un Map (JSON)
   factory Producto.fromJson(Map<String, dynamic> json) {
     return Producto(
-      id: json['id'] as String,
+      id: int.tryParse((json['id'] ?? 0).toString()) ?? 0,
       nombre: json['nombre'] as String,
       unidad: json['unidad'] as String,
       precioUnitario: double.parse(json['precio_unitario'] as String),
@@ -49,7 +49,7 @@ class Producto {
 
   // Método copyWith para crear copias modificadas
   Producto copyWith({
-    String? id,
+    int? id,
     String? nombre,
     String? unidad,
     double? precioUnitario,

@@ -67,55 +67,29 @@ class _DespachoScreenState extends State<DespachoScreen> {
               });
             }
           },
-          child: BlocListener<PostBloc, PostState>(
-            listener: (context, state) {
-              if (state is PostLoading) {
-                DialogsWidget.showLoading(context, message: 'Procesando...');
-              }
+          child: CustomScrollView(
+            slivers: [
+              // AppBar con imagen de perfil
 
-              if (state is PostSuccess) {
-                Navigator.pop(context);
-                DialogsWidget.showSuccess(
-                  context,
-                  title: 'Muy bien',
-                  message: 'Productos asignados correctamente',
-                );
-                Navigator.pop(context);
-              }
+              // Contenido del perfil
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildChoferCard(),
+                      SizedBox(height: 20),
+                      _buildFormularioAsignacion(),
+                      _buildListaAsignados(),
 
-              if (state is PostError) {
-                Navigator.pop(context);
-                DialogsWidget.showError(
-                  context,
-                  title: 'Atención',
-                  message: state.message,
-                );
-              }
-            },
-            child: CustomScrollView(
-              slivers: [
-                // AppBar con imagen de perfil
-
-                // Contenido del perfil
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildChoferCard(),
-                        SizedBox(height: 20),
-                        _buildFormularioAsignacion(),
-                        _buildListaAsignados(),
-
-                        const SizedBox(height: 60),
-                        if (_itemsAsignados.isNotEmpty) _buildActionButtons(),
-                      ],
-                    ),
+                      const SizedBox(height: 60),
+                      if (_itemsAsignados.isNotEmpty) _buildActionButtons(),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -480,33 +454,37 @@ class _DespachoScreenState extends State<DespachoScreen> {
   }
 
   Widget _buildActionButtons() {
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: ElevatedButton.icon(
-            onPressed: () => submitGuardar(),
-            icon: const Icon(Icons.edit),
-            label: Text(
-              'Guardar',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6B2A02),
-              foregroundColor: const Color(0xFFFFFCF5),
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+    return Builder(
+      builder: (context) {
+        return Column(
+          children: [
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton.icon(
+                onPressed: () => submitGuardar(context),
+                icon: const Icon(Icons.edit),
+                label: Text(
+                  'Guardar',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF6B2A02),
+                  foregroundColor: const Color(0xFFFFFCF5),
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 
-  submitGuardar() async {
+  submitGuardar(BuildContext context) async {
     List<Map<String, dynamic>> detalles = _itemsAsignados.map((item) {
       final producto = item['producto'] as Producto;
       return {'producto_id': producto.id, 'cantidad': item['cantidad']};
@@ -523,8 +501,31 @@ class _DespachoScreenState extends State<DespachoScreen> {
     if (userState is UserLoaded) {
       userToken = userState.usuario.accessToken;
     }
-    context.read<PostBloc>().add(
-      ExecutePost(data, '/admin/productos', userToken),
-    );
+    print(data);
+    final postBloc = BlocProvider.of<PostBloc>(context);
+    postBloc.add(ExecutePost(data, '/admin/create-despacho', userToken));
+    await for (final state in postBloc.stream) {
+      if (state is PostLoading) {
+        DialogsWidget.showLoading(context, message: 'Procesando...');
+      }
+
+      if (state is PostSuccess) {
+        Navigator.pop(context);
+        DialogsWidget.showSuccess(
+          context,
+          title: 'Muy bien',
+          message: 'Productos asignados correctamente',
+        );
+      }
+
+      if (state is PostError) {
+        Navigator.pop(context);
+        DialogsWidget.showError(
+          context,
+          title: 'Atención',
+          message: state.message,
+        );
+      }
+    }
   }
 }

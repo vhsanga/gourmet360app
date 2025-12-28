@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 class CamionAsignado {
-  final String camionId;
+  final int camionId;
   final String camionPlaca;
   final String camionModelo;
   final String camionMarca;
   final String camionCapacidad;
-  final String uId;
+  final int uId;
   final String uNombre;
   final String uCelular;
 
@@ -24,12 +24,12 @@ class CamionAsignado {
   // Factory constructor para crear una instancia desde JSON
   factory CamionAsignado.fromJson(Map<String, dynamic> json) {
     return CamionAsignado(
-      camionId: json['camion_id'] ?? '',
+      camionId: int.tryParse((json['camion_id'] ?? 0).toString()) ?? 0,
       camionPlaca: json['camion_placa'] ?? '',
       camionModelo: json['camion_modelo'] ?? '',
       camionMarca: json['camion_marca'] ?? '',
       camionCapacidad: json['camion_capacidad'] ?? '',
-      uId: json['u_id'] ?? '',
+      uId: int.tryParse((json['u_id'] ?? 0).toString()) ?? 0,
       uNombre: json['u_nombre'] ?? '',
       uCelular: json['u_celular'] ?? '',
     );
@@ -57,12 +57,12 @@ class CamionAsignado {
 
   // Método para crear una copia con cambios opcionales
   CamionAsignado copyWith({
-    String? camionId,
+    int? camionId,
     String? camionPlaca,
     String? camionModelo,
     String? camionMarca,
     String? camionCapacidad,
-    String? uId,
+    int? uId,
     String? uNombre,
     String? uCelular,
   }) {
