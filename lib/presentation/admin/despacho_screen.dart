@@ -10,6 +10,7 @@ import 'package:Gourmet360/core/models/producto.dart';
 import 'package:Gourmet360/data/http_repository.dart';
 import 'package:Gourmet360/presentation/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DespachoScreen extends StatefulWidget {
@@ -22,6 +23,36 @@ class DespachoScreen extends StatefulWidget {
 
 class _DespachoScreenState extends State<DespachoScreen> {
   List<Producto> _productos = [];
+  final Map<String, TextEditingController> _controllers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializar controladores para cada producto
+    for (var product in _productos) {
+      _controllers[product.id.toString()] = TextEditingController();
+    }
+  }
+
+  @override
+  void dispose() {
+    // Liberar controladores
+    for (var controller in _controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  int get totalProducts {
+    return _productos.fold(0, (sum, product) => sum + product.cantidad);
+  }
+
+  double get totalValue {
+    return _productos.fold(
+      0,
+      (sum, product) => sum + (product.cantidad * product.precioUnitario),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,11 +75,81 @@ class _DespachoScreenState extends State<DespachoScreen> {
           },
         ),
       ],
+
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(
-            'Asignar Productos',
-            style: TextStyle(color: Colors.white),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Despachar', style: TextStyle(color: Colors.white)),
+              Container(
+                child: Row(
+                  children: [
+                    Column(
+                      children: [
+                        Text(
+                          'Unidades',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFFFFFFFF),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF5E2C8),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            totalProducts.toString(),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF6B2A02),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 8),
+                    Column(
+                      children: [
+                        Text(
+                          'Total V',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFFFFFFFF),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.green.shade50,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            '\$${totalValue.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green.shade700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           backgroundColor: const Color(0xFF6B2A02),
           leading: IconButton(
@@ -80,8 +181,7 @@ class _DespachoScreenState extends State<DespachoScreen> {
                     children: [
                       _buildChoferCard(),
                       SizedBox(height: 20),
-                      _buildFormularioAsignacion(),
-                      _buildListaAsignados(),
+                      _buildProductsList(),
 
                       const SizedBox(height: 60),
                       if (_itemsAsignados.isNotEmpty) _buildActionButtons(),
@@ -94,6 +194,203 @@ class _DespachoScreenState extends State<DespachoScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildProductsList() {
+    return Column(
+      children: _productos
+          .map((product) => _buildProductCard(product))
+          .toList(),
+    );
+  }
+
+  Widget _buildProductCard(Producto product) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: product.cantidad > 0
+              ? const Color(0xFF6B2A02)
+              : const Color(0xFFF5E2C8),
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          product.nombre,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF6B2A02),
+                          ),
+                        ),
+                        Container(
+                          width: 120,
+                          child: TextField(
+                            controller: _controllers[product.id],
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF6B2A02),
+                            ),
+                            decoration: InputDecoration(
+                              hintText: 'Cantidad',
+                              hintStyle: TextStyle(color: Colors.grey.shade400),
+                              filled: true,
+                              fillColor: const Color(0xFFFFFCF5),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: const Color(0xFFF5E2C8),
+                                  width: 2,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: const Color(0xFF6B2A02),
+                                  width: 2,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                            ),
+                            onChanged: (value) =>
+                                _updateQuantity(product, value),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF5E2C8),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                product.categoriaNombre,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF6B2A02),
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.green.shade50,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                '\$${product.precioUnitario.toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green.shade700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (product.cantidad > 0) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 2,
+                              horizontal: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade50,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  'Subtotal: ',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '\$${(product.cantidad * product.precioUnitario).toStringAsFixed(2)}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.green.shade700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _updateQuantity(Producto producto, String value) {
+    final quantity = int.tryParse(value) ?? 0;
+    int productId = producto.id;
+    setState(() {
+      final product = _productos.firstWhere((p) => p.id == productId);
+      product.cantidad = quantity;
+      _itemsAsignados.add({"producto": producto, "cantidad": quantity});
+    });
   }
 
   Producto? _productoSeleccionado;

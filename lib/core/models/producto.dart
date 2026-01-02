@@ -1,5 +1,6 @@
 class Producto {
   final int id;
+  int cantidad = 0;
   final String nombre;
   final String unidad;
   final double precioUnitario;
