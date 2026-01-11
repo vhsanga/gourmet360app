@@ -4,6 +4,7 @@ import 'package:Gourmet360/bloc/entrega_producto/entrega_producto_state.dart';
 import 'package:Gourmet360/bloc/user/user_bloc.dart';
 import 'package:Gourmet360/core/models/cliente.dart';
 import 'package:Gourmet360/core/models/producto_asignados.dart';
+import 'package:Gourmet360/presentation/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,7 +34,7 @@ class EntregaProductoScreen extends StatefulWidget {
 }
 
 class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
-  // Lista de productos en el pedido
+  // Lista de productos en el pedidonp
   final List<OrderItem> orderItems = [];
 
   // Formulario
@@ -159,23 +160,29 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
     entregaProductoBloc.add(SubmitEntregaProducto(orderData, userToken));
     await for (final state in entregaProductoBloc.stream) {
       if (state is EntregaProductoLoading) {
-        //mostrar dialogo de cargando
+        DialogsWidget.showLoading(context, message: 'Procesando...');
       } else if (state is EntregaProductoSuccess) {
-        _showSnackBar(state.mensaje, isError: false);
-        setState(() {
-          reinicarVenta();
-        });
+        Navigator.pop(context);
+        DialogsWidget.showSuccess(
+          context,
+          title: 'Muy bien',
+          message: 'Productos asignados correctamente',
+          onClose: () {
+            reinicarVenta();
+            Navigator.pop(context);
+          },
+        );
         break;
       } else if (state is EntregaProductoFailed) {
-        _showSnackBar(state.error, isError: true);
+        Navigator.pop(context);
+        DialogsWidget.showError(
+          context,
+          title: 'Atención',
+          message: state.error,
+        );
         break;
       }
     }
-
-    _showSnackBar(
-      'Venta registrada: \$${totalAmount.toStringAsFixed(2)} - ${selectedPaymentType == PaymentType.contado ? 'Contado' : 'Crédito'}',
-      isError: false,
-    );
   }
 
   void reinicarVenta() {
@@ -268,6 +275,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                //
                 Text(
                   'Registrar Venta',
                   style: TextStyle(

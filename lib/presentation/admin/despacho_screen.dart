@@ -170,9 +170,6 @@ class _DespachoScreenState extends State<DespachoScreen> {
           },
           child: CustomScrollView(
             slivers: [
-              // AppBar con imagen de perfil
-
-              // Contenido del perfil
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -207,7 +204,7 @@ class _DespachoScreenState extends State<DespachoScreen> {
   Widget _buildProductCard(Producto product) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -238,13 +235,51 @@ class _DespachoScreenState extends State<DespachoScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          product.nombre,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF6B2A02),
-                          ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              product.nombre,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF6B2A02),
+                              ),
+                            ),
+                            if (product.cantidad > 0) ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 2,
+                                  horizontal: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.shade50,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      'Subtotal: ',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '\$${(product.cantidad * product.precioUnitario).toStringAsFixed(2)}',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green.shade700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                         Container(
                           width: 120,
@@ -293,86 +328,6 @@ class _DespachoScreenState extends State<DespachoScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF5E2C8),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                product.categoriaNombre,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF6B2A02),
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.green.shade50,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                '\$${product.precioUnitario.toStringAsFixed(2)}',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green.shade700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        if (product.cantidad > 0) ...[
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 2,
-                              horizontal: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.green.shade50,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              children: [
-                                Text(
-                                  'Subtotal: ',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.grey.shade600,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '\$${(product.cantidad * product.precioUnitario).toStringAsFixed(2)}',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.green.shade700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
                   ],
                 ),
               ),
@@ -397,24 +352,6 @@ class _DespachoScreenState extends State<DespachoScreen> {
   final TextEditingController _cantidadController = TextEditingController();
 
   final List<Map<String, dynamic>> _itemsAsignados = [];
-
-  // ===============================
-  // MÉTODO: AGREGAR PRODUCTO A LA LISTA
-  // ===============================
-  void _agregarProducto() {
-    if (_productoSeleccionado == null || _cantidadController.text.isEmpty)
-      return;
-
-    setState(() {
-      _itemsAsignados.add({
-        "producto": _productoSeleccionado!,
-        "cantidad": int.parse(_cantidadController.text),
-      });
-    });
-
-    _cantidadController.clear();
-    _productoSeleccionado = null;
-  }
 
   // ===============================
   // WIDGET: CARD BÁSICO DEL CHOFER
@@ -455,301 +392,6 @@ class _DespachoScreenState extends State<DespachoScreen> {
     );
   }
 
-  // ===============================
-  // WIDGET: FORMULARIO PARA ASIGNAR PRODUCTOS
-  // ===============================
-  Widget _buildFormularioAsignacion() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 20),
-
-        // Dropdown Productos
-        DropdownButtonFormField<Producto>(
-          decoration: InputDecoration(
-            labelText: "Producto",
-            border: OutlineInputBorder(),
-          ),
-          value: _productoSeleccionado,
-          items: _productos
-              .map((p) => DropdownMenuItem(value: p, child: Text(p.nombre)))
-              .toList(),
-          onChanged: (v) => setState(() => _productoSeleccionado = v),
-        ),
-
-        const SizedBox(height: 12),
-
-        // Cantidad
-        TextField(
-          controller: _cantidadController,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText: "Cantidad",
-            border: OutlineInputBorder(),
-          ),
-        ),
-
-        const SizedBox(height: 12),
-
-        // Botón agregar
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: _agregarProducto,
-            icon: Icon(Icons.add),
-            label: Text("Agregar"),
-            style: ElevatedButton.styleFrom(
-              foregroundColor: const Color(0xFF6B2A02),
-              side: const BorderSide(color: Color(0xFF6B2A02), width: 2),
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ===============================
-  // WIDGET: LISTA DE PRODUCTOS ASIGNADOS
-  // ===============================
-  Widget _buildListaAsignados() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 20),
-        Text(
-          "Productos Asignados",
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF6B2A02),
-          ),
-        ),
-        const SizedBox(height: 10),
-
-        if (_itemsAsignados.isEmpty) Text("No hay productos asignados aún."),
-
-        ..._itemsAsignados.map(
-          (item) => Card(
-            child: ListTile(
-              leading: Icon(Icons.shopping_bag, color: Color(0xFF6B2A02)),
-              title: Text(item["producto"].nombre),
-              subtitle: Text("Cantidad: ${item["cantidad"]}"),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: const Color(0xFF6B2A02),
-      ),
-    );
-  }
-
-  Widget _buildInfoCard({
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF5E2C8),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: const Color(0xFF6B2A02), size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: const Color(0xFF6B2A02),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildVehicleCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            const Color(0xFF6B2A02),
-            const Color(0xFF6B2A02).withOpacity(0.8),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF6B2A02).withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF5E2C8),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Icon(
-                  Icons.local_shipping_rounded,
-                  color: Color(0xFF6B2A02),
-                  size: 32,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Placa',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: const Color(0xFFF5E2C8),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'PBX-1234',
-                      style: TextStyle(
-                        fontSize: 24,
-                        color: const Color(0xFFFFFCF5),
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Marca',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: const Color(0xFFF5E2C8),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Chevrolet',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: const Color(0xFFFFFCF5),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  width: 1,
-                  height: 40,
-                  color: Colors.white.withOpacity(0.2),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Modelo',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: const Color(0xFFF5E2C8),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'NPR 2020',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: const Color(0xFFFFFCF5),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildActionButtons() {
     return Builder(
       builder: (context) {
@@ -782,10 +424,10 @@ class _DespachoScreenState extends State<DespachoScreen> {
   }
 
   submitGuardar(BuildContext context) async {
-    List<Map<String, dynamic>> detalles = _itemsAsignados.map((item) {
-      final producto = item['producto'] as Producto;
-      return {'producto_id': producto.id, 'cantidad': item['cantidad']};
-    }).toList();
+    final detalles = _productos
+        .where((p) => p.cantidad > 0)
+        .map((p) => {'producto_id': p.id, 'cantidad': p.cantidad})
+        .toList();
 
     Map<String, dynamic> data = {
       'camion_id': widget.camionAsignado?.camionId ?? '',
@@ -798,7 +440,6 @@ class _DespachoScreenState extends State<DespachoScreen> {
     if (userState is UserLoaded) {
       userToken = userState.usuario.accessToken;
     }
-    print(data);
     final postBloc = BlocProvider.of<PostBloc>(context);
     postBloc.add(ExecutePost(data, '/admin/create-despacho', userToken));
     await for (final state in postBloc.stream) {
@@ -812,6 +453,12 @@ class _DespachoScreenState extends State<DespachoScreen> {
           context,
           title: 'Muy bien',
           message: 'Productos asignados correctamente',
+          onClose: () {
+            for (final p in _productos) {
+              p.cantidad = 0;
+            }
+            Navigator.pop(context);
+          },
         );
       }
 
