@@ -1,4 +1,4 @@
-import 'package:Gourmet360/bloc/user/user_bloc.dart';
+import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/models/cliente.dart';
 import 'package:Gourmet360/models/producto_asignados.dart';
 import 'package:Gourmet360/viewmodels/producto_viewmodel.dart';
@@ -148,19 +148,18 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
     };
 
     print(orderData); // Para debug
-    final userState = context.read<UserBloc>().state;
+    final userState = context.read<UserProvider>();
     String userToken = '';
-    if (userState is UserLoaded) {
-      userToken = userState.usuario.accessToken;
+    if (userState.status == UserStatus.loaded) {
+      userToken = userState.token ?? '';
     }
 
     final productoVM = context.read<ProductoViewModel>();
-    DialogsWidget.showLoading(context, message: 'Procesando...');
+    DialogsWidget.showLoading(message: 'Procesando...');
     final success = await productoVM.entregarProductos(orderData, userToken);
     if (mounted) Navigator.pop(context); // cerrar loading
     if (success) {
       DialogsWidget.showSuccess(
-        context,
         title: 'Muy bien',
         message: productoVM.msj ?? 'Productos asignados correctamente',
         onClose: () {
@@ -171,7 +170,6 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
       return;
     } else {
       DialogsWidget.showError(
-        context,
         title: 'Atención',
         message: productoVM.msj ?? 'Error desconocido',
       );

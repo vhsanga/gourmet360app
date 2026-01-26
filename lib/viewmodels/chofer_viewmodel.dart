@@ -6,30 +6,26 @@ import 'package:flutter/material.dart';
 
 class ChoferViewModel extends ChangeNotifier {
   bool isLoading = false;
-  String? msj;
   String? error;
   List<CamionAsignado> camiones = [];
 
-  Future<bool> listarProductosForAdmin(String userToken) async {
+  Future<void> listarProductosForAdmin(String userToken) async {
     isLoading = true;
-    msj = null;
+    error = null;
     notifyListeners();
+
     try {
       final response = await HttpService.doGet(
         ApiConstants.getCamionesForAdminEndpoint,
         userToken,
       );
-      msj = response.mensaje;
-      print("Respuesta recibida: ${response.data}");
-      camiones = response.data
-          .map((e) => CamionAsignado.fromJson(e as Map<String, dynamic>))
-          .toList()
-          .cast<CamionAsignado>();
-      notifyListeners();
-      return true;
+
+      camiones = (response.data as List)
+          .map((e) => CamionAsignado.fromJson(e))
+          .toList();
     } catch (e) {
       error = e.toString().replaceAll('Exception:', '');
-      return false;
+      camiones = [];
     } finally {
       isLoading = false;
       notifyListeners();

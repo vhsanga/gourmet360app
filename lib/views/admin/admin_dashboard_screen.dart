@@ -1,6 +1,5 @@
-import 'package:Gourmet360/bloc/user/user_bloc.dart';
+import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/views/admin/cliente_report_screen.dart';
-import 'package:Gourmet360/views/admin/despacho_screen.dart';
 import 'package:Gourmet360/views/admin/drivers_list_screen.dart';
 import 'package:Gourmet360/views/welcome_screen.dart';
 import 'package:flutter/material.dart';
@@ -82,7 +81,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         PopupMenuButton<int>(
           icon: const Icon(Icons.more_vert, color: Colors.white),
           color: Colors.white,
-          onSelected: (value) {
+          onSelected: (value) async {
             if (value == 1) {
               Navigator.push(
                 context,
@@ -94,7 +93,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 MaterialPageRoute(builder: (context) => ClientsReportScreen()),
               );
             } else if (value == 3) {
-              context.read<UserBloc>().add(DeleteUserEvent());
+              await context.read<UserProvider>().logout();
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => const WelcomeScreen()),

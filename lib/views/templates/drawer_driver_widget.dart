@@ -1,7 +1,6 @@
-import 'package:Gourmet360/bloc/user/user_bloc.dart';
+import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/views/clients_list_screen.dart';
 import 'package:Gourmet360/views/home_screen.dart';
-import 'package:Gourmet360/views/user_profile_screen.dart';
 import 'package:Gourmet360/views/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -142,9 +141,9 @@ class _DrawerDriverWidgetState extends State<DrawerDriverWidget> {
                     title: 'Cerrar Sesión',
                     iconColor: Colors.red,
                     textColor: Colors.red,
-                    onTap: () {
+                    onTap: () async {
                       Navigator.pop(context);
-                      context.read<UserBloc>().add(DeleteUserEvent());
+                      await context.read<UserProvider>().logout();
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(

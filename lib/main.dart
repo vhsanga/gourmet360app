@@ -1,4 +1,5 @@
-import 'package:Gourmet360/bloc/user/user_bloc.dart';
+import 'package:Gourmet360/core/navigation/app_navigator.dart';
+import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/viewmodels/auth_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/home_viewmodel.dart';
@@ -21,16 +22,14 @@ class PanaderiaDeliveryApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<UserBloc>(
-          create: (context) => UserBloc()..add(LoadUserEvent()),
-          lazy: false,
-        ),
+        ChangeNotifierProvider(create: (_) => UserProvider()..loadUser()),
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
         ChangeNotifierProvider(create: (_) => ChoferViewModel()),
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
         ChangeNotifierProvider(create: (_) => ProductoViewModel()),
       ],
       child: MaterialApp(
+        navigatorKey: AppNavigator.navigatorKey,
         title: 'Gourmet 360',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
@@ -57,20 +56,22 @@ class AppWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<UserBloc, UserState>(
-      builder: (context, state) {
-        // Mientras carga, mostramos un splash screen temporal
-        if (state is UserInitial || state is UserLoading) {
+    return Consumer<UserProvider>(
+      builder: (_, user, __) {
+        // Mientras carga, mostramos splash
+        if (user.status == UserStatus.initial ||
+            user.status == UserStatus.loading) {
           return _buildSplashScreen();
         }
 
-        // Si existe usuario, vamos al HomeScreen
-        if (state is UserLoaded) {
-          return HomePortalScreen();
+        // Si existe usuario → Home
+        if (user.status == UserStatus.loaded) {
+          return const HomePortalScreen();
         }
 
-        // Si no existe usuario o hay error, mostramos WelcomeScreen
-        if (state is UserEmpty || state is UserError) {
+        // Si no hay usuario o hay error → Welcome
+        if (user.status == UserStatus.empty ||
+            user.status == UserStatus.error) {
           return const WelcomeScreen();
         }
 

@@ -1,4 +1,4 @@
-import 'package:Gourmet360/bloc/user/user_bloc.dart';
+import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/models/camion_asignado.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
@@ -24,11 +24,16 @@ class _DriversListScreenState extends State<DriversListScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      final userState = context.read<UserBloc>().state;
-      if (userState is UserLoaded) {
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userProvider = context.read<UserProvider>();
+
+      if (userProvider.status == UserStatus.loaded &&
+          userProvider.usuario != null) {
         print("Cargando lista de conductores para admin...");
-        userSession = userState.usuario;
+
+        userSession = userProvider.usuario;
+
         context.read<ChoferViewModel>().listarProductosForAdmin(
           userSession!.accessToken,
         );
@@ -40,12 +45,13 @@ class _DriversListScreenState extends State<DriversListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredDrivers = _getFilteredDrivers();
     final vm = context.watch<ChoferViewModel>();
     return Scaffold(
       body: Builder(
         builder: (context) {
-          print("DEtectando cambios en ChoferViewModel...");
+          print(
+            "DEtectando cambios en ChoferViewModel...${vm.camiones.length} camiones",
+          );
           if (vm.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -55,28 +61,34 @@ class _DriversListScreenState extends State<DriversListScreen> {
           }
 
           if (vm.camiones.isEmpty) {
+            print("Lista de camiones VACIA desde VM.");
             return const Center(child: Text('No hay camiones asignados.'));
           }
           if (vm.camiones.isNotEmpty) {
+            print("Actualizando lista de camiones desde VM...");
             camiones = vm.camiones;
+            final filteredDrivers = _getFilteredDrivers();
+            return SafeArea(
+              child: Column(
+                children: [
+                  _buildHeader(),
+                  Expanded(
+                    child: filteredDrivers.isEmpty
+                        ? _buildEmptyState()
+                        : ListView.builder(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: filteredDrivers.length,
+                            itemBuilder: (context, index) {
+                              return _buildDriverCard(filteredDrivers[index]);
+                            },
+                          ),
+                  ),
+                ],
+              ),
+            );
           }
-          return SafeArea(
-            child: Column(
-              children: [
-                _buildHeader(),
-                Expanded(
-                  child: filteredDrivers.isEmpty
-                      ? _buildEmptyState()
-                      : ListView.builder(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: filteredDrivers.length,
-                          itemBuilder: (context, index) {
-                            return _buildDriverCard(filteredDrivers[index]);
-                          },
-                        ),
-                ),
-              ],
-            ),
+          return const Center(
+            child: Text('No se pudo cargar la lista de camiones.'),
           );
         },
       ),

@@ -1,4 +1,4 @@
-import 'package:Gourmet360/bloc/user/user_bloc.dart';
+import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/models/camion_asignado.dart';
 import 'package:Gourmet360/models/producto.dart';
 import 'package:Gourmet360/models/usuario.dart';
@@ -24,14 +24,16 @@ class _DespachoScreenState extends State<DespachoScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      final userState = context.read<UserBloc>().state;
-      if (userState is UserLoaded) {
-        userSession = userState.usuario;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userProvider = context.read<UserProvider>();
+      if (userProvider.status == UserStatus.loaded &&
+          userProvider.usuario != null) {
+        print("Cargando lista de conductores para admin...");
+
+        userSession = userProvider.usuario;
         context.read<ProductoViewModel>().listarProductosForAdmin(
           userSession!.accessToken,
         );
-        // Inicializar controladores para cada producto
         for (var product in _productos) {
           _controllers[product.id.toString()] = TextEditingController();
         }
@@ -431,15 +433,16 @@ class _DespachoScreenState extends State<DespachoScreen> {
     };
 
     final productoVM = context.read<ProductoViewModel>();
-    DialogsWidget.showLoading(context, message: 'Procesando...');
-    final success = await productoVM.entregarProductos(
+    DialogsWidget.showLoading(message: 'Procesando...');
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final success = await productoVM.asignarProductos(
       data,
       userSession?.accessToken ?? '',
     );
-    if (mounted) Navigator.pop(context); // cerrar loading
+    if (!mounted) return;
+    navigator.pop();
     if (success) {
       DialogsWidget.showSuccess(
-        context,
         title: 'Muy bien',
         message: productoVM.msj ?? 'Productos asignados correctamente',
         onClose: () {
@@ -447,12 +450,12 @@ class _DespachoScreenState extends State<DespachoScreen> {
             p.cantidad = 0;
           }
           Navigator.pop(context);
+          Navigator.pop(context);
         },
       );
       return;
     } else {
       DialogsWidget.showError(
-        context,
         title: 'Atención',
         message: productoVM.msj ?? 'Error desconocido',
       );

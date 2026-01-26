@@ -1,4 +1,4 @@
-import 'package:Gourmet360/bloc/user/user_bloc.dart';
+import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/viewmodels/auth_viewmodel.dart';
 import 'package:Gourmet360/views/admin/admin_dashboard_screen.dart';
 import 'package:Gourmet360/views/home_screen.dart';
@@ -59,19 +59,18 @@ class _LoginPinScreenState extends State<LoginPinScreen> {
     final auth = context.read<AuthViewModel>();
     final phone = _usernameController.text;
     final pin = _pinControllers.map((c) => c.text).join();
-    DialogsWidget.showLoading(context, message: 'Procesando...');
+    DialogsWidget.showLoading(message: 'Procesando...');
     final success = await auth.login(phone.trim(), pin.trim());
     if (mounted) Navigator.pop(context); // cerrar loading
     if (!success) {
       DialogsWidget.showError(
-        context,
         title: 'Atención',
         message: auth.error ?? 'Error desconocido',
       );
       return;
     }
     if (mounted) {
-      context.read<UserBloc>().add(SaveUserEvent(auth.usuario!));
+      context.read<UserProvider>().saveUser(auth.usuario!);
       if (auth.usuario!.rol == 'admin') {
         Navigator.pushAndRemoveUntil(
           context,

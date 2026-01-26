@@ -1,4 +1,4 @@
-import 'package:Gourmet360/bloc/user/user_bloc.dart';
+import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/models/cliente.dart';
 import 'package:Gourmet360/models/producto_asignados.dart';
 import 'package:Gourmet360/models/usuario.dart';
@@ -28,8 +28,8 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      final userState = context.read<UserBloc>().state;
-      if (userState is UserLoaded) {
+      final userState = context.read<UserProvider>();
+      if (userState.status == UserStatus.loaded) {
         userSession = userState.usuario;
         context.read<HomeViewModel>().getDataHome(
           userSession!.id,
@@ -149,10 +149,10 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   }
 
   Text nombreChofer() {
-    final userState = context.watch<UserBloc>().state;
-    if (userState is UserLoaded) {
+    final userState = context.watch<UserProvider>();
+    if (userState.status == UserStatus.loaded) {
       return Text(
-        userState.usuario.nombre,
+        userState.usuario?.nombre ?? "",
         style: TextStyle(
           color: Colors.white,
           fontSize: 20,

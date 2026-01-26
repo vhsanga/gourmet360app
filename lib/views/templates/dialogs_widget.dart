@@ -1,13 +1,12 @@
+import 'package:Gourmet360/core/navigation/app_navigator.dart';
 import 'package:flutter/material.dart';
 
 class DialogsWidget {
   // Diálogo de Loading
-  static void showLoading(
-    BuildContext context, {
-    String message = 'Cargando...',
-  }) {
+  static void showLoading({String message = 'Cargando...'}) {
+    final ctx = AppNavigator.navigatorKey.currentContext!;
     showDialog(
-      context: context,
+      context: ctx,
       barrierDismissible: false,
       builder: (context) => WillPopScope(
         onWillPop: () async => false,
@@ -58,15 +57,15 @@ class DialogsWidget {
   }
 
   // Diálogo de Éxito
-  static void showSuccess(
-    BuildContext context, {
+  static void showSuccess({
     required String title,
     required String message,
     String buttonText = 'Aceptar',
     VoidCallback? onClose,
   }) {
+    final ctx = AppNavigator.navigatorKey.currentContext!;
     showDialog(
-      context: context,
+      context: ctx,
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
@@ -137,16 +136,16 @@ class DialogsWidget {
   }
 
   // Diálogo de Error
-  static void showError(
-    BuildContext context, {
+  static void showError({
     required String title,
     required String message,
     String buttonText = 'Entendido',
     VoidCallback? onClose,
   }) {
+    final ctx = AppNavigator.navigatorKey.currentContext!;
     showDialog(
-      context: context,
-      builder: (context) => Dialog(
+      context: ctx,
+      builder: (_) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -192,7 +191,7 @@ class DialogsWidget {
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.pop(ctx);
                     onClose?.call();
                   },
                   style: ElevatedButton.styleFrom(
@@ -216,8 +215,7 @@ class DialogsWidget {
   }
 
   // Diálogo de Confirmación
-  static void showConfirmation(
-    BuildContext context, {
+  static void showConfirmation({
     required String title,
     required String message,
     String confirmText = 'Confirmar',
@@ -226,9 +224,10 @@ class DialogsWidget {
     VoidCallback? onCancel,
     bool isDangerous = false,
   }) {
+    final ctx = AppNavigator.navigatorKey.currentContext!;
     showDialog(
-      context: context,
-      builder: (context) => Dialog(
+      context: ctx,
+      builder: (_) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -282,7 +281,7 @@ class DialogsWidget {
                       height: 50,
                       child: OutlinedButton(
                         onPressed: () {
-                          Navigator.pop(context);
+                          Navigator.pop(ctx);
                           onCancel?.call();
                         },
                         style: OutlinedButton.styleFrom(
@@ -311,7 +310,7 @@ class DialogsWidget {
                       height: 50,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pop(context);
+                          Navigator.pop(ctx);
                           onConfirm();
                         },
                         style: ElevatedButton.styleFrom(
@@ -343,8 +342,7 @@ class DialogsWidget {
   }
 
   // Método adicional: Confirmación con input
-  static void showConfirmationWithInput(
-    BuildContext context, {
+  static void showConfirmationWithInput({
     required String title,
     required String message,
     String confirmText = 'Confirmar',
@@ -354,10 +352,10 @@ class DialogsWidget {
     VoidCallback? onCancel,
   }) {
     final TextEditingController controller = TextEditingController();
-
+    final ctx = AppNavigator.navigatorKey.currentContext!;
     showDialog(
-      context: context,
-      builder: (context) => Dialog(
+      context: ctx,
+      builder: (_) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -434,7 +432,7 @@ class DialogsWidget {
                       height: 50,
                       child: OutlinedButton(
                         onPressed: () {
-                          Navigator.pop(context);
+                          Navigator.pop(ctx);
                           onCancel?.call();
                         },
                         style: OutlinedButton.styleFrom(
@@ -463,7 +461,7 @@ class DialogsWidget {
                       height: 50,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pop(context);
+                          Navigator.pop(ctx);
                           onConfirm(controller.text);
                         },
                         style: ElevatedButton.styleFrom(
