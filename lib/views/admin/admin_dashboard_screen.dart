@@ -1,8 +1,8 @@
 import 'package:Gourmet360/bloc/user/user_bloc.dart';
-import 'package:Gourmet360/presentation/admin/cliente_report_screen.dart';
-import 'package:Gourmet360/presentation/admin/despacho_screen.dart';
-import 'package:Gourmet360/presentation/admin/drivers_list_screen.dart';
-import 'package:Gourmet360/presentation/welcome_screen.dart';
+import 'package:Gourmet360/views/admin/cliente_report_screen.dart';
+import 'package:Gourmet360/views/admin/despacho_screen.dart';
+import 'package:Gourmet360/views/admin/drivers_list_screen.dart';
+import 'package:Gourmet360/views/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

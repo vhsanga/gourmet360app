@@ -1,9 +1,14 @@
 import 'package:Gourmet360/bloc/user/user_bloc.dart';
-import 'package:Gourmet360/presentation/home_screen.dart';
-import 'package:Gourmet360/presentation/welcome_screen.dart';
+import 'package:Gourmet360/viewmodels/auth_viewmodel.dart';
+import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
+import 'package:Gourmet360/viewmodels/home_viewmodel.dart';
+import 'package:Gourmet360/viewmodels/producto_viewmodel.dart';
+import 'package:Gourmet360/views/home_screen.dart';
+import 'package:Gourmet360/views/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const PanaderiaDeliveryApp());
@@ -20,6 +25,10 @@ class PanaderiaDeliveryApp extends StatelessWidget {
           create: (context) => UserBloc()..add(LoadUserEvent()),
           lazy: false,
         ),
+        ChangeNotifierProvider(create: (_) => AuthViewModel()),
+        ChangeNotifierProvider(create: (_) => ChoferViewModel()),
+        ChangeNotifierProvider(create: (_) => HomeViewModel()),
+        ChangeNotifierProvider(create: (_) => ProductoViewModel()),
       ],
       child: MaterialApp(
         title: 'Gourmet 360',

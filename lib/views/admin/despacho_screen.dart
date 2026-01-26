@@ -1,14 +1,9 @@
-import 'package:Gourmet360/bloc/get/get_bloc.dart';
-import 'package:Gourmet360/bloc/get/get_event.dart';
-import 'package:Gourmet360/bloc/get/get_state.dart';
-import 'package:Gourmet360/bloc/post/post_bloc.dart';
-import 'package:Gourmet360/bloc/post/post_event.dart';
-import 'package:Gourmet360/bloc/post/post_state.dart';
 import 'package:Gourmet360/bloc/user/user_bloc.dart';
-import 'package:Gourmet360/core/models/camion_asignado.dart';
-import 'package:Gourmet360/core/models/producto.dart';
-import 'package:Gourmet360/data/http_repository.dart';
-import 'package:Gourmet360/presentation/templates/dialogs_widget.dart';
+import 'package:Gourmet360/models/camion_asignado.dart';
+import 'package:Gourmet360/models/producto.dart';
+import 'package:Gourmet360/models/usuario.dart';
+import 'package:Gourmet360/viewmodels/producto_viewmodel.dart';
+import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,14 +19,24 @@ class DespachoScreen extends StatefulWidget {
 class _DespachoScreenState extends State<DespachoScreen> {
   List<Producto> _productos = [];
   final Map<String, TextEditingController> _controllers = {};
+  Usuario? userSession;
 
   @override
   void initState() {
     super.initState();
-    // Inicializar controladores para cada producto
-    for (var product in _productos) {
-      _controllers[product.id.toString()] = TextEditingController();
-    }
+    Future.microtask(() {
+      final userState = context.read<UserBloc>().state;
+      if (userState is UserLoaded) {
+        userSession = userState.usuario;
+        context.read<ProductoViewModel>().listarProductosForAdmin(
+          userSession!.accessToken,
+        );
+        // Inicializar controladores para cada producto
+        for (var product in _productos) {
+          _controllers[product.id.toString()] = TextEditingController();
+        }
+      }
+    });
   }
 
   @override
@@ -56,119 +61,27 @@ class _DespachoScreenState extends State<DespachoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userState = context.read<UserBloc>().state;
-    String userToken = '';
-    if (userState is UserLoaded) {
-      userToken = userState.usuario.accessToken;
-    }
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<GetBloc>(
-          create: (context) {
-            return GetBloc(httpRepository: HttpRepository())
-              ..add(ExecuteGet({}, '/admin/productos', userToken));
-          },
-        ),
-        BlocProvider<PostBloc>(
-          create: (context) {
-            return PostBloc(httpRepository: HttpRepository());
-          },
-        ),
-      ],
+    final vm = context.watch<ProductoViewModel>();
+    return Scaffold(
+      appBar: _buildAppBar(context),
+      body: Builder(
+        builder: (context) {
+          if (vm.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-      child: Scaffold(
-        appBar: AppBar(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Despachar', style: TextStyle(color: Colors.white)),
-              Container(
-                child: Row(
-                  children: [
-                    Column(
-                      children: [
-                        Text(
-                          'Unidades',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFFFFFFFF),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF5E2C8),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            totalProducts.toString(),
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFF6B2A02),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 8),
-                    Column(
-                      children: [
-                        Text(
-                          'Total V',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFFFFFFFF),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.green.shade50,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            '\$${totalValue.toStringAsFixed(2)}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green.shade700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: const Color(0xFF6B2A02),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ),
-        body: BlocListener<GetBloc, GetState>(
-          listener: (context, state) {
-            if (state is GetSuccess) {
-              setState(() {
-                _productos = state.response.data
-                    .map((e) => Producto.fromJson(e as Map<String, dynamic>))
-                    .toList()
-                    .cast<Producto>();
-              });
-            }
-          },
-          child: CustomScrollView(
+          if (vm.error != null) {
+            return Center(child: Text(vm.error!));
+          }
+
+          if (vm.productos.isEmpty) {
+            return const Center(child: Text('No hay productos para despacho'));
+          }
+          if (vm.productos.isNotEmpty) {
+            _productos = vm.productos;
+          }
+
+          return CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
                 child: Padding(
@@ -179,7 +92,6 @@ class _DespachoScreenState extends State<DespachoScreen> {
                       _buildChoferCard(),
                       SizedBox(height: 20),
                       _buildProductsList(),
-
                       const SizedBox(height: 60),
                       if (_itemsAsignados.isNotEmpty) _buildActionButtons(),
                     ],
@@ -187,8 +99,91 @@ class _DespachoScreenState extends State<DespachoScreen> {
                 ),
               ),
             ],
+          );
+        },
+      ),
+    );
+  }
+
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text('Despachar', style: TextStyle(color: Colors.white)),
+          Container(
+            child: Row(
+              children: [
+                Column(
+                  children: [
+                    Text(
+                      'Unidades',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFFFFFFFF),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5E2C8),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        totalProducts.toString(),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF6B2A02),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 8),
+                Column(
+                  children: [
+                    Text(
+                      'Total V',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFFFFFFFF),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        '\$${totalValue.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green.shade700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
+      ),
+      backgroundColor: const Color(0xFF6B2A02),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        onPressed: () => Navigator.pop(context),
       ),
     );
   }
@@ -435,41 +430,33 @@ class _DespachoScreenState extends State<DespachoScreen> {
       'detalles': detalles,
     };
 
-    final userState = context.read<UserBloc>().state;
-    String userToken = '';
-    if (userState is UserLoaded) {
-      userToken = userState.usuario.accessToken;
-    }
-    final postBloc = BlocProvider.of<PostBloc>(context);
-    postBloc.add(ExecutePost(data, '/admin/create-despacho', userToken));
-    await for (final state in postBloc.stream) {
-      if (state is PostLoading) {
-        DialogsWidget.showLoading(context, message: 'Procesando...');
-      }
-
-      if (state is PostSuccess) {
-        Navigator.pop(context);
-        DialogsWidget.showSuccess(
-          context,
-          title: 'Muy bien',
-          message: 'Productos asignados correctamente',
-          onClose: () {
-            for (final p in _productos) {
-              p.cantidad = 0;
-            }
-            Navigator.pop(context);
-          },
-        );
-      }
-
-      if (state is PostError) {
-        Navigator.pop(context);
-        DialogsWidget.showError(
-          context,
-          title: 'Atención',
-          message: state.message,
-        );
-      }
+    final productoVM = context.read<ProductoViewModel>();
+    DialogsWidget.showLoading(context, message: 'Procesando...');
+    final success = await productoVM.entregarProductos(
+      data,
+      userSession?.accessToken ?? '',
+    );
+    if (mounted) Navigator.pop(context); // cerrar loading
+    if (success) {
+      DialogsWidget.showSuccess(
+        context,
+        title: 'Muy bien',
+        message: productoVM.msj ?? 'Productos asignados correctamente',
+        onClose: () {
+          for (final p in _productos) {
+            p.cantidad = 0;
+          }
+          Navigator.pop(context);
+        },
+      );
+      return;
+    } else {
+      DialogsWidget.showError(
+        context,
+        title: 'Atención',
+        message: productoVM.msj ?? 'Error desconocido',
+      );
+      return;
     }
   }
 }

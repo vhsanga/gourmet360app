@@ -1,17 +1,19 @@
-import 'package:Gourmet360/presentation/admin/drivers_list_screen.dart';
-import 'package:Gourmet360/presentation/clients_list_screen.dart';
-import 'package:Gourmet360/presentation/home_screen.dart';
-import 'package:Gourmet360/presentation/user_profile_screen.dart';
+import 'package:Gourmet360/bloc/user/user_bloc.dart';
+import 'package:Gourmet360/views/clients_list_screen.dart';
+import 'package:Gourmet360/views/home_screen.dart';
+import 'package:Gourmet360/views/user_profile_screen.dart';
+import 'package:Gourmet360/views/welcome_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class DrawerAdminWidget extends StatefulWidget {
-  const DrawerAdminWidget({super.key});
+class DrawerDriverWidget extends StatefulWidget {
+  const DrawerDriverWidget({super.key});
 
   @override
-  State<DrawerAdminWidget> createState() => _DrawerAdminWidgetState();
+  State<DrawerDriverWidget> createState() => _DrawerDriverWidgetState();
 }
 
-class _DrawerAdminWidgetState extends State<DrawerAdminWidget> {
+class _DrawerDriverWidgetState extends State<DrawerDriverWidget> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -31,7 +33,7 @@ class _DrawerAdminWidgetState extends State<DrawerAdminWidget> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Menú Admin',
+                        'Menú',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -39,7 +41,9 @@ class _DrawerAdminWidgetState extends State<DrawerAdminWidget> {
                         ),
                       ),
                       IconButton(
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
                         icon: const Icon(
                           Icons.close,
                           color: Colors.white,
@@ -51,59 +55,109 @@ class _DrawerAdminWidgetState extends State<DrawerAdminWidget> {
                 ],
               ),
             ),
+
+            // Opciones del menú
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 children: [
                   _buildMenuItem(
-                    icon: Icons.dashboard_rounded,
-                    title: 'Dashboard',
-                    isSelected: true,
-                    onTap: () => Navigator.pop(context),
-                  ),
-                  _buildMenuItem(
-                    icon: Icons.people_outline,
-                    title: 'Transportistas',
+                    icon: Icons.home_outlined,
+                    title: 'Inicio',
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const DriversListScreen(),
+                          builder: (context) => HomePortalScreen(),
                         ),
                       );
                     },
                   ),
                   _buildMenuItem(
-                    icon: Icons.inventory_outlined,
-                    title: 'Productos',
-                    onTap: () => Navigator.pop(context),
-                  ),
-                  _buildMenuItem(
-                    icon: Icons.group_outlined,
+                    icon: Icons.local_shipping_outlined,
                     title: 'Clientes',
-                    onTap: () => Navigator.pop(context),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ClientsListScreen(),
+                        ),
+                      );
+                    },
                   ),
                   _buildMenuItem(
-                    icon: Icons.assessment_outlined,
-                    title: 'Reportes',
-                    onTap: () => Navigator.pop(context),
+                    icon: Icons.route_outlined,
+                    title: 'Rutas',
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  _buildMenuItem(
+                    icon: Icons.history,
+                    title: 'Historial',
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
                   ),
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Divider(),
                   ),
                   _buildMenuItem(
+                    icon: Icons.person_outline,
+                    title: 'Mi Perfil',
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  _buildMenuItem(
                     icon: Icons.settings_outlined,
                     title: 'Configuración',
-                    onTap: () => Navigator.pop(context),
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
                   ),
+                  _buildMenuItem(
+                    icon: Icons.help_outline,
+                    title: 'Ayuda',
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            // Footer del menú
+            Container(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  const Divider(),
+                  const SizedBox(height: 8),
                   _buildMenuItem(
                     icon: Icons.logout,
                     title: 'Cerrar Sesión',
                     iconColor: Colors.red,
                     textColor: Colors.red,
-                    onTap: () => Navigator.pop(context),
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.read<UserBloc>().add(DeleteUserEvent());
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const WelcomeScreen(),
+                        ),
+                        (Route<dynamic> route) => false,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Gourmet360 v1.0.0',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 ],
               ),

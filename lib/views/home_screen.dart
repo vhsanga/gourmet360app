@@ -1,17 +1,12 @@
-import 'package:Gourmet360/bloc/entrega_producto/entrega_producto_bloc.dart';
-import 'package:Gourmet360/bloc/home/home_bloc.dart';
-import 'package:Gourmet360/bloc/home/home_event.dart';
-import 'package:Gourmet360/bloc/home/home_state.dart';
 import 'package:Gourmet360/bloc/user/user_bloc.dart';
-import 'package:Gourmet360/core/models/cliente.dart';
-import 'package:Gourmet360/core/models/producto_asignados.dart';
-import 'package:Gourmet360/data/chofer_repository.dart';
-import 'package:Gourmet360/data/home_repository.dart'; // added import
-import 'package:Gourmet360/presentation/entrega_producto_screen.dart';
-import 'package:Gourmet360/presentation/templates/drawer_driver_widget.dart';
+import 'package:Gourmet360/models/cliente.dart';
+import 'package:Gourmet360/models/producto_asignados.dart';
+import 'package:Gourmet360/models/usuario.dart';
+import 'package:Gourmet360/viewmodels/home_viewmodel.dart';
+import 'package:Gourmet360/views/entrega_producto_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:Gourmet360/presentation/productos_inventory_screen.dart';
-import 'package:Gourmet360/presentation/user_profile_screen.dart';
+import 'package:Gourmet360/views/productos_inventory_screen.dart';
+import 'package:Gourmet360/views/user_profile_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomePortalScreen extends StatefulWidget {
@@ -26,42 +21,51 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   Map<String, dynamic> dataHome = {};
   List<Cliente> clientes = [];
   List<ProductoAsignado> productos = [];
-
   int completedToday = 8;
+  Usuario? userSession;
 
   @override
   void initState() {
     super.initState();
-    // Removed direct dispatch here — HomeBloc will be created and dispatched in build via BlocProvider
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   try {
-    //     context.read<HomeBloc>().add(LoadClientes('5'));
-    //   } catch (_) {}
-    // });
+    Future.microtask(() {
+      final userState = context.read<UserBloc>().state;
+      if (userState is UserLoaded) {
+        userSession = userState.usuario;
+        context.read<HomeViewModel>().getDataHome(
+          userSession!.id,
+          userSession!.accessToken,
+        );
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final userState = context.watch<UserBloc>().state;
+    final vm = context.watch<HomeViewModel>();
 
-    // Provide HomeBloc here so BlocListener can find it
-    return BlocProvider<HomeBloc>(
-      create: (context) =>
-          HomeBloc(repository: HomeRepository())..add(LoadClientes('5')),
-      child: Scaffold(
-        key: _scaffoldKey,
-        endDrawer: DrawerDriverWidget(),
-        body: BlocListener<HomeBloc, HomeState>(
-          listener: (context, state) {
-            if (state is HomeLoaded) {
-              setState(() {
-                clientes = state.dataHome['clientes'] as List<Cliente>;
-                productos =
-                    state.dataHome['productos'] as List<ProductoAsignado>;
-              });
-            }
-          },
-          child: SafeArea(
+    return Scaffold(
+      appBar: AppBar(title: const Text('Productos')),
+      body: Builder(
+        builder: (_) {
+          if (vm.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (vm.error != null) {
+            return Center(child: Text(vm.error!));
+          }
+
+          if (vm.productos.isEmpty) {
+            return const Center(child: Text('No hay productos'));
+          }
+          if (vm.productos.isNotEmpty) {
+            productos = vm.productos;
+          }
+          if (vm.clientes.isNotEmpty) {
+            clientes = vm.clientes;
+          }
+
+          return SafeArea(
             child: Column(
               children: [
                 _buildHeader(),
@@ -84,17 +88,8 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                 ),
               ],
             ),
-          ),
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {},
-          backgroundColor: const Color(0xFF6B2A02),
-          icon: const Icon(Icons.route, color: Colors.white),
-          label: const Text(
-            'Ver Ruta',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -351,14 +346,9 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => BlocProvider(
-                          create: (context) => EntregaProductoBloc(
-                            repository: ChoferRepository(),
-                          ),
-                          child: EntregaProductoScreen(
-                            cliente: cliente,
-                            productos: productos,
-                          ),
+                        builder: (context) => EntregaProductoScreen(
+                          cliente: cliente,
+                          productos: productos,
                         ),
                       ),
                     );

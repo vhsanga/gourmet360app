@@ -1,5 +1,5 @@
 // user_bloc.dart
-import 'package:Gourmet360/core/models/usuario.dart';
+import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/data/services/local_storage_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

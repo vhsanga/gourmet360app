@@ -1,4 +1,4 @@
-import 'package:Gourmet360/core/models/usuario.dart';
+import 'package:Gourmet360/models/usuario.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 

@@ -1,25 +1,14 @@
+// services/user_service.dart
 import 'dart:convert';
-import 'package:Gourmet360/core/models/camion_asignado.dart';
-import 'package:Gourmet360/core/models/http_response.dart';
+import 'package:Gourmet360/core/constants/api_constants.dart';
 import 'package:http/http.dart' as http;
-import '../../../core/constants/api_constants.dart';
+import 'package:Gourmet360/models/http_response.dart';
 
-class HttpRepository {
-  final http.Client client;
-
-  HttpRepository({http.Client? client}) : client = client ?? http.Client();
-
-  Future<HttpResponse> doGet(
-    String path,
-    Map<String, dynamic> params,
-    String userToken,
-  ) async {
-    final uri = Uri.parse(
-      ApiConstants.baseUrl + path,
-    ).replace(queryParameters: params);
-    final response = await client
+class HttpService {
+  static Future<HttpResponse> doGet(String path, String userToken) async {
+    final response = await http
         .get(
-          uri,
+          Uri.parse(ApiConstants.baseUrl + path),
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer $userToken',
@@ -40,15 +29,13 @@ class HttpRepository {
     }
   }
 
-  Future<HttpResponse> doPost(
+  static Future<HttpResponse> doPost(
     String path,
     Map<String, dynamic> params,
     String userToken,
   ) async {
-    print("params:");
-    print(json.encode(params));
     final uri = Uri.parse(ApiConstants.baseUrl + path);
-    final response = await client
+    final response = await http
         .post(
           uri,
           headers: {
@@ -69,8 +56,8 @@ class HttpRepository {
     } else {
       throw Exception(
         response.body.isNotEmpty
-            ? 'Error al enviar información: ${json.decode(response.body)['mensaje']}'
-            : 'Error al enviar información: ${response.statusCode}',
+            ? 'Error: ${json.decode(response.body)['mensaje']}'
+            : 'Error: ${response.statusCode}',
       );
     }
   }

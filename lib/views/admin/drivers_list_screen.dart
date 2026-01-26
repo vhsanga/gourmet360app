@@ -1,41 +1,13 @@
-import 'package:Gourmet360/bloc/get/get_bloc.dart';
-import 'package:Gourmet360/bloc/get/get_event.dart';
-import 'package:Gourmet360/bloc/get/get_state.dart';
 import 'package:Gourmet360/bloc/user/user_bloc.dart';
-import 'package:Gourmet360/core/models/camion_asignado.dart';
-import 'package:Gourmet360/data/http_repository.dart';
-import 'package:Gourmet360/presentation/admin/despacho_screen.dart';
-import 'package:Gourmet360/presentation/admin/sales_report_screen.dart';
-import 'package:Gourmet360/presentation/admin/truck_map_screen.dart';
+import 'package:Gourmet360/models/camion_asignado.dart';
+import 'package:Gourmet360/models/usuario.dart';
+import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
+import 'package:Gourmet360/views/admin/despacho_screen.dart';
+import 'package:Gourmet360/views/admin/sales_report_screen.dart';
+import 'package:Gourmet360/views/admin/truck_map_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-class Driver {
-  final String id;
-  final String nombre;
-  final String celular;
-  final String rol;
-  final String pin;
-  final String placa;
-  final String marca;
-  final String modelo;
-  final int capacidad;
-  final bool isActive;
-
-  Driver({
-    required this.id,
-    required this.nombre,
-    required this.celular,
-    required this.rol,
-    required this.pin,
-    required this.placa,
-    required this.marca,
-    required this.modelo,
-    required this.capacidad,
-    this.isActive = true,
-  });
-}
 
 class DriversListScreen extends StatefulWidget {
   const DriversListScreen({Key? key}) : super(key: key);
@@ -46,36 +18,49 @@ class DriversListScreen extends StatefulWidget {
 
 class _DriversListScreenState extends State<DriversListScreen> {
   List<CamionAsignado> camiones = [];
-
+  Usuario? userSession;
   String searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      final userState = context.read<UserBloc>().state;
+      if (userState is UserLoaded) {
+        print("Cargando lista de conductores para admin...");
+        userSession = userState.usuario;
+        context.read<ChoferViewModel>().listarProductosForAdmin(
+          userSession!.accessToken,
+        );
+      } else {
+        print("No hay sesión de usuario activa.");
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final filteredDrivers = _getFilteredDrivers();
-    final userState = context.read<UserBloc>().state;
-    String userToken = '';
-    if (userState is UserLoaded) {
-      userToken = userState.usuario.accessToken;
-    }
-    return BlocProvider(
-      create: (context) =>
-          GetBloc(httpRepository: HttpRepository())
-            ..add(ExecuteGet({}, '/admin/camiones', userToken)),
-      child: Scaffold(
-        body: BlocListener<GetBloc, GetState>(
-          listener: (context, state) {
-            if (state is GetSuccess) {
-              setState(() {
-                camiones = state.response.data
-                    .map(
-                      (e) => CamionAsignado.fromJson(e as Map<String, dynamic>),
-                    )
-                    .toList()
-                    .cast<CamionAsignado>();
-              });
-            }
-          },
-          child: SafeArea(
+    final vm = context.watch<ChoferViewModel>();
+    return Scaffold(
+      body: Builder(
+        builder: (context) {
+          print("DEtectando cambios en ChoferViewModel...");
+          if (vm.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (vm.error != null) {
+            return Center(child: Text(vm.error!));
+          }
+
+          if (vm.camiones.isEmpty) {
+            return const Center(child: Text('No hay camiones asignados.'));
+          }
+          if (vm.camiones.isNotEmpty) {
+            camiones = vm.camiones;
+          }
+          return SafeArea(
             child: Column(
               children: [
                 _buildHeader(),
@@ -92,16 +77,16 @@ class _DriversListScreenState extends State<DriversListScreen> {
                 ),
               ],
             ),
-          ),
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => _showAddDriverDialog(context),
-          backgroundColor: const Color(0xFF6B2A02),
-          icon: const Icon(Icons.add, color: Colors.white),
-          label: Text(
-            'Nuevo Conductor',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showAddDriverDialog(context),
+        backgroundColor: const Color(0xFF6B2A02),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: Text(
+          'Nuevo Conductor',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
     );
