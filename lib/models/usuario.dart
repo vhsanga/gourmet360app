@@ -9,6 +9,7 @@ class Usuario {
   final String? createdBy;
   final String? updatedBy;
   final String accessToken;
+  int? idDespacho;
 
   Usuario({
     required this.id,
@@ -49,7 +50,7 @@ class Usuario {
       updatedAt: json['updatedAt'],
       createdBy: json['createdBy'],
       updatedBy: json['updatedBy'],
-      accessToken: json['accessToken'],
+      accessToken: json['access_token'],
     );
   }
 

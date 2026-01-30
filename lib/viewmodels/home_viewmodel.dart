@@ -1,5 +1,6 @@
 import 'package:Gourmet360/core/constants/api_constants.dart';
 import 'package:Gourmet360/models/cliente.dart';
+import 'package:Gourmet360/models/despacho.dart';
 import 'package:Gourmet360/models/producto_asignados.dart';
 import 'package:Gourmet360/services/http_service.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ class HomeViewModel extends ChangeNotifier {
   String? error;
   List<ProductoAsignado> productos = [];
   List<Cliente> clientes = [];
+  Despacho? despacho;
 
   Future<bool> getDataHome(String idChofer, String token) async {
     isLoading = true;
@@ -27,6 +29,7 @@ class HomeViewModel extends ChangeNotifier {
           .map((e) => ProductoAsignado.fromJson(e as Map<String, dynamic>))
           .toList()
           .cast<ProductoAsignado>();
+      despacho = Despacho.fromJson(response.data['despacho']);
       notifyListeners();
       return true;
     } catch (e) {

@@ -130,6 +130,12 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
     }
     var idDespacho = orderItems.first.product.despachoId;
 
+    final userState = context.read<UserProvider>();
+    String userToken = '';
+    if (userState.status == UserStatus.loaded) {
+      userToken = userState.token ?? '';
+    }
+
     // Aquí iría la lógica para guardar el pedido
     final orderData = {
       'detalles': orderItems
@@ -145,14 +151,8 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
       'tipoPago': selectedPaymentType.name,
       'idCliente': int.parse(widget.cliente.idCliente),
       'idDespacho': int.parse(idDespacho),
+      'idChofer': int.parse(userState.usuario!.id),
     };
-
-    print(orderData); // Para debug
-    final userState = context.read<UserProvider>();
-    String userToken = '';
-    if (userState.status == UserStatus.loaded) {
-      userToken = userState.token ?? '';
-    }
 
     final productoVM = context.read<ProductoViewModel>();
     DialogsWidget.showLoading(message: 'Procesando...');

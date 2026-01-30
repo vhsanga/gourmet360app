@@ -4,6 +4,7 @@ import 'package:Gourmet360/models/producto_asignados.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/home_viewmodel.dart';
 import 'package:Gourmet360/views/entrega_producto_screen.dart';
+import 'package:Gourmet360/views/templates/dialog_registro_cliente.dart';
 import 'package:flutter/material.dart';
 import 'package:Gourmet360/views/productos_inventory_screen.dart';
 import 'package:Gourmet360/views/user_profile_screen.dart';
@@ -27,10 +28,13 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      final userState = context.read<UserProvider>();
-      if (userState.status == UserStatus.loaded) {
-        userSession = userState.usuario;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userProvider = context.read<UserProvider>();
+      if (userProvider.status == UserStatus.loaded &&
+          userProvider.usuario != null) {
+        print("Cargando lista de conductores para admin...");
+
+        userSession = userProvider.usuario;
         context.read<HomeViewModel>().getDataHome(
           userSession!.id,
           userSession!.accessToken,
@@ -64,24 +68,32 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
           if (vm.clientes.isNotEmpty) {
             clientes = vm.clientes;
           }
+          if (vm.despacho != null) {
+            context.read<UserProvider>().setDespacho(vm.despacho!.id);
+          }
 
           return SafeArea(
             child: Column(
               children: [
                 _buildHeader(),
                 Expanded(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildStatsCards(),
-                          const SizedBox(height: 24),
-                          _buildSectionTitle('Entregas Pendientes'),
-                          const SizedBox(height: 16),
-                          _buildDeliveryList(),
-                        ],
+                  child: RefreshIndicator(
+                    onRefresh: _onRefresh,
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildStatsCards(),
+                            const SizedBox(height: 24),
+                            _buildSectionTitle('Mis Clientes'),
+                            const SizedBox(height: 16),
+                            _buildDeliveryList(),
+                            const SizedBox(height: 16),
+                            if (clientes.isEmpty) _buildRegisterButton(context),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -92,6 +104,13 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
         },
       ),
     );
+  }
+
+  Future<void> _onRefresh() async {
+    await context.read<HomeViewModel>().getDataHome(
+      userSession!.id,
+      userSession!.accessToken,
+    ); // ← TU método (API + estados)
   }
 
   Widget _buildHeader() {
@@ -259,13 +278,24 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   }
 
   Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-        color: Color(0xFF6B2A02),
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF6B2A02),
+          ),
+        ),
+        IconButton(
+          onPressed: () {
+            _mostrarDialogoRegistro(context);
+          },
+          icon: const Icon(Icons.add_circle_outline, size: 32),
+        ),
+      ],
     );
   }
 
@@ -274,6 +304,30 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
       children: clientes
           .map((delivery) => _buildDeliveryCard(delivery))
           .toList(),
+    );
+  }
+
+  Widget _buildRegisterButton(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: ElevatedButton.icon(
+            onPressed: () => _mostrarDialogoRegistro(context),
+            icon: const Icon(Icons.add),
+            label: const Text('Registrar Cliente'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _mostrarDialogoRegistro(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => DialogoRegistroCliente(
+        idChofer: int.parse(userSession!.id),
+        userSession: userSession!,
+      ),
     );
   }
 
@@ -297,13 +351,20 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 12),
-          Text(
-            cliente.nombreCliente,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF6B2A02),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                cliente.nombreCliente,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF6B2A02),
+                ),
+              ),
+              if (cliente.entregado > 0)
+                Icon(Icons.check_circle, color: Colors.green),
+            ],
           ),
           const SizedBox(height: 8),
           Row(

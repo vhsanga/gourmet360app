@@ -5,6 +5,7 @@ import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
 import 'package:Gourmet360/views/admin/despacho_screen.dart';
 import 'package:Gourmet360/views/admin/sales_report_screen.dart';
 import 'package:Gourmet360/views/admin/truck_map_screen.dart';
+import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -521,12 +522,16 @@ class _DriversListScreenState extends State<DriversListScreen> {
   }
 
   void _showAddDriverDialog(BuildContext context) {
-    showDialog(context: context, builder: (context) => const AddDriverDialog());
+    showDialog(
+      context: context,
+      builder: (context) => AddDriverDialog(userSession: userSession),
+    );
   }
 }
 
 class AddDriverDialog extends StatefulWidget {
-  const AddDriverDialog({Key? key}) : super(key: key);
+  Usuario? userSession;
+  AddDriverDialog({Key? key, required this.userSession}) : super(key: key);
 
   @override
   State<AddDriverDialog> createState() => _AddDriverDialogState();
@@ -542,7 +547,6 @@ class _AddDriverDialogState extends State<AddDriverDialog> {
   final _modeloController = TextEditingController();
   final _capacidadController = TextEditingController();
 
-  bool _isLoading = false;
   int _currentStep = 0;
 
   @override
@@ -559,11 +563,6 @@ class _AddDriverDialogState extends State<AddDriverDialog> {
 
   void _handleSave() async {
     if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
-
-      // Simular guardado
-      await Future.delayed(const Duration(seconds: 2));
-
       // Aquí iría la lógica para guardar en el backend
       final driverData = {
         "placa": _placaController.text,
@@ -580,21 +579,33 @@ class _AddDriverDialogState extends State<AddDriverDialog> {
 
       print(driverData); // Para debug
 
-      if (mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '¡Conductor registrado exitosamente!',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            backgroundColor: Colors.green.shade700,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
+      final choferVM = context.read<ChoferViewModel>();
+      DialogsWidget.showLoading(message: 'Procesando...');
+      final navigator = Navigator.of(context, rootNavigator: true);
+      final success = await choferVM.registrarConductor(
+        driverData,
+        widget.userSession?.accessToken ?? '',
+      );
+      if (!mounted) return;
+      navigator.pop();
+      if (success) {
+        DialogsWidget.showSuccess(
+          title: 'Muy bien',
+          message: choferVM.msj ?? 'Chofer correctamente',
+          onClose: () {
+            Navigator.pop(context);
+            context.read<ChoferViewModel>().listarProductosForAdmin(
+              widget.userSession?.accessToken ?? '',
+            );
+          },
         );
+        return;
+      } else {
+        DialogsWidget.showError(
+          title: 'Atención',
+          message: choferVM.msj ?? 'Error desconocido',
+        );
+        return;
       }
     }
   }
@@ -939,11 +950,9 @@ class _AddDriverDialogState extends State<AddDriverDialog> {
           if (_currentStep > 0)
             Expanded(
               child: OutlinedButton(
-                onPressed: _isLoading
-                    ? null
-                    : () {
-                        setState(() => _currentStep--);
-                      },
+                onPressed: () {
+                  setState(() => _currentStep--);
+                },
                 style: OutlinedButton.styleFrom(
                   foregroundColor: const Color(0xFF6B2A02),
                   side: const BorderSide(color: Color(0xFF6B2A02), width: 2),
@@ -961,33 +970,31 @@ class _AddDriverDialogState extends State<AddDriverDialog> {
           if (_currentStep > 0) const SizedBox(width: 12),
           Expanded(
             child: ElevatedButton(
-              onPressed: _isLoading
-                  ? null
-                  : () {
-                      if (_currentStep == 0) {
-                        if (_nombreController.text.isNotEmpty &&
-                            _celularController.text.isNotEmpty &&
-                            _pinController.text.isNotEmpty) {
-                          setState(() => _currentStep++);
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Por favor completa todos los campos',
-                                style: TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              backgroundColor: Colors.orange.shade700,
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          );
-                        }
-                      } else {
-                        _handleSave();
-                      }
-                    },
+              onPressed: () {
+                if (_currentStep == 0) {
+                  if (_nombreController.text.isNotEmpty &&
+                      _celularController.text.isNotEmpty &&
+                      _pinController.text.isNotEmpty) {
+                    setState(() => _currentStep++);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Por favor completa todos los campos',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        backgroundColor: Colors.orange.shade700,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    );
+                  }
+                } else {
+                  _handleSave();
+                }
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF6B2A02),
                 foregroundColor: Colors.white,
@@ -997,22 +1004,10 @@ class _AddDriverDialogState extends State<AddDriverDialog> {
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: _isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                  : Text(
-                      _currentStep == 0 ? 'Siguiente' : 'Guardar',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
+              child: Text(
+                _currentStep == 0 ? 'Siguiente' : 'Guardar',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
             ),
           ),
         ],

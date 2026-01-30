@@ -6,6 +6,7 @@ class Cliente {
   final String lat;
   final String lng;
   final String observacion;
+  final int entregado;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -19,6 +20,7 @@ class Cliente {
     required this.observacion,
     required this.createdAt,
     required this.updatedAt,
+    required this.entregado,
   });
 
   factory Cliente.fromJson(Map<String, dynamic> json) {
@@ -32,6 +34,7 @@ class Cliente {
       observacion: json['observacion'] ?? '',
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
+      entregado: int.tryParse((json['entregado'] ?? 0).toString()) ?? 0,
     );
   }
 

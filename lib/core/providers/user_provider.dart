@@ -70,4 +70,12 @@ class UserProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> setDespacho(int idDespacho) async {
+    if (_usuario != null) {
+      _usuario!.idDespacho = idDespacho;
+      await LocalStorageService.saveUser(_usuario!);
+      notifyListeners();
+    }
+  }
 }
