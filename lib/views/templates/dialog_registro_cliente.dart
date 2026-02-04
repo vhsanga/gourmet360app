@@ -44,7 +44,9 @@ class _DialogoRegistroClienteState extends State<DialogoRegistroCliente> {
         "contacto": _contactoController.text,
         "telefono": _telefonoController.text,
         "id_chofer": widget.idChofer,
-        "observacion": _esClienteEspecial ? 'Cliente especial' : '',
+        "observacion": _esClienteEspecial
+            ? 'Cliente especial'
+            : 'Cliente normal',
       };
 
       final choferVM = context.read<ChoferViewModel>();

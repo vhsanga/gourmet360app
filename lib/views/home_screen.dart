@@ -35,8 +35,6 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
       final userProvider = context.read<UserProvider>();
       if (userProvider.status == UserStatus.loaded &&
           userProvider.usuario != null) {
-        print("Cargando lista de conductores para admin...");
-
         userSession = userProvider.usuario;
         context.read<HomeViewModel>().getDataHome(
           userSession!.id,
@@ -53,45 +51,51 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
     return Scaffold(
       key: _scaffoldKey,
       endDrawer: const DrawerDriverWidget(),
-      body: Builder(
-        builder: (_) {
-          if (vm.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: _onRefresh,
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Builder(
+                      builder: (_) {
+                        if (vm.isLoading) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
 
-          if (vm.error != null) {
-            return Center(child: Text(vm.error!));
-          }
+                        if (vm.error != null) {
+                          return Center(child: Text(vm.error!));
+                        }
 
-          if (vm.productos.isEmpty) {
-            return const Center(child: Text('No hay productos chofer'));
-          }
-          if (vm.productos.isNotEmpty) {
-            productos = vm.productos;
-          }
-          if (vm.clientes.isNotEmpty) {
-            clientes = vm.clientes;
-            completedToday = clientes
-                .where((cliente) => cliente.entregado > 0)
-                .toList()
-                .length;
-          }
-          if (vm.despacho != null) {
-            context.read<UserProvider>().setDespacho(vm.despacho!.id);
-            despacho = vm.despacho;
-          }
+                        if (vm.productos.isEmpty) {
+                          return const Center(
+                            child: Text('No hay productos chofer'),
+                          );
+                        }
+                        if (vm.productos.isNotEmpty) {
+                          productos = vm.productos;
+                        }
+                        if (vm.clientes.isNotEmpty) {
+                          clientes = vm.clientes;
+                          completedToday = clientes
+                              .where((cliente) => cliente.entregado > 0)
+                              .toList()
+                              .length;
+                        }
+                        if (vm.despacho != null) {
+                          context.read<UserProvider>().setDespacho(
+                            vm.despacho!.id,
+                          );
+                          despacho = vm.despacho;
+                        }
 
-          return SafeArea(
-            child: Column(
-              children: [
-                _buildHeader(),
-                Expanded(
-                  child: RefreshIndicator(
-                    onRefresh: _onRefresh,
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
+                        return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _buildStatsCards(),
@@ -102,15 +106,15 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                             const SizedBox(height: 16),
                             if (clientes.isEmpty) _buildRegisterButton(context),
                           ],
-                        ),
-                      ),
+                        );
+                      },
                     ),
                   ),
                 ),
-              ],
+              ),
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
