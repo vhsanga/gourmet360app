@@ -257,16 +257,16 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
           headingRowColor: MaterialStateProperty.all(Colors.grey[50]),
           headingRowHeight: 56,
           dataRowHeight: 64,
-          columnSpacing: 40,
+          columnSpacing: 10,
           horizontalMargin: 24,
           columns: [
             DataColumn(label: _buildColumnHeader('Cliente', 'nombre')),
             DataColumn(
-              label: _buildColumnHeader('Venta Contado Hoy', 'ventaContadoHoy'),
+              label: _buildColumnHeader('Venta', 'ventaContadoHoy'),
               numeric: true,
             ),
             DataColumn(
-              label: _buildColumnHeader('Deuda Acumulada', 'dedudaAcumulada'),
+              label: _buildColumnHeader('Crédito', 'dedudaAcumulada'),
               numeric: true,
             ),
           ],
@@ -281,7 +281,7 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
                           cliente.nombre,
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
-                            fontSize: 15,
+                            fontSize: 14,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
