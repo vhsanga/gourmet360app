@@ -254,7 +254,14 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: DataTable(
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(color: Colors.grey[200]!),
+              bottom: BorderSide(color: Colors.grey[200]!),
+            ),
+          ),
           headingRowColor: MaterialStateProperty.all(Colors.grey[50]),
+          dataRowColor: MaterialStateProperty.all(Color(0xFF6B2A02)),
           headingRowHeight: 56,
           dataRowHeight: 64,
           columnSpacing: 10,
@@ -281,7 +288,9 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
                           cliente.nombre,
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
-                            fontSize: 14,
+                            fontSize: 13,
+                            color: Colors.white,
+
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -300,7 +309,7 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
                     cliente.dedudaAcumulada,
                     cliente.dedudaAcumulada > 0
                         ? const Color(0xFFef4444)
-                        : const Color(0xFF6b7280),
+                        : const Color.fromARGB(255, 132, 139, 156),
                   ),
                 ),
               ],
@@ -442,7 +451,7 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 14,
-              color: isActive ? const Color(0xFF6366f1) : Colors.grey[700],
+              color: isActive ? const Color(0xFF6B2A02) : const Color.fromARGB(255, 129, 129, 129),
             ),
           ),
           const SizedBox(width: 4),
