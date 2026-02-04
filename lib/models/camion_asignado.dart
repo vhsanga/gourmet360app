@@ -2,6 +2,7 @@ import 'dart:convert';
 
 class CamionAsignado {
   final int camionId;
+  final int choferId;
   final String camionPlaca;
   final String camionModelo;
   final String camionMarca;
@@ -11,6 +12,7 @@ class CamionAsignado {
   final String uCelular;
 
   CamionAsignado({
+    required this.choferId,
     required this.camionId,
     required this.camionPlaca,
     required this.camionModelo,
@@ -25,6 +27,7 @@ class CamionAsignado {
   factory CamionAsignado.fromJson(Map<String, dynamic> json) {
     return CamionAsignado(
       camionId: int.tryParse((json['camion_id'] ?? 0).toString()) ?? 0,
+      choferId: int.tryParse((json['chofer_id'] ?? 0).toString()) ?? 0,
       camionPlaca: json['camion_placa'] ?? '',
       camionModelo: json['camion_modelo'] ?? '',
       camionMarca: json['camion_marca'] ?? '',
@@ -68,6 +71,7 @@ class CamionAsignado {
   }) {
     return CamionAsignado(
       camionId: camionId ?? this.camionId,
+      choferId: choferId,
       camionPlaca: camionPlaca ?? this.camionPlaca,
       camionModelo: camionModelo ?? this.camionModelo,
       camionMarca: camionMarca ?? this.camionMarca,

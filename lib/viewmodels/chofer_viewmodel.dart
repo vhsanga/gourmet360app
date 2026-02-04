@@ -1,6 +1,5 @@
 import 'package:Gourmet360/core/constants/api_constants.dart';
 import 'package:Gourmet360/models/camion_asignado.dart';
-import 'package:Gourmet360/models/producto.dart';
 import 'package:Gourmet360/services/http_service.dart';
 import 'package:flutter/material.dart';
 

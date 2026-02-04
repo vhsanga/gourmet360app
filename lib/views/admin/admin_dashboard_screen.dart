@@ -1,9 +1,14 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
+import 'package:Gourmet360/models/dashboard_despachos.dart';
+import 'package:Gourmet360/models/dashboard_ventas.dart';
+import 'package:Gourmet360/models/usuario.dart';
+import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
 import 'package:Gourmet360/views/admin/cliente_report_screen.dart';
+import 'package:Gourmet360/views/admin/clientes_ventas_screen.dart';
 import 'package:Gourmet360/views/admin/drivers_list_screen.dart';
 import 'package:Gourmet360/views/welcome_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({Key? key}) : super(key: key);
@@ -14,58 +19,99 @@ class AdminDashboardScreen extends StatefulWidget {
 
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  Usuario? userSession;
 
-  // Datos del dashboard
-  final int totalDrivers = 8;
-  final int activeDrivers = 6;
+  DashboardDespachos? dashboardDespachos;
+  DashboardVentas? dashboardVentas;
 
-  final int totalProducts = 2850;
-  final int soldProducts = 1847;
+  int totalProducts = 0;
+  int soldProducts = 0;
+  double progress = 0;
+  final double totalRevenue = 0;
+  final double todayRevenue = 0;
 
-  final double totalRevenue = 3254.75;
-  final double todayRevenue = 1847.50;
+  final double accountsReceivable = 0;
 
-  final double accountsReceivable = 1580.00;
+  final int rejectedProducts = 0;
+  final int damagedProducts = 0;
 
-  final int rejectedProducts = 23;
-  final int damagedProducts = 15;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userProvider = context.read<UserProvider>();
+      if (userProvider.status == UserStatus.loaded &&
+          userProvider.usuario != null) {
+        print("Cargando lista de conductores para admin...");
+
+        userSession = userProvider.usuario;
+        context.read<AdminViewModel>().fetchDashboardDataToday(
+          userSession!.accessToken,
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final vm = context.watch<AdminViewModel>();
+
     return Scaffold(
       key: _scaffoldKey,
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            _buildSliverAppBar(),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildQuickStats(),
-                    const SizedBox(height: 24),
-                    _buildSectionTitle('Productos y Ventas'),
-                    const SizedBox(height: 12),
-                    _buildProductsCard(),
-                    const SizedBox(height: 12),
-                    _buildRevenueCard(),
-                    const SizedBox(height: 24),
-                    _buildSectionTitle('Finanzas'),
-                    const SizedBox(height: 12),
-                    _buildAccountsReceivableCard(),
-                    const SizedBox(height: 24),
-                    _buildSectionTitle('Control de Calidad'),
-                    const SizedBox(height: 12),
-                    _buildQualityControlCard(),
-                    const SizedBox(height: 20),
-                  ],
+      body: Builder(
+        builder: (_) {
+          if (vm.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (vm.error != null) {
+            return Center(child: Text(vm.error!));
+          }
+
+          if (vm.dashboardDespachos == null || vm.dashboardVentas == null) {
+            return const Center(child: Text('No hay datos disponibles.'));
+          }
+          if (vm.dashboardDespachos != null) {
+            dashboardDespachos = vm.dashboardDespachos;
+            totalProducts = dashboardDespachos!.cantidad_asignada.toInt();
+            soldProducts = dashboardDespachos!.cantidad_entregada.toInt();
+            if (totalProducts > 0) {
+              progress = (soldProducts / totalProducts).clamp(0.0, 1.0);
+            }
+          }
+          if (vm.dashboardVentas != null) {
+            dashboardVentas = vm.dashboardVentas;
+          }
+
+          return SafeArea(
+            child: CustomScrollView(
+              slivers: [
+                _buildSliverAppBar(),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildQuickStats(),
+                        const SizedBox(height: 24),
+                        _buildProductsCard(),
+                        const SizedBox(height: 24),
+                        _buildAccountsReceivableCard(),
+                        const SizedBox(height: 24),
+                        _buildAdminReportsCard(),
+                        const SizedBox(height: 24),
+                        _buildSectionTitle('Control de Calidad'),
+                        const SizedBox(height: 12),
+                        _buildQualityControlCard(),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -190,15 +236,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            const Color(0xFF6B2A02),
-            const Color(0xFF6B2A02).withOpacity(0.85),
-          ],
+          colors: [Colors.green.shade600, Colors.green.shade700],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF6B2A02).withOpacity(0.3),
+            color: Colors.green.shade300,
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -281,133 +324,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildDriversCard() {
-    final percentage = (activeDrivers / totalDrivers * 100).toInt();
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF5E2C8),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Icon(
-                  Icons.local_shipping_rounded,
-                  color: Color(0xFF6B2A02),
-                  size: 32,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Transportistas',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF6B2A02),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '$activeDrivers de $totalDrivers activos',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '$percentage%',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green.shade700,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: LinearProgressIndicator(
-              value: activeDrivers / totalDrivers,
-              minHeight: 10,
-              backgroundColor: Colors.grey.shade200,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.green.shade600),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildDriverStat('Activos', activeDrivers, Colors.green),
-              _buildDriverStat(
-                'Inactivos',
-                totalDrivers - activeDrivers,
-                Colors.grey,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDriverStat(String label, int value, Color color) {
-    return Row(
-      children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 6),
-        Text(
-          '$label: $value',
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.grey.shade700,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildProductsCard() {
-    final percentage = (soldProducts / totalProducts * 100);
+    final percentage = (progress * 100);
     final remaining = totalProducts - soldProducts;
 
     return Container(
@@ -456,7 +374,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Total vs Vendidos',
+                      'Productos vendidos',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey.shade600,
@@ -502,7 +420,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
-              value: soldProducts / totalProducts,
+              value: progress,
               minHeight: 10,
               backgroundColor: Colors.grey.shade200,
               valueColor: AlwaysStoppedAnimation<Color>(Colors.green.shade600),
@@ -717,6 +635,130 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdminReportsCard() {
+    return SizedBox(
+      width: double.infinity,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ClientesVentasScreen()),
+              );
+            },
+            child: Container(
+              width: 180,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.blue.shade200, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Icon(
+                      Icons.analytics_rounded,
+                      color: Colors.blue.shade700,
+                      size: 32,
+                    ),
+                  ),
+
+                  const Text(
+                    'Reportes',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0D3B66),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'de ventas',
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => DriversListScreen()),
+              );
+            },
+            child: Container(
+              width: 180,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.blue.shade200, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Icon(
+                      Icons.local_shipping_outlined,
+                      color: Colors.blue.shade700,
+                      size: 32,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+
+                  const Text(
+                    'Conductores',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0D3B66),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '',
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),

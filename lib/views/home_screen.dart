@@ -1,10 +1,12 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/models/cliente.dart';
+import 'package:Gourmet360/models/despacho.dart';
 import 'package:Gourmet360/models/producto_asignados.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/home_viewmodel.dart';
 import 'package:Gourmet360/views/entrega_producto_screen.dart';
 import 'package:Gourmet360/views/templates/dialog_registro_cliente.dart';
+import 'package:Gourmet360/views/templates/drawer_driver_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:Gourmet360/views/productos_inventory_screen.dart';
 import 'package:Gourmet360/views/user_profile_screen.dart';
@@ -22,8 +24,9 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   Map<String, dynamic> dataHome = {};
   List<Cliente> clientes = [];
   List<ProductoAsignado> productos = [];
-  int completedToday = 8;
+  int completedToday = 0;
   Usuario? userSession;
+  Despacho? despacho;
 
   @override
   void initState() {
@@ -48,7 +51,8 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
     final vm = context.watch<HomeViewModel>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Productos')),
+      key: _scaffoldKey,
+      endDrawer: const DrawerDriverWidget(),
       body: Builder(
         builder: (_) {
           if (vm.isLoading) {
@@ -60,16 +64,21 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
           }
 
           if (vm.productos.isEmpty) {
-            return const Center(child: Text('No hay productos'));
+            return const Center(child: Text('No hay productos chofer'));
           }
           if (vm.productos.isNotEmpty) {
             productos = vm.productos;
           }
           if (vm.clientes.isNotEmpty) {
             clientes = vm.clientes;
+            completedToday = clientes
+                .where((cliente) => cliente.entregado > 0)
+                .toList()
+                .length;
           }
           if (vm.despacho != null) {
             context.read<UserProvider>().setDespacho(vm.despacho!.id);
+            despacho = vm.despacho;
           }
 
           return SafeArea(
@@ -197,7 +206,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
           child: _buildStatCard(
             icon: Icons.check_circle_outline,
             value: '$completedToday',
-            label: 'Completos',
+            label: 'entregados',
             color: Colors.green,
           ),
         ),
@@ -223,7 +232,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
             },
             child: _buildStatCard(
               icon: Icons.bakery_dining_rounded,
-              value: '1650',
+              value: despacho?.restante.toString() ?? '0',
               label: 'Productos',
               color: Colors.blue,
             ),

@@ -1,64 +1,134 @@
+import 'package:Gourmet360/core/providers/user_provider.dart';
+import 'package:Gourmet360/models/camion_asignado.dart';
+import 'package:Gourmet360/models/usuario.dart';
+import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
+import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
-class SalesReportScreen extends StatelessWidget {
-  const SalesReportScreen({Key? key}) : super(key: key);
+class SalesReportScreen extends StatefulWidget {
+  CamionAsignado camionAsignado;
+  SalesReportScreen({Key? key, required this.camionAsignado}) : super(key: key);
 
+  @override
+  State<SalesReportScreen> createState() => _SalesReportScreenState();
+}
+
+class _SalesReportScreenState extends State<SalesReportScreen> {
+  Usuario? userSession;
   // Datos del conductor
-  final String driverName = 'Jacobo Urquizo';
-  final String driverPlate = 'PBX-1234';
+  String driverName = '';
+
+  String driverPlate = '';
 
   // Datos de productos (panes)
-  final int assignedProducts = 1000;
-  final int soldProducts = 820;
-  final int returnedProducts = 100;
-  final int remainingProducts = 80;
+  int assignedProducts = 1000;
+
+  int soldProducts = 820;
+
+  int returnedProducts = 100;
+
+  int remainingProducts = 80;
 
   // Datos financieros
-  final double soldAmount = 98.40;
-  final double accountsReceivableToday = 8.50;
-  final double accountsReceivableAccumulated = 35.00;
-  final double expensesToday = 10.00;
+  double soldAmount = 98.40;
+
+  double accountsReceivableToday = 8.50;
+
+  double accountsReceivableAccumulated = 35.00;
+
+  double expensesToday = 10.00;
 
   double get totalToDeliver {
     return soldAmount - expensesToday;
   }
 
   double get productPercentageSold {
-    return (soldProducts / assignedProducts) * 100;
+    return (assignedProducts > 0 ? soldProducts / assignedProducts : 0) * 100;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userProvider = context.read<UserProvider>();
+      if (userProvider.status == UserStatus.loaded &&
+          userProvider.usuario != null) {
+        print("Cargando lista de conductores para admin...");
+
+        userSession = userProvider.usuario;
+        driverName = widget.camionAsignado.uNombre;
+        driverPlate = widget.camionAsignado.camionPlaca;
+        context
+            .read<AdminViewModel>()
+            .getResumenDespachosChoferForAdminEndpoint(
+              widget.camionAsignado.choferId,
+              userSession!.accessToken,
+            );
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final vm = context.watch<AdminViewModel>();
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildDriverInfoCard(),
-                    const SizedBox(height: 24),
-                    _buildSectionTitle('Reporte de Productos'),
-                    const SizedBox(height: 12),
-                    _buildProductsReportCard(),
-                    const SizedBox(height: 24),
-                    _buildSectionTitle('Reporte Financiero'),
-                    const SizedBox(height: 12),
-                    _buildFinancialReportCard(),
-                    const SizedBox(height: 24),
-                    _buildTotalToDeliverCard(),
-                    const SizedBox(height: 20),
-                  ],
+      body: Builder(
+        builder: (_) {
+          if (vm.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (vm.error != null) {
+            return Center(child: Text(vm.error!));
+          }
+          if (vm.despachosChofer == null) {
+            return const Center(child: Text('No hay datos disponibles.'));
+          }
+          if (vm.despachosChofer != null) {
+            assignedProducts = vm.despachosChofer!.cantidad_asignada.toInt();
+            soldProducts = vm.despachosChofer!.cantidad_entregada.toInt();
+            returnedProducts = vm.despachosChofer!.cantidad_devuelta.toInt();
+            remainingProducts =
+                assignedProducts - soldProducts - returnedProducts;
+            soldAmount = vm.despachosChofer!.ventas_contado;
+            accountsReceivableToday = vm.despachosChofer!.ventas_credito;
+            accountsReceivableAccumulated =
+                vm.despachosChofer!.cuentas_por_cobrar;
+            expensesToday = 0;
+          }
+          return SafeArea(
+            child: Column(
+              children: [
+                _buildHeader(context),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildDriverInfoCard(),
+                        const SizedBox(height: 24),
+                        _buildSectionTitle('Reporte de Productos'),
+                        const SizedBox(height: 12),
+                        _buildProductsReportCard(),
+                        const SizedBox(height: 24),
+                        _buildSectionTitle('Reporte Financiero'),
+                        const SizedBox(height: 12),
+                        _buildFinancialReportCard(),
+                        const SizedBox(height: 24),
+                        _buildTotalToDeliverCard(),
+                        const SizedBox(height: 24),
+                        _buildRegisterButton(),
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -317,7 +387,7 @@ class SalesReportScreen extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
-              value: soldProducts / assignedProducts,
+              value: assignedProducts > 0 ? soldProducts / assignedProducts : 0,
               minHeight: 12,
               backgroundColor: Colors.grey.shade200,
               valueColor: AlwaysStoppedAnimation<Color>(Colors.green.shade600),
@@ -523,6 +593,70 @@ class SalesReportScreen extends StatelessWidget {
     );
   }
 
+  _registrarEntrega() async {
+    final choferVM = context.read<AdminViewModel>();
+    DialogsWidget.showLoading(message: 'Procesando...');
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final success = await choferVM.registrarEntregaDespacho(
+      widget.camionAsignado.choferId,
+      userSession?.accessToken ?? '',
+    );
+    if (!mounted) return;
+    navigator.pop();
+    if (success) {
+      DialogsWidget.showSuccess(
+        title: 'Muy bien',
+        message: choferVM.msj ?? 'Guardado correctamente',
+        onClose: () {
+          Navigator.pop(context);
+        },
+      );
+      return;
+    } else {
+      DialogsWidget.showError(
+        title: 'Atención',
+        message: choferVM.msj ?? 'Error desconocido',
+      );
+      return;
+    }
+  }
+
+  Widget _buildRegisterButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 60,
+      child: ElevatedButton(
+        onPressed: _registrarEntrega,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF6B2A02),
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: Colors.grey.shade300,
+          disabledForegroundColor: Colors.grey.shade500,
+          elevation: 4,
+          shadowColor: const Color(0xFF6B2A02).withOpacity(0.4),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Registrar Entrega',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Icon(Icons.check, size: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildTotalToDeliverCard() {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -627,28 +761,6 @@ class SalesReportScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.info_outline, color: Colors.white, size: 18),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Monto a entregar al finalizar el día',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 12,
-                      color: Colors.white.withOpacity(0.95),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );

@@ -1,9 +1,11 @@
 import 'package:Gourmet360/core/navigation/app_navigator.dart';
 import 'package:Gourmet360/core/providers/user_provider.dart';
+import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/auth_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/home_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/producto_viewmodel.dart';
+import 'package:Gourmet360/views/admin/admin_dashboard_screen.dart';
 import 'package:Gourmet360/views/home_screen.dart';
 import 'package:Gourmet360/views/welcome_screen.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +29,7 @@ class PanaderiaDeliveryApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ChoferViewModel()),
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
         ChangeNotifierProvider(create: (_) => ProductoViewModel()),
+        ChangeNotifierProvider(create: (_) => AdminViewModel()),
       ],
       child: MaterialApp(
         navigatorKey: AppNavigator.navigatorKey,
@@ -66,7 +69,11 @@ class AppWrapper extends StatelessWidget {
 
         // Si existe usuario → Home
         if (user.status == UserStatus.loaded) {
-          return const HomePortalScreen();
+          if (user.usuario!.rol == 'admin') {
+            return const AdminDashboardScreen();
+          } else {
+            return const HomePortalScreen();
+          }
         }
 
         // Si no hay usuario o hay error → Welcome

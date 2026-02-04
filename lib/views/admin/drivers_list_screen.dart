@@ -50,9 +50,6 @@ class _DriversListScreenState extends State<DriversListScreen> {
     return Scaffold(
       body: Builder(
         builder: (context) {
-          print(
-            "DEtectando cambios en ChoferViewModel...${vm.camiones.length} camiones",
-          );
           if (vm.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -278,7 +275,9 @@ class _DriversListScreenState extends State<DriversListScreen> {
         if (value == 1) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const SalesReportScreen()),
+            MaterialPageRoute(
+              builder: (context) => SalesReportScreen(camionAsignado: driver),
+            ),
           );
         } else if (value == 2) {
           // Abrir Reportes
