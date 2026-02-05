@@ -1,4 +1,5 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
+import 'package:Gourmet360/views/chofer_sales_report_screen.dart';
 import 'package:Gourmet360/views/clients_list_screen.dart';
 import 'package:Gourmet360/views/home_screen.dart';
 import 'package:Gourmet360/views/welcome_screen.dart';
@@ -88,9 +89,15 @@ class _DrawerDriverWidgetState extends State<DrawerDriverWidget> {
                   ),
                   _buildMenuItem(
                     icon: Icons.route_outlined,
-                    title: 'Rutas',
+                    title: 'Mi reporte',
                     onTap: () {
                       Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChoferSalesReportScreen(),
+                        ),
+                      );
                     },
                   ),
                   _buildMenuItem(

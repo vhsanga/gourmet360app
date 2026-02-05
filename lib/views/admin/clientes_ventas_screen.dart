@@ -83,18 +83,17 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xFF6B2A02),
+        iconTheme: IconThemeData(
+          color: Colors.white, //change your color here
+        ),
         title: const Text(
           'Clientes y Ventas',
           style: TextStyle(
-            color: Color(0xFF1a1a1a),
+            color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 24,
           ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(color: Colors.grey[200], height: 1),
         ),
       ),
       body: Builder(
@@ -120,44 +119,6 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
             return SafeArea(
               child: Column(
                 children: [
-                  // Barra de búsqueda y estadísticas
-                  Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      children: [
-                        // Buscador
-                        TextField(
-                          onChanged: (value) {
-                            setState(() {
-                              _searchQuery = value;
-                            });
-                          },
-                          decoration: InputDecoration(
-                            hintText: 'Buscar cliente...',
-                            prefixIcon: const Icon(
-                              Icons.search,
-                              color: Color(0xFF6366f1),
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey[100],
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 2),
-
                   // Tabla
                   Expanded(
                     child: Container(
@@ -254,14 +215,7 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: DataTable(
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(color: Colors.grey[200]!),
-              bottom: BorderSide(color: Colors.grey[200]!),
-            ),
-          ),
           headingRowColor: MaterialStateProperty.all(Colors.grey[50]),
-          dataRowColor: MaterialStateProperty.all(Color(0xFF6B2A02)),
           headingRowHeight: 56,
           dataRowHeight: 64,
           columnSpacing: 10,
@@ -288,13 +242,13 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
                           cliente.nombre,
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                            color: Colors.white,
-
+                            fontSize: 14,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      if (cliente.especial)
+                        Icon(Icons.star, color: Colors.amber[600], size: 18),
                     ],
                   ),
                 ),
@@ -309,7 +263,7 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
                     cliente.dedudaAcumulada,
                     cliente.dedudaAcumulada > 0
                         ? const Color(0xFFef4444)
-                        : const Color.fromARGB(255, 132, 139, 156),
+                        : const Color(0xFF6b7280),
                   ),
                 ),
               ],
@@ -451,7 +405,7 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 14,
-              color: isActive ? const Color(0xFF6B2A02) : const Color.fromARGB(255, 129, 129, 129),
+              color: isActive ? const Color(0xFF6B2A02) : Colors.grey[700],
             ),
           ),
           const SizedBox(width: 4),
@@ -460,7 +414,7 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
                 ? (_sortAscending ? Icons.arrow_upward : Icons.arrow_downward)
                 : Icons.unfold_more,
             size: 18,
-            color: isActive ? const Color(0xFF6366f1) : Colors.grey[400],
+            color: isActive ? const Color(0xFF6B2A02) : Colors.grey[400],
           ),
         ],
       ),

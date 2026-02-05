@@ -2,25 +2,22 @@ import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/models/camion_asignado.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
+import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
 import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-class SalesReportScreen extends StatefulWidget {
-  CamionAsignado camionAsignado;
-  SalesReportScreen({Key? key, required this.camionAsignado}) : super(key: key);
+class ChoferSalesReportScreen extends StatefulWidget {
+  ChoferSalesReportScreen({Key? key}) : super(key: key);
 
   @override
-  State<SalesReportScreen> createState() => _SalesReportScreenState();
+  State<ChoferSalesReportScreen> createState() =>
+      _ChoferSalesReportScreenState();
 }
 
-class _SalesReportScreenState extends State<SalesReportScreen> {
+class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
   Usuario? userSession;
-  // Datos del conductor
-  String driverName = '';
-
-  String driverPlate = '';
 
   // Datos de productos (panes)
   int assignedProducts = 1000;
@@ -55,15 +52,11 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
       final userProvider = context.read<UserProvider>();
       if (userProvider.status == UserStatus.loaded &&
           userProvider.usuario != null) {
-        print("Cargando lista de conductores para admin...");
-
         userSession = userProvider.usuario;
-        driverName = widget.camionAsignado.uNombre;
-        driverPlate = widget.camionAsignado.camionPlaca;
         context
             .read<AdminViewModel>()
             .getResumenDespachosChoferForAdminEndpoint(
-              widget.camionAsignado.choferId,
+              int.parse(userSession!.id),
               userSession!.accessToken,
             );
       }
@@ -107,8 +100,6 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildDriverInfoCard(),
-                        const SizedBox(height: 24),
                         _buildSectionTitle('Reporte de Productos'),
                         const SizedBox(height: 12),
                         _buildProductsReportCard(),
@@ -118,8 +109,6 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                         _buildFinancialReportCard(),
                         const SizedBox(height: 24),
                         _buildTotalToDeliverCard(),
-                        const SizedBox(height: 24),
-                        _buildRegisterButton(),
                         const SizedBox(height: 24),
                       ],
                     ),
@@ -175,94 +164,6 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDriverInfoCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            const Color(0xFF6B2A02),
-            const Color(0xFF6B2A02).withOpacity(0.85),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF6B2A02).withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF5E2C8),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Center(
-              child: Text(
-                driverName[0].toUpperCase(),
-                style: GoogleFonts.montserrat(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF6B2A02),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  driverName,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.local_shipping_rounded,
-                      size: 16,
-                      color: Color(0xFFF5E2C8),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      driverPlate,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 15,
-                        color: const Color(0xFFF5E2C8),
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.verified, color: Colors.white, size: 28),
           ),
         ],
       ),
@@ -454,47 +355,6 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.attach_money,
-                  color: Colors.green.shade700,
-                  size: 28,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Estado Financiero',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF6B2A02),
-                      ),
-                    ),
-                    Text(
-                      'Movimientos del día',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
           _buildFinancialStatRow(
             'Dinero Vendido Hoy',
             soldAmount,
@@ -519,9 +379,8 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
             isWarning: true,
           ),
           const SizedBox(height: 12),
-          _buildFinancialStatRow(
+          _buildFinancialStatRowButton(
             'Gastos del Día',
-            expensesToday,
             Icons.local_gas_station,
             Colors.red,
             isNegative: true,
@@ -593,12 +452,133 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
     );
   }
 
-  _registrarEntrega() async {
-    final choferVM = context.read<AdminViewModel>();
+  Widget _buildFinancialStatRowButton(
+    String label,
+    IconData icon,
+    Color color, {
+    bool isPositive = false,
+    bool isNegative = false,
+    bool isWarning = false,
+  }) {
+    Color backgroundColor;
+    if (isPositive) {
+      backgroundColor = Colors.green.shade50;
+    } else if (isNegative) {
+      backgroundColor = Colors.red.shade50;
+    } else if (isWarning) {
+      backgroundColor = Colors.orange.shade50;
+    } else {
+      backgroundColor = const Color(0xFFF5E2C8).withOpacity(0.3);
+    }
+
+    // Controller para el input (puedes moverlo a tu State si necesitas persistencia)
+    final TextEditingController controller = TextEditingController(
+      text: expensesToday.toStringAsFixed(2),
+    );
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          // Icono
+          Icon(icon, size: 22, color: color),
+          const SizedBox(width: 12),
+
+          // Texto/Label
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: GoogleFonts.montserrat(
+                fontSize: 13,
+                color: Colors.grey.shade700,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+
+          // Input Text
+          Expanded(
+            flex: 2,
+            child: TextField(
+              controller: controller,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              textAlign: TextAlign.right,
+              style: GoogleFonts.montserrat(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: isPositive
+                    ? Colors.green.shade700
+                    : isNegative
+                    ? Colors.red.shade700
+                    : Colors.orange.shade700,
+              ),
+              decoration: InputDecoration(
+                prefixStyle: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: isPositive
+                      ? Colors.green.shade700
+                      : isNegative
+                      ? Colors.red.shade700
+                      : Colors.orange.shade700,
+                ),
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 8,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: color, width: 2),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+
+          // Botón Guardar
+          ElevatedButton.icon(
+            onPressed: () {
+              final newValue = double.tryParse(controller.text);
+              if (newValue != null) {
+                _registrarGasto(newValue);
+              }
+            },
+            icon: const Icon(Icons.save, size: 16),
+            label: const Text('Guardar'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: color,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  _registrarGasto(double valor) async {
+    final choferVM = context.read<ChoferViewModel>();
     DialogsWidget.showLoading(message: 'Procesando...');
     final navigator = Navigator.of(context, rootNavigator: true);
-    final success = await choferVM.registrarEntregaDespacho(
-      widget.camionAsignado.choferId,
+    final success = await choferVM.registrarGastoDespacho(
+      valor,
+      userSession!.idDespacho!,
       userSession?.accessToken ?? '',
     );
     if (!mounted) return;
@@ -607,9 +587,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
       DialogsWidget.showSuccess(
         title: 'Muy bien',
         message: choferVM.msj ?? 'Guardado correctamente',
-        onClose: () {
-          Navigator.pop(context);
-        },
+        onClose: () {},
       );
       return;
     } else {
@@ -619,42 +597,6 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
       );
       return;
     }
-  }
-
-  Widget _buildRegisterButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 60,
-      child: ElevatedButton(
-        onPressed: _registrarEntrega,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF6B2A02),
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: Colors.grey.shade300,
-          disabledForegroundColor: Colors.grey.shade500,
-          elevation: 4,
-          shadowColor: const Color(0xFF6B2A02).withOpacity(0.4),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Registrar Entrega',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.5,
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Icon(Icons.check, size: 24),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _buildTotalToDeliverCard() {

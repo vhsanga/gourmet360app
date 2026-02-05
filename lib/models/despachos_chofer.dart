@@ -6,6 +6,7 @@ class DespachosChofer {
   final double ventas_credito;
   final double ventas_contado;
   final double cuentas_por_cobrar;
+  final double gastos;
 
   DespachosChofer({
     required this.cantidad_asignada,
@@ -15,6 +16,7 @@ class DespachosChofer {
     required this.ventas_credito,
     required this.ventas_contado,
     required this.cuentas_por_cobrar,
+    required this.gastos,
   });
 
   factory DespachosChofer.fromJson(
@@ -55,6 +57,7 @@ class DespachosChofer {
             jsonCuentasPorCobrar['cuentas_por_cobrar']?.toString() ?? '0',
           ) ??
           0,
+      gastos: double.tryParse(jsonDespachos['gastos']?.toString() ?? '0') ?? 0,
     );
   }
 }

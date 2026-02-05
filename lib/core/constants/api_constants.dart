@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const String baseUrl = 'http://62.146.172.94:3000/api/v1';
+  static const String baseUrl = 'http://192.168.0.31:3000/api/v1';
   static const String loginEndpoint = '/auth/login';
   static const String usersDataHomeEndPoint = '/usuario/data-home';
   static const String saveVentaEndpoint = '/admin/save-venta';
@@ -17,6 +17,8 @@ class ApiConstants {
       '/admin/set-despacho-entregado/';
   static const String getResumenVentasClientesForAdminEndpoint =
       '/admin/resumen-ventas-clientes';
+  static const String saveRegistrarGastoEndpoint =
+      '/admin/update-gasto-despacho/';
   static const int connectTimeout = 5000;
   static const int receiveTimeout = 10000;
 }
