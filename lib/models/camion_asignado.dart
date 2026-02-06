@@ -10,6 +10,8 @@ class CamionAsignado {
   final int uId;
   final String uNombre;
   final String uCelular;
+  final double latitud;
+  final double longitud;
 
   CamionAsignado({
     required this.choferId,
@@ -21,6 +23,8 @@ class CamionAsignado {
     required this.uId,
     required this.uNombre,
     required this.uCelular,
+    this.latitud = 0.0,
+    this.longitud = 0.0,
   });
 
   // Factory constructor para crear una instancia desde JSON
@@ -35,6 +39,8 @@ class CamionAsignado {
       uId: int.tryParse((json['u_id'] ?? 0).toString()) ?? 0,
       uNombre: json['u_nombre'] ?? '',
       uCelular: json['u_celular'] ?? '',
+      latitud: double.tryParse((json['lat'] ?? 0.0).toString()) ?? 0.0,
+      longitud: double.tryParse((json['lng'] ?? 0.0).toString()) ?? 0.0,
     );
   }
 

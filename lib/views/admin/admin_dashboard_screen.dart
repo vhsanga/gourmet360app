@@ -6,6 +6,7 @@ import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
 import 'package:Gourmet360/views/admin/cliente_report_screen.dart';
 import 'package:Gourmet360/views/admin/clientes_ventas_screen.dart';
 import 'package:Gourmet360/views/admin/drivers_list_screen.dart';
+import 'package:Gourmet360/views/admin/mapa_camiones_screen.dart';
 import 'package:Gourmet360/views/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -103,6 +104,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         _buildSectionTitle('Control de Calidad'),
                         const SizedBox(height: 12),
                         _buildQualityControlCard(),
+                        const SizedBox(height: 20),
+                        _buildCamionesPositoinsCard(),
                         const SizedBox(height: 20),
                       ],
                     ),
@@ -637,6 +640,70 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCamionesPositoinsCard() {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MapaCamionesScreen()),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.purple.shade200, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.purple.shade50,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(
+                Icons.schedule,
+                color: Colors.purple.shade700,
+                size: 32,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Ubicar Camiones',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF6B2A02),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'ver en el mapa',
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

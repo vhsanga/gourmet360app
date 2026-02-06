@@ -5,6 +5,7 @@ import 'package:Gourmet360/viewmodels/auth_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/home_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/localtion_viewmodel.dart';
+import 'package:Gourmet360/viewmodels/location_chofer_viemodel.dart';
 import 'package:Gourmet360/viewmodels/producto_viewmodel.dart';
 import 'package:Gourmet360/views/admin/admin_dashboard_screen.dart';
 import 'package:Gourmet360/views/home_screen.dart';
@@ -32,6 +33,7 @@ class PanaderiaDeliveryApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProductoViewModel()),
         ChangeNotifierProvider(create: (_) => AdminViewModel()),
         ChangeNotifierProvider(create: (_) => LocationViewModel()),
+        ChangeNotifierProvider(create: (_) => LocationChoferViewModel()),
       ],
       child: MaterialApp(
         navigatorKey: AppNavigator.navigatorKey,
