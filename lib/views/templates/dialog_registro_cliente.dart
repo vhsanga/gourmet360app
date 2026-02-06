@@ -1,6 +1,7 @@
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/home_viewmodel.dart';
+import 'package:Gourmet360/viewmodels/localtion_viewmodel.dart';
 import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -38,6 +39,14 @@ class _DialogoRegistroClienteState extends State<DialogoRegistroCliente> {
 
   void _guardarCliente() async {
     if (_formKey.currentState!.validate()) {
+      final pos = await context.read<LocationViewModel>().getPositionOnce();
+      String lat = '';
+      String lng = '';
+      if (pos != null) {
+        lat = pos.latitude.toString();
+        lng = pos.longitude.toString();
+      }
+
       final datos = {
         "nombre": _nombreController.text,
         "direccion": _direccionController.text,
@@ -45,6 +54,8 @@ class _DialogoRegistroClienteState extends State<DialogoRegistroCliente> {
         "telefono": _telefonoController.text,
         "id_chofer": widget.idChofer,
         "especial": _esClienteEspecial,
+        "lat": lat,
+        "lng": lng,
       };
 
       final choferVM = context.read<ChoferViewModel>();

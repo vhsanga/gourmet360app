@@ -19,6 +19,8 @@ class ApiConstants {
       '/admin/resumen-ventas-clientes';
   static const String saveRegistrarGastoEndpoint =
       '/admin/update-gasto-despacho/';
+  static const String saveRegistrarUbicacionChoferEndpoint =
+      '/usuario/ubicacion/';
   static const int connectTimeout = 5000;
   static const int receiveTimeout = 10000;
 }

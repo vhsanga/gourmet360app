@@ -3,7 +3,9 @@ import 'package:Gourmet360/models/cliente.dart';
 import 'package:Gourmet360/models/despacho.dart';
 import 'package:Gourmet360/models/producto_asignados.dart';
 import 'package:Gourmet360/models/usuario.dart';
+import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/home_viewmodel.dart';
+import 'package:Gourmet360/viewmodels/localtion_viewmodel.dart';
 import 'package:Gourmet360/views/entrega_producto_screen.dart';
 import 'package:Gourmet360/views/templates/dialog_registro_cliente.dart';
 import 'package:Gourmet360/views/templates/drawer_driver_widget.dart';
@@ -27,6 +29,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   int completedToday = 0;
   Usuario? userSession;
   Despacho? despacho;
+  bool isConected = false;
 
   @override
   void initState() {
@@ -36,9 +39,21 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
       if (userProvider.status == UserStatus.loaded &&
           userProvider.usuario != null) {
         userSession = userProvider.usuario;
+        final choferID = userProvider.usuario!.id;
         context.read<HomeViewModel>().getDataHome(
           userSession!.id,
           userSession!.accessToken,
+        );
+        context.read<LocationViewModel>().startTracking(
+          onLocationChanged: (lat, lng) {
+            // Esta llamada ocurre en segundo plano cada vez que el GPS se mueve
+            context.read<ChoferViewModel>().registrarUbicacionChofer(
+              lat,
+              lng,
+              int.parse(choferID),
+              userSession!.accessToken,
+            );
+          },
         );
       }
     });
@@ -47,6 +62,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<HomeViewModel>();
+    final locationVm = context.watch<LocationViewModel>();
 
     return Scaffold(
       key: _scaffoldKey,
@@ -93,6 +109,9 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                             vm.despacho!.id,
                           );
                           despacho = vm.despacho;
+                        }
+                        if (locationVm.currentPosition != null) {
+                          isConected = true;
                         }
 
                         return Column(
@@ -169,6 +188,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
               children: [nombreChofer()],
             ),
           ),
+          Icon(isConected ? Icons.wifi : Icons.wifi_off, color: Colors.white),
           IconButton(
             onPressed: () {
               _scaffoldKey.currentState?.openEndDrawer();

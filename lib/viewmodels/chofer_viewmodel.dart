@@ -108,4 +108,36 @@ class ChoferViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<bool> registrarUbicacionChofer(
+    double lat,
+    double lng,
+    int idChofer,
+    String userToken,
+  ) async {
+    isLoading = true;
+    msj = null;
+    notifyListeners();
+    try {
+      Map<String, dynamic> params = {
+        "lat": lat,
+        "lng": lng,
+        "idChofer": idChofer,
+      };
+      final response = await HttpService.doPost(
+        ApiConstants.saveRegistrarUbicacionChoferEndpoint,
+        params,
+        userToken,
+      );
+      msj = response.mensaje;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      msj = e.toString().replaceAll('Exception:', '');
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 }
