@@ -27,7 +27,12 @@ class _DriversListScreenState extends State<DriversListScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userProvider = context.read<UserProvider>();
+      _loadData();
+    });
+  }
+
+  void _loadData(){
+    final userProvider = context.read<UserProvider>();
 
       if (userProvider.status == UserStatus.loaded &&
           userProvider.usuario != null) {
@@ -41,7 +46,6 @@ class _DriversListScreenState extends State<DriversListScreen> {
       } else {
         print("No hay sesión de usuario activa.");
       }
-    });
   }
 
   @override
@@ -55,12 +59,32 @@ class _DriversListScreenState extends State<DriversListScreen> {
           }
 
           if (vm.error != null) {
-            return Center(child: Text(vm.error!));
+            return Center(child: Column(
+              children: [
+                Text(vm.error!),
+                ElevatedButton(
+                  onPressed: () {
+                    _loadData();
+                  },
+                  child: const Text('Reintentar'),
+                ),
+              ],
+            ));
           }
 
           if (vm.camiones.isEmpty) {
             print("Lista de camiones VACIA desde VM.");
-            return const Center(child: Text('No hay camiones asignados.'));
+            return Center(child: Column(
+              children: [
+                Text('No hay camiones asignados.'),
+                ElevatedButton(
+                  onPressed: () {
+                    _loadData();
+                  },
+                  child: const Text('Reintentar'),
+                ),
+              ],
+            ));
           }
           if (vm.camiones.isNotEmpty) {
             print("Actualizando lista de camiones desde VM...");

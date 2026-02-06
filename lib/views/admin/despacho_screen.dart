@@ -25,7 +25,12 @@ class _DespachoScreenState extends State<DespachoScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userProvider = context.read<UserProvider>();
+      _loadData();
+    });
+  }
+
+  void _loadData(){
+    final userProvider = context.read<UserProvider>();
       if (userProvider.status == UserStatus.loaded &&
           userProvider.usuario != null) {
         print("Cargando lista de conductores para admin...");
@@ -38,7 +43,6 @@ class _DespachoScreenState extends State<DespachoScreen> {
           _controllers[product.id.toString()] = TextEditingController();
         }
       }
-    });
   }
 
   @override
@@ -73,11 +77,31 @@ class _DespachoScreenState extends State<DespachoScreen> {
           }
 
           if (vm.error != null) {
-            return Center(child: Text(vm.error!));
+            return Center(child: Column(
+              children: [
+                Text(vm.error!),
+                ElevatedButton(
+                  onPressed: () {
+                    _loadData();
+                  },
+                  child: const Text('Reintentar'),
+                ),
+              ],
+            ));
           }
 
           if (vm.productos.isEmpty) {
-            return const Center(child: Text('No hay productos para despacho'));
+            return Center(child: Column(
+              children: [
+                Text('No hay productos para despacho'),
+                ElevatedButton(
+                  onPressed: () {
+                    _loadData();
+                  },
+                  child: const Text('Reintentar'),
+                ),
+              ],
+            ));
           }
           if (vm.productos.isNotEmpty) {
             _productos = vm.productos;
