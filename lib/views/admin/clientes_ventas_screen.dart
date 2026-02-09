@@ -61,7 +61,12 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userProvider = context.read<UserProvider>();
+      _loadData();
+    });
+  }
+
+  void _loadData(){
+    final userProvider = context.read<UserProvider>();
 
       if (userProvider.status == UserStatus.loaded &&
           userProvider.usuario != null) {
@@ -73,7 +78,6 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
       } else {
         print("No hay sesión de usuario activa.");
       }
-    });
   }
 
   @override
@@ -103,12 +107,32 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
           }
 
           if (vm.error != null) {
-            return Center(child: Text(vm.error!));
+            return Center(child: Column(
+              children: [
+                Text(vm.error!),
+                ElevatedButton(
+                  onPressed: () {
+                    _loadData();
+                  },
+                  child: const Text('Reintentar'),
+                ),
+              ],
+            ));
           }
 
           if (vm.clientesVentas.isEmpty) {
             print("Lista de clientes VACIA desde VM.");
-            return const Center(child: Text('No hay clientes registrados.'));
+            return Center(child: Column(
+              children: [
+                Text('No hay clientes registrados.'),
+                ElevatedButton(
+                  onPressed: () {
+                    _loadData();
+                  },
+                  child: const Text('Reintentar'),
+                ),
+              ],
+            ));
           }
 
           if (vm.clientesVentas.isNotEmpty) {
@@ -149,8 +173,17 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
               ),
             );
           }
-          return const Center(
-            child: Text('No se pudo cargar la lista de clientes.'),
+          return Center( child: Column(
+              children: [
+                Text('No se pudo cargar la lista de clientes.'),
+                ElevatedButton(
+                  onPressed: () {
+                    _loadData();
+                  },
+                  child: const Text('Reintentar'),
+                ),
+              ],
+            ),
           );
         },
       ),

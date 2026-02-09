@@ -52,7 +52,12 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userProvider = context.read<UserProvider>();
+      _loadData();
+    });
+  }
+
+  _loadData() {
+    final userProvider = context.read<UserProvider>();
       if (userProvider.status == UserStatus.loaded &&
           userProvider.usuario != null) {
         print("Cargando lista de conductores para admin...");
@@ -66,8 +71,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
               widget.camionAsignado.choferId,
               userSession!.accessToken,
             );
-      }
-    });
+    }
   }
 
   @override
@@ -80,10 +84,30 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (vm.error != null) {
-            return Center(child: Text(vm.error!));
+            return Center(child: Column(
+              children: [
+                Text(vm.error!),
+                ElevatedButton(
+                  onPressed: () {
+                    _loadData();
+                  },
+                  child: const Text('Reintentar'),
+                ),
+              ],
+            ));
           }
           if (vm.despachosChofer == null) {
-            return const Center(child: Text('No hay datos disponibles.'));
+            return Center(child: Column(
+              children: [
+                Text('No hay datos disponibles.'),
+                ElevatedButton(
+                  onPressed: () {
+                    _loadData();
+                  },
+                  child: const Text('Reintentar'),
+                ),
+              ],
+            ));
           }
           if (vm.despachosChofer != null) {
             assignedProducts = vm.despachosChofer!.cantidad_asignada.toInt();

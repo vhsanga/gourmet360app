@@ -40,7 +40,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userProvider = context.read<UserProvider>();
+      _loadData();
+    });
+  }
+
+  void _loadData() {
+    final userProvider = context.read<UserProvider>();
       if (userProvider.status == UserStatus.loaded &&
           userProvider.usuario != null) {
         print("Cargando lista de conductores para admin...");
@@ -50,7 +55,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           userSession!.accessToken,
         );
       }
-    });
   }
 
   @override
@@ -65,11 +69,31 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (vm.error != null) {
-            return Center(child: Text(vm.error!));
+            return Center(child: Column(
+              children: [
+                Text(vm.error!),
+                ElevatedButton(
+                  onPressed: (){
+                    _loadData();
+                  },
+                  child: const Text('Reintentar'),
+                ),
+              ],
+            ));
           }
 
           if (vm.dashboardDespachos == null || vm.dashboardVentas == null) {
-            return const Center(child: Text('No hay datos disponibles.'));
+            return Center(child: Column(
+              children: [
+                Text('No hay datos disponibles.'),
+                ElevatedButton(
+                  onPressed: (){
+                    _loadData();
+                  },
+                  child: Text('Reintentar'),
+                ),
+              ],
+            ));
           }
           if (vm.dashboardDespachos != null) {
             dashboardDespachos = vm.dashboardDespachos;

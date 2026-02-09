@@ -63,6 +63,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   Widget build(BuildContext context) {
     final vm = context.watch<HomeViewModel>();
     final locationVm = context.watch<LocationViewModel>();
+    final userProvider = context.read<UserProvider>();
 
     return Scaffold(
       key: _scaffoldKey,
@@ -86,12 +87,39 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                         }
 
                         if (vm.error != null) {
-                          return Center(child: Text(vm.error!));
+                          return Center(child: Column(
+                            children: [
+                              Text(vm.error!),
+                              ElevatedButton(
+                                onPressed: () {
+                                  context.read<HomeViewModel>().getDataHome(
+                                    userSession!.id,
+                                    userSession!.accessToken,
+                                  );
+                                },
+                                child: const Text('Reintentar'),
+                              ),
+                            ],
+                          ));
                         }
 
                         if (vm.productos.isEmpty) {
-                          return const Center(
-                            child: Text('No hay productos chofer'),
+                          return Center(
+                            child: Column(
+                              children: [
+                                Text('No hay productos chofer'),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    userSession = userProvider.usuario;
+                                    context.read<HomeViewModel>().getDataHome(
+                                      userSession!.id,
+                                      userSession!.accessToken,
+                                    );
+                                  },
+                                  child: const Text('Reintentar'),
+                                ),
+                              ],
+                            ),
                           );
                         }
                         if (vm.productos.isNotEmpty) {

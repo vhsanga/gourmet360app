@@ -49,7 +49,12 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userProvider = context.read<UserProvider>();
+      _loadData();
+    });
+  }
+
+  void _loadData(){
+    final userProvider = context.read<UserProvider>();
       if (userProvider.status == UserStatus.loaded &&
           userProvider.usuario != null) {
         userSession = userProvider.usuario;
@@ -60,7 +65,6 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
               userSession!.accessToken,
             );
       }
-    });
   }
 
   @override
@@ -73,10 +77,30 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (vm.error != null) {
-            return Center(child: Text(vm.error!));
+            return Center(child: Column(
+              children: [
+                Text(vm.error!),
+                ElevatedButton(
+                  onPressed: () {
+                    _loadData();
+                  },
+                  child: const Text('Reintentar'),
+                ),
+              ],
+            ));
           }
           if (vm.despachosChofer == null) {
-            return const Center(child: Text('No hay datos disponibles.'));
+            return Center(child: Column(
+              children: [
+                Text('No hay datos disponibles.'),
+                ElevatedButton(
+                  onPressed: () {
+                    _loadData();
+                  },
+                  child: const Text('Reintentar'),
+                ),
+              ],
+            ));
           }
           if (vm.despachosChofer != null) {
             assignedProducts = vm.despachosChofer!.cantidad_asignada.toInt();
