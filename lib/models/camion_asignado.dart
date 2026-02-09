@@ -39,8 +39,8 @@ class CamionAsignado {
       uId: int.tryParse((json['u_id'] ?? 0).toString()) ?? 0,
       uNombre: json['u_nombre'] ?? '',
       uCelular: json['u_celular'] ?? '',
-      latitud: double.tryParse((json['lat'] ?? 0.0).toString()) ?? 0.0,
-      longitud: double.tryParse((json['lng'] ?? 0.0).toString()) ?? 0.0,
+      latitud: double.tryParse((json['camion_lat'] ?? 0.0).toString()) ?? 0.0,
+      longitud: double.tryParse((json['camion_lng'] ?? 0.0).toString()) ?? 0.0,
     );
   }
 

@@ -19,7 +19,7 @@ class LocationChoferViewModel extends ChangeNotifier {
 
     try {
       final response = await HttpService.doGet(
-        ApiConstants.getUbicacionChoferEndpoint,
+        ApiConstants.getCamionesForAdminEndpoint,
         userToken,
       );
       _camiones = (response.data as List)
@@ -33,7 +33,7 @@ class LocationChoferViewModel extends ChangeNotifier {
           position: LatLng(camion.latitud, camion.longitud),
           infoWindow: InfoWindow(
             title: camion.uNombre,
-            snippet: camion.uCelular,
+            snippet: "Placas: ${camion.camionPlaca}",
           ),
           icon: BitmapDescriptor.defaultMarkerWithHue(
             BitmapDescriptor.hueAzure,
