@@ -1,5 +1,6 @@
 import 'package:Gourmet360/core/constants/api_constants.dart';
 import 'package:Gourmet360/models/camion_asignado.dart';
+import 'package:Gourmet360/models/cliente_ventas.dart';
 import 'package:Gourmet360/services/http_service.dart';
 import 'package:flutter/material.dart';
 
@@ -8,6 +9,7 @@ class ChoferViewModel extends ChangeNotifier {
   String? error;
   String? msj;
   List<CamionAsignado> camiones = [];
+  List<ClienteVentas> clientesVentas = [];
 
   Future<void> listarProductosForAdmin(String userToken) async {
     isLoading = true;
@@ -135,6 +137,28 @@ class ChoferViewModel extends ChangeNotifier {
     } catch (e) {
       msj = e.toString().replaceAll('Exception:', '');
       return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> getResumenVentasClientesForChoferEndpoint(
+    String userToken,
+  ) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+    try {
+      final response = await HttpService.doGet(
+        ApiConstants.getResumenVentasClientesForAdminEndpoint,
+        userToken,
+      );
+      clientesVentas = (response.data as List<dynamic>)
+          .map((e) => ClienteVentas.fromJson(e))
+          .toList();
+    } catch (e) {
+      error = e.toString().replaceAll('Exception:', '');
     } finally {
       isLoading = false;
       notifyListeners();
