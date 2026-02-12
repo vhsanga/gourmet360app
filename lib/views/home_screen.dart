@@ -7,6 +7,7 @@ import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/home_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/localtion_viewmodel.dart';
 import 'package:Gourmet360/views/entrega_producto_screen.dart';
+import 'package:Gourmet360/views/templates/dialog_devolicion.dart';
 import 'package:Gourmet360/views/templates/dialog_registro_cliente.dart';
 import 'package:Gourmet360/views/templates/drawer_driver_widget.dart';
 import 'package:flutter/material.dart';
@@ -87,20 +88,22 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                         }
 
                         if (vm.error != null) {
-                          return Center(child: Column(
-                            children: [
-                              Text(vm.error!),
-                              ElevatedButton(
-                                onPressed: () {
-                                  context.read<HomeViewModel>().getDataHome(
-                                    userSession!.id,
-                                    userSession!.accessToken,
-                                  );
-                                },
-                                child: const Text('Reintentar'),
-                              ),
-                            ],
-                          ));
+                          return Center(
+                            child: Column(
+                              children: [
+                                Text(vm.error!),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    context.read<HomeViewModel>().getDataHome(
+                                      userSession!.id,
+                                      userSession!.accessToken,
+                                    );
+                                  },
+                                  child: const Text('Reintentar'),
+                                ),
+                              ],
+                            ),
+                          );
                         }
 
                         if (vm.productos.isEmpty) {
@@ -392,6 +395,14 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
     );
   }
 
+  void _mostrarDialogoDevolucion(BuildContext context, Cliente cliente) {
+    showDialog(
+      context: context,
+      builder: (context) =>
+          DialogoDevolucion(cliente: cliente, userSession: userSession!),
+    );
+  }
+
   Widget _buildDeliveryCard(Cliente cliente) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -449,9 +460,11 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    _mostrarDialogoDevolucion(context, cliente);
+                  },
                   icon: const Icon(Icons.map_outlined, size: 18),
-                  label: const Text('Mapa'),
+                  label: const Text('Devolucion'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFF6B2A02),
                     side: const BorderSide(color: Color(0xFF6B2A02)),

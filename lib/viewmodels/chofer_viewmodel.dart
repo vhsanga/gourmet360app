@@ -164,4 +164,36 @@ class ChoferViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<bool> registrarDevolucionCliente(
+    int cantidad,
+    int idCliente,
+    int idChofer,
+    String userToken,
+  ) async {
+    isLoading = true;
+    msj = null;
+    notifyListeners();
+    try {
+      Map<String, dynamic> params = {
+        "cantidad": cantidad,
+        "idCliente": idCliente,
+        "idChofer": idChofer,
+      };
+      final response = await HttpService.doPost(
+        ApiConstants.saveDevolucionesClienteEndpoint,
+        params,
+        userToken,
+      );
+      msj = response.mensaje;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      msj = e.toString().replaceAll('Exception:', '');
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 }

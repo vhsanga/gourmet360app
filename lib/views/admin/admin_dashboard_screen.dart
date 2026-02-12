@@ -46,15 +46,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   void _loadData() {
     final userProvider = context.read<UserProvider>();
-      if (userProvider.status == UserStatus.loaded &&
-          userProvider.usuario != null) {
-        print("Cargando lista de conductores para admin...");
+    if (userProvider.status == UserStatus.loaded &&
+        userProvider.usuario != null) {
+      print("Cargando lista de conductores para admin...");
 
-        userSession = userProvider.usuario;
-        context.read<AdminViewModel>().fetchDashboardDataToday(
-          userSession!.accessToken,
-        );
-      }
+      userSession = userProvider.usuario;
+      context.read<AdminViewModel>().fetchDashboardDataToday(
+        userSession!.accessToken,
+      );
+    }
   }
 
   @override
@@ -69,31 +69,44 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (vm.error != null) {
-            return Center(child: Column(
-              children: [
-                Text(vm.error!),
-                ElevatedButton(
-                  onPressed: (){
-                    _loadData();
-                  },
-                  child: const Text('Reintentar'),
-                ),
-              ],
-            ));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    vm.error!,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: () {
+                      _loadData();
+                    },
+                    child: const Text('Reintentar'),
+                  ),
+                ],
+              ),
+            );
           }
 
           if (vm.dashboardDespachos == null || vm.dashboardVentas == null) {
-            return Center(child: Column(
-              children: [
-                Text('No hay datos disponibles.'),
-                ElevatedButton(
-                  onPressed: (){
-                    _loadData();
-                  },
-                  child: Text('Reintentar'),
-                ),
-              ],
-            ));
+            return Center(
+              child: Column(
+                children: [
+                  Text('No hay datos disponibles.'),
+                  ElevatedButton(
+                    onPressed: () {
+                      _loadData();
+                    },
+                    child: Text('Reintentar'),
+                  ),
+                ],
+              ),
+            );
           }
           if (vm.dashboardDespachos != null) {
             dashboardDespachos = vm.dashboardDespachos;

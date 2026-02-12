@@ -70,7 +70,7 @@ class _DialogoRegistroClienteState extends State<DialogoRegistroCliente> {
       if (success) {
         DialogsWidget.showSuccess(
           title: 'Muy bien',
-          message: choferVM.msj ?? 'Cliente registrado correctamente',
+          message: choferVM.msj ?? 'Devolucion guardada correctamente',
           onClose: () {
             Navigator.pop(context);
             context.read<HomeViewModel>().getDataHome(

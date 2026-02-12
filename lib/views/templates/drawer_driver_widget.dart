@@ -1,4 +1,5 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
+import 'package:Gourmet360/views/admin/clientes_ventas_screen.dart';
 import 'package:Gourmet360/views/chofer_sales_report_screen.dart';
 import 'package:Gourmet360/views/clients_list_screen.dart';
 import 'package:Gourmet360/views/home_screen.dart';
@@ -82,7 +83,7 @@ class _DrawerDriverWidgetState extends State<DrawerDriverWidget> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ClientsListScreen(),
+                          builder: (context) => ClientesVentasScreen(),
                         ),
                       );
                     },
