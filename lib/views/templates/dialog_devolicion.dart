@@ -41,8 +41,8 @@ class _DialogoDevolucionState extends State<DialogoDevolucion> {
       final navigator = Navigator.of(context, rootNavigator: true);
       final success = await choferVM.registrarDevolucionCliente(
         cantidad,
-        widget.cliente.idCliente as int,
-        widget.userSession.id as int,
+        int.parse(widget.cliente.idCliente),
+        int.parse(widget.userSession.id),
         widget.userSession.accessToken ?? '',
       );
       if (!mounted) return;

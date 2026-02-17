@@ -6,6 +6,7 @@ class ClienteVentas {
   final String? telefono;
   final double ventaContadoHoy;
   final double dedudaAcumulada;
+  final double devolucionHoy;
   final bool especial;
 
   ClienteVentas({
@@ -17,6 +18,7 @@ class ClienteVentas {
     required this.ventaContadoHoy,
     required this.dedudaAcumulada,
     required this.especial,
+    this.devolucionHoy = 0.0,
   });
 
   factory ClienteVentas.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class ClienteVentas {
       ventaContadoHoy: _parseDouble(json['venta_contado_hoy']),
       dedudaAcumulada: _parseDouble(json['deduda_acumulada']),
       especial: _parseString(json['especial']) == '0' ? false : true,
+      devolucionHoy: _parseDouble(json['devolucion_hoy']),
     );
   }
 

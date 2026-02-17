@@ -177,8 +177,8 @@ class ChoferViewModel extends ChangeNotifier {
     try {
       Map<String, dynamic> params = {
         "cantidad": cantidad,
-        "idCliente": idCliente,
-        "idChofer": idChofer,
+        "clienteId": idCliente,
+        "choferId": idChofer,
       };
       final response = await HttpService.doPost(
         ApiConstants.saveDevolucionesClienteEndpoint,

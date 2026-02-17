@@ -82,16 +82,22 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                     child: Builder(
                       builder: (_) {
                         if (vm.isLoading) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
+                          return Column(
+                            children: [
+                              SizedBox(height: 52),
+                              const Center(child: CircularProgressIndicator()),
+                            ],
                           );
                         }
 
                         if (vm.error != null) {
                           return Center(
                             child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
+                                SizedBox(height: 40),
                                 Text(vm.error!),
+                                SizedBox(height: 12),
                                 ElevatedButton(
                                   onPressed: () {
                                     context.read<HomeViewModel>().getDataHome(
@@ -109,6 +115,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                         if (vm.productos.isEmpty) {
                           return Center(
                             child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text('No hay productos chofer'),
                                 ElevatedButton(
@@ -463,7 +470,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                   onPressed: () {
                     _mostrarDialogoDevolucion(context, cliente);
                   },
-                  icon: const Icon(Icons.map_outlined, size: 18),
+                  icon: const Icon(Icons.compare_arrows, size: 18),
                   label: const Text('Devolucion'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFF6B2A02),

@@ -65,19 +65,19 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
     });
   }
 
-  void _loadData(){
+  void _loadData() {
     final userProvider = context.read<UserProvider>();
 
-      if (userProvider.status == UserStatus.loaded &&
-          userProvider.usuario != null) {
-        userSession = userProvider.usuario;
+    if (userProvider.status == UserStatus.loaded &&
+        userProvider.usuario != null) {
+      userSession = userProvider.usuario;
 
-        context.read<AdminViewModel>().getResumenVentasClientesForAdminEndpoint(
-          userSession!.accessToken,
-        );
-      } else {
-        print("No hay sesión de usuario activa.");
-      }
+      context.read<AdminViewModel>().getResumenVentasClientesForAdminEndpoint(
+        userSession!.accessToken,
+      );
+    } else {
+      print("No hay sesión de usuario activa.");
+    }
   }
 
   @override
@@ -107,32 +107,36 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
           }
 
           if (vm.error != null) {
-            return Center(child: Column(
-              children: [
-                Text(vm.error!),
-                ElevatedButton(
-                  onPressed: () {
-                    _loadData();
-                  },
-                  child: const Text('Reintentar'),
-                ),
-              ],
-            ));
+            return Center(
+              child: Column(
+                children: [
+                  Text(vm.error!),
+                  ElevatedButton(
+                    onPressed: () {
+                      _loadData();
+                    },
+                    child: const Text('Reintentar'),
+                  ),
+                ],
+              ),
+            );
           }
 
           if (vm.clientesVentas.isEmpty) {
             print("Lista de clientes VACIA desde VM.");
-            return Center(child: Column(
-              children: [
-                Text('No hay clientes registrados.'),
-                ElevatedButton(
-                  onPressed: () {
-                    _loadData();
-                  },
-                  child: const Text('Reintentar'),
-                ),
-              ],
-            ));
+            return Center(
+              child: Column(
+                children: [
+                  Text('No hay clientes registrados.'),
+                  ElevatedButton(
+                    onPressed: () {
+                      _loadData();
+                    },
+                    child: const Text('Reintentar'),
+                  ),
+                ],
+              ),
+            );
           }
 
           if (vm.clientesVentas.isNotEmpty) {
@@ -173,7 +177,8 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
               ),
             );
           }
-          return Center( child: Column(
+          return Center(
+            child: Column(
               children: [
                 Text('No se pudo cargar la lista de clientes.'),
                 ElevatedButton(
@@ -263,6 +268,10 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
               label: _buildColumnHeader('Crédito', 'dedudaAcumulada'),
               numeric: true,
             ),
+            DataColumn(
+              label: _buildColumnHeader('Devolución', 'devolucionHoy'),
+              numeric: true,
+            ),
           ],
           rows: _clientesFiltrados.map((cliente) {
             return DataRow(
@@ -291,12 +300,19 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
                     const Color(0xFF10b981),
                   ),
                 ),
+
                 DataCell(
                   _buildMoneyChip(
                     cliente.dedudaAcumulada,
                     cliente.dedudaAcumulada > 0
                         ? const Color(0xFFef4444)
                         : const Color(0xFF6b7280),
+                  ),
+                ),
+                DataCell(
+                  _buildAccountChip(
+                    cliente.devolucionHoy,
+                    const Color(0xFFf59e0b),
                   ),
                 ),
               ],
@@ -463,6 +479,24 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
       ),
       child: Text(
         '\$${amount.toStringAsFixed(2)}',
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAccountChip(double amount, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: amount > 0 ? color.withOpacity(0.1) : color.withOpacity(0),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        amount > 0 ? '$amount' : '--',
         style: TextStyle(
           color: color,
           fontWeight: FontWeight.bold,
