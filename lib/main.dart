@@ -13,6 +13,7 @@ import 'package:Gourmet360/views/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -74,7 +75,7 @@ class AppWrapper extends StatelessWidget {
         // Si existe usuario → Home
         if (user.status == UserStatus.loaded) {
           if (user.usuario!.rol == 'admin') {
-            return const AdminDashboardScreen();
+            return const AdminBiometricGate();
           } else {
             return const HomePortalScreen();
           }
@@ -136,5 +137,58 @@ class AppWrapper extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class AdminBiometricGate extends StatefulWidget {
+  const AdminBiometricGate({super.key});
+
+  @override
+  State<AdminBiometricGate> createState() => _AdminBiometricGateState();
+}
+
+class _AdminBiometricGateState extends State<AdminBiometricGate> {
+  bool _authorized = false;
+  bool _checked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _authenticate();
+  }
+
+  Future<void> _authenticate() async {
+    final auth = LocalAuthentication();
+
+    try {
+      bool didAuthenticate = await auth.authenticate(
+        localizedReason: 'Acceso solo para administradores',
+        options: const AuthenticationOptions(biometricOnly: true),
+      );
+
+      setState(() {
+        _authorized = didAuthenticate;
+        _checked = true;
+      });
+    } catch (e) {
+      print('Error en autenticación biométrica: $e');
+      setState(() {
+        _authorized = false;
+        _checked = true;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_checked) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (_authorized) {
+      return const AdminDashboardScreen();
+    }
+
+    return const Scaffold(body: Center(child: Text('Acceso denegado')));
   }
 }
