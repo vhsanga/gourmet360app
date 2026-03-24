@@ -31,21 +31,21 @@ class _DriversListScreenState extends State<DriversListScreen> {
     });
   }
 
-  void _loadData(){
+  void _loadData() {
     final userProvider = context.read<UserProvider>();
 
-      if (userProvider.status == UserStatus.loaded &&
-          userProvider.usuario != null) {
-        print("Cargando lista de conductores para admin...");
+    if (userProvider.status == UserStatus.loaded &&
+        userProvider.usuario != null) {
+      print("Cargando lista de conductores para admin...");
 
-        userSession = userProvider.usuario;
+      userSession = userProvider.usuario;
 
-        context.read<ChoferViewModel>().listarProductosForAdmin(
-          userSession!.accessToken,
-        );
-      } else {
-        print("No hay sesión de usuario activa.");
-      }
+      context.read<ChoferViewModel>().listarProductosForAdmin(
+        userSession!.accessToken,
+      );
+    } else {
+      print("No hay sesión de usuario activa.");
+    }
   }
 
   @override
@@ -59,32 +59,36 @@ class _DriversListScreenState extends State<DriversListScreen> {
           }
 
           if (vm.error != null) {
-            return Center(child: Column(
-              children: [
-                Text(vm.error!),
-                ElevatedButton(
-                  onPressed: () {
-                    _loadData();
-                  },
-                  child: const Text('Reintentar'),
-                ),
-              ],
-            ));
+            return Center(
+              child: Column(
+                children: [
+                  Text(vm.error!),
+                  ElevatedButton(
+                    onPressed: () {
+                      _loadData();
+                    },
+                    child: const Text('Reintentar'),
+                  ),
+                ],
+              ),
+            );
           }
 
           if (vm.camiones.isEmpty) {
             print("Lista de camiones VACIA desde VM.");
-            return Center(child: Column(
-              children: [
-                Text('No hay camiones asignados.'),
-                ElevatedButton(
-                  onPressed: () {
-                    _loadData();
-                  },
-                  child: const Text('Reintentar'),
-                ),
-              ],
-            ));
+            return Center(
+              child: Column(
+                children: [
+                  Text('No hay camiones asignados.'),
+                  ElevatedButton(
+                    onPressed: () {
+                      _loadData();
+                    },
+                    child: const Text('Reintentar'),
+                  ),
+                ],
+              ),
+            );
           }
           if (vm.camiones.isNotEmpty) {
             print("Actualizando lista de camiones desde VM...");
@@ -313,10 +317,10 @@ class _DriversListScreenState extends State<DriversListScreen> {
           );
         } else if (value == 3) {
           // Acción 3
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const TruckMapScreen()),
-          );
+          //Navigator.push(
+          // context,
+          // MaterialPageRoute(builder: (context) => const TruckMapScreen()),
+          //);
         }
       },
       itemBuilder: (context) => [
@@ -337,16 +341,6 @@ class _DriversListScreenState extends State<DriversListScreen> {
               Icon(Icons.local_shipping_outlined, color: Color(0xFF6B2A02)),
               SizedBox(width: 10),
               Text("Asignar Despacho"),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 3,
-          child: Row(
-            children: const [
-              Icon(Icons.location_on, color: Color(0xFF6B2A02)),
-              SizedBox(width: 10),
-              Text("Ver ubicación"),
             ],
           ),
         ),

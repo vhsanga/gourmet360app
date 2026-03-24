@@ -28,8 +28,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   int totalProducts = 0;
   int soldProducts = 0;
   double progress = 0;
-  final double totalRevenue = 0;
-  final double todayRevenue = 0;
+  double todayRevenue = 0;
 
   final double accountsReceivable = 0;
 
@@ -63,95 +62,103 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
     return Scaffold(
       key: _scaffoldKey,
-      body: Builder(
-        builder: (_) {
-          if (vm.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (vm.error != null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    vm.error!,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black54,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  ElevatedButton(
-                    onPressed: () {
-                      _loadData();
-                    },
-                    child: const Text('Reintentar'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (vm.dashboardDespachos == null || vm.dashboardVentas == null) {
-            return Center(
-              child: Column(
-                children: [
-                  Text('No hay datos disponibles.'),
-                  ElevatedButton(
-                    onPressed: () {
-                      _loadData();
-                    },
-                    child: Text('Reintentar'),
-                  ),
-                ],
-              ),
-            );
-          }
-          if (vm.dashboardDespachos != null) {
-            dashboardDespachos = vm.dashboardDespachos;
-            totalProducts = dashboardDespachos!.cantidad_asignada.toInt();
-            soldProducts = dashboardDespachos!.cantidad_entregada.toInt();
-            if (totalProducts > 0) {
-              progress = (soldProducts / totalProducts).clamp(0.0, 1.0);
-            }
-          }
-          if (vm.dashboardVentas != null) {
-            dashboardVentas = vm.dashboardVentas;
-          }
-
-          return SafeArea(
-            child: CustomScrollView(
-              slivers: [
-                _buildSliverAppBar(),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildQuickStats(),
-                        const SizedBox(height: 24),
-                        _buildProductsCard(),
-                        const SizedBox(height: 24),
-                        _buildAccountsReceivableCard(),
-                        const SizedBox(height: 24),
-                        _buildAdminReportsCard(),
-                        const SizedBox(height: 24),
-                        _buildSectionTitle('Control de Calidad'),
-                        const SizedBox(height: 12),
-                        _buildQualityControlCard(),
-                        const SizedBox(height: 20),
-                        _buildCamionesPositoinsCard(),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _loadData();
+          // Wait for data to load
+          await Future.delayed(const Duration(milliseconds: 500));
         },
+        child: Builder(
+          builder: (_) {
+            if (vm.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (vm.error != null) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      vm.error!,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: () {
+                        _loadData();
+                      },
+                      child: const Text('Reintentar'),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            if (vm.dashboardDespachos == null || vm.dashboardVentas == null) {
+              return Center(
+                child: Column(
+                  children: [
+                    Text('No hay datos disponibles.'),
+                    ElevatedButton(
+                      onPressed: () {
+                        _loadData();
+                      },
+                      child: Text('Reintentar'),
+                    ),
+                  ],
+                ),
+              );
+            }
+            if (vm.dashboardDespachos != null) {
+              dashboardDespachos = vm.dashboardDespachos;
+              totalProducts = dashboardDespachos!.cantidad_asignada.toInt();
+              soldProducts = dashboardDespachos!.cantidad_entregada.toInt();
+              if (totalProducts > 0) {
+                progress = (soldProducts / totalProducts).clamp(0.0, 1.0);
+              }
+            }
+            if (vm.dashboardVentas != null) {
+              dashboardVentas = vm.dashboardVentas;
+              todayRevenue = dashboardVentas!.total_ventas_contado;
+            }
+
+            return SafeArea(
+              child: CustomScrollView(
+                slivers: [
+                  _buildSliverAppBar(),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildQuickStats(),
+                          const SizedBox(height: 24),
+                          _buildProductsCard(),
+                          const SizedBox(height: 24),
+                          _buildAccountsReceivableCard(),
+                          const SizedBox(height: 24),
+                          _buildAdminReportsCard(),
+                          const SizedBox(height: 24),
+                          _buildSectionTitle('Control de Calidad'),
+                          const SizedBox(height: 12),
+                          _buildQualityControlCard(),
+                          const SizedBox(height: 20),
+                          _buildCamionesPositoinsCard(),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -503,112 +510,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
         ),
       ],
-    );
-  }
-
-  Widget _buildRevenueCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.green.shade600, Colors.green.shade700],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.green.shade300.withOpacity(0.5),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.payments_rounded,
-                  color: Colors.white,
-                  size: 28,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Recaudación de Ventas',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Hoy',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.white.withOpacity(0.9),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '\$${todayRevenue.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      'Total',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.white.withOpacity(0.9),
-                      ),
-                    ),
-                    Text(
-                      '\$${totalRevenue.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 

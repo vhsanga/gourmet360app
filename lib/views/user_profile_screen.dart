@@ -1,7 +1,32 @@
+import 'package:Gourmet360/core/providers/user_provider.dart';
+import 'package:Gourmet360/models/usuario.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class UserProfileScreen extends StatelessWidget {
+class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({Key? key}) : super(key: key);
+
+  @override
+  State<UserProfileScreen> createState() => _UserProfileScreenState();
+}
+
+class _UserProfileScreenState extends State<UserProfileScreen> {
+  Usuario? userSession;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+    });
+  }
+
+  void _loadData() {
+    final userProvider = context.read<UserProvider>();
+    if (userProvider.status == UserStatus.loaded &&
+        userProvider.usuario != null) {
+      userSession = userProvider.usuario;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +81,9 @@ class UserProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Jacobo Urquiso',
+                      userSession != null
+                          ? '${userSession!.nombre}}'
+                          : 'Nombre del Usuario',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -111,35 +138,35 @@ class UserProfileScreen extends StatelessWidget {
                   _buildInfoCard(
                     icon: Icons.person_outline,
                     label: 'Nombres',
-                    value: 'Jacobo',
-                  ),
-                  const SizedBox(height: 12),
-                  _buildInfoCard(
-                    icon: Icons.person_outline,
-                    label: 'Apellidos',
-                    value: 'Urquizo',
+                    value: userSession != null
+                        ? '${userSession!.nombre}'
+                        : 'Nombres del Usuario',
                   ),
                   const SizedBox(height: 12),
                   _buildInfoCard(
                     icon: Icons.phone_outlined,
                     label: 'Celular',
-                    value: '099 123 4567',
+                    value: userSession != null
+                        ? '${userSession!.celular}'
+                        : 'Celular del Usuario',
                   ),
                   const SizedBox(height: 12),
                   _buildInfoCard(
                     icon: Icons.badge_outlined,
                     label: 'Rol',
-                    value: 'Chofer de Entregas',
+                    value: userSession != null
+                        ? '${userSession!.rol}'
+                        : 'Chofer de entregas',
                   ),
 
                   const SizedBox(height: 32),
 
                   // Sección Información del Vehículo
-                  _buildSectionTitle('Información del Vehículo'),
-                  const SizedBox(height: 16),
-                  _buildVehicleCard(),
+                  //_buildSectionTitle('Información del Vehículo'),
+                  //const SizedBox(height: 16),
+                  // _buildVehicleCard(),
 
-                  const SizedBox(height: 32),
+                  //const SizedBox(height: 32),
 
                   // Botones de acción
                   _buildActionButtons(),

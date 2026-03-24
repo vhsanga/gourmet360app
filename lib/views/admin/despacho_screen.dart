@@ -29,20 +29,20 @@ class _DespachoScreenState extends State<DespachoScreen> {
     });
   }
 
-  void _loadData(){
+  void _loadData() {
     final userProvider = context.read<UserProvider>();
-      if (userProvider.status == UserStatus.loaded &&
-          userProvider.usuario != null) {
-        print("Cargando lista de conductores para admin...");
+    if (userProvider.status == UserStatus.loaded &&
+        userProvider.usuario != null) {
+      print("Cargando lista de conductores para admin...");
 
-        userSession = userProvider.usuario;
-        context.read<ProductoViewModel>().listarProductosForAdmin(
-          userSession!.accessToken,
-        );
-        for (var product in _productos) {
-          _controllers[product.id.toString()] = TextEditingController();
-        }
+      userSession = userProvider.usuario;
+      context.read<ProductoViewModel>().listarProductosForAdmin(
+        userSession!.accessToken,
+      );
+      for (var product in _productos) {
+        _controllers[product.id.toString()] = TextEditingController();
       }
+    }
   }
 
   @override
@@ -77,31 +77,35 @@ class _DespachoScreenState extends State<DespachoScreen> {
           }
 
           if (vm.error != null) {
-            return Center(child: Column(
-              children: [
-                Text(vm.error!),
-                ElevatedButton(
-                  onPressed: () {
-                    _loadData();
-                  },
-                  child: const Text('Reintentar'),
-                ),
-              ],
-            ));
+            return Center(
+              child: Column(
+                children: [
+                  Text(vm.error!),
+                  ElevatedButton(
+                    onPressed: () {
+                      _loadData();
+                    },
+                    child: const Text('Reintentar'),
+                  ),
+                ],
+              ),
+            );
           }
 
           if (vm.productos.isEmpty) {
-            return Center(child: Column(
-              children: [
-                Text('No hay productos para despacho'),
-                ElevatedButton(
-                  onPressed: () {
-                    _loadData();
-                  },
-                  child: const Text('Reintentar'),
-                ),
-              ],
-            ));
+            return Center(
+              child: Column(
+                children: [
+                  Text('No hay productos para despacho'),
+                  ElevatedButton(
+                    onPressed: () {
+                      _loadData();
+                    },
+                    child: const Text('Reintentar'),
+                  ),
+                ],
+              ),
+            );
           }
           if (vm.productos.isNotEmpty) {
             _productos = vm.productos;
@@ -399,11 +403,11 @@ class _DespachoScreenState extends State<DespachoScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Chofer: Jacobo Urquizo",
+                widget.camionAsignado!.uNombre,
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               Text(
-                "Placa: PBX-1234",
+                widget.camionAsignado!.camionPlaca,
                 style: TextStyle(fontSize: 14, color: Colors.black54),
               ),
             ],

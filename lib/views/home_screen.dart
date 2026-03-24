@@ -117,7 +117,11 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text('No hay productos chofer'),
+                                SizedBox(height: 82),
+                                Text(
+                                  'Todavia no hay productos asignados para hoy',
+                                ),
+                                SizedBox(height: 12),
                                 ElevatedButton(
                                   onPressed: () {
                                     userSession = userProvider.usuario;
@@ -126,7 +130,8 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                                       userSession!.accessToken,
                                     );
                                   },
-                                  child: const Text('Reintentar'),
+
+                                  child: const Text('Actualizar'),
                                 ),
                               ],
                             ),
