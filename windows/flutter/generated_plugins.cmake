@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  flutter_localization
   geolocator_windows
   local_auth_windows
 )

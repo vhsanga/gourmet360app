@@ -12,6 +12,7 @@ import 'package:Gourmet360/views/home_screen.dart';
 import 'package:Gourmet360/views/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
@@ -40,6 +41,12 @@ class PanaderiaDeliveryApp extends StatelessWidget {
         navigatorKey: AppNavigator.navigatorKey,
         title: 'Gourmet 360',
         debugShowCheckedModeBanner: false,
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: [const Locale('en', 'US'), const Locale('es', 'ES')],
         theme: ThemeData(
           textTheme: GoogleFonts.montserratTextTheme(
             Theme.of(context).textTheme,

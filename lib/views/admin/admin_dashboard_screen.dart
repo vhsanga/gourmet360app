@@ -34,6 +34,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   final int rejectedProducts = 0;
   final int damagedProducts = 0;
+  double cantidad_devuelta = 0;
 
   @override
   void initState() {
@@ -124,6 +125,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             if (vm.dashboardVentas != null) {
               dashboardVentas = vm.dashboardVentas;
               todayRevenue = dashboardVentas!.total_ventas_contado;
+              cantidad_devuelta = dashboardVentas!.cantidad_devuelta;
             }
 
             return SafeArea(
@@ -811,7 +813,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Productos con Problemas',
+                      'Productos Devueltos',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -820,7 +822,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Total: $totalIssues unidades',
+                      'Total: ${cantidad_devuelta.toStringAsFixed(0)} unidades',
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey.shade600,
@@ -832,79 +834,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ],
           ),
           const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.cancel_outlined,
-                        color: Colors.red.shade700,
-                        size: 28,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        rejectedProducts.toString(),
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red.shade700,
-                        ),
-                      ),
-                      Text(
-                        'Rechazados',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.broken_image_outlined,
-                        color: Colors.orange.shade700,
-                        size: 28,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        damagedProducts.toString(),
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange.shade700,
-                        ),
-                      ),
-                      Text(
-                        'Dañados',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );

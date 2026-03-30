@@ -1,4 +1,5 @@
 import 'package:Gourmet360/core/utils/cutom_utils.dart';
+import 'package:Gourmet360/models/cliente_venta_dia.dart';
 import 'package:Gourmet360/models/cliente_ventas.dart';
 import 'package:Gourmet360/models/dashboard_despachos.dart';
 import 'package:Gourmet360/models/dashboard_ventas.dart';
@@ -15,6 +16,7 @@ class AdminViewModel extends ChangeNotifier {
   DashboardVentas? dashboardVentas;
   DespachosChofer? despachosChofer;
   List<ClienteVentas> clientesVentas = [];
+  List<ClienteVentaDia> clientesVentaDias = [];
 
   Future<void> fetchDashboardDataToday(String userToken) async {
     isLoading = true;
@@ -88,6 +90,7 @@ class AdminViewModel extends ChangeNotifier {
   }
 
   Future<void> getResumenVentasClientesForAdminEndpoint(
+    String fecha,
     String userToken,
   ) async {
     isLoading = true;
@@ -95,11 +98,37 @@ class AdminViewModel extends ChangeNotifier {
     notifyListeners();
     try {
       final response = await HttpService.doGet(
-        ApiConstants.getResumenVentasClientesForAdminEndpoint,
+        ApiConstants.getResumenVentasClientesForAdminEndpoint + fecha,
         userToken,
       );
       clientesVentas = (response.data as List<dynamic>)
           .map((e) => ClienteVentas.fromJson(e))
+          .toList();
+    } catch (e) {
+      error = e.toString().replaceAll('Exception:', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> getResumenVentaClienteDiaRango(
+    int idCliente,
+    String finicio,
+    String ffin,
+    String userToken,
+  ) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+    try {
+      final response = await HttpService.doPost(
+        ApiConstants.getResumenVentaClienteRangoForAdminEndpoint,
+        {'finicio': finicio, 'ffin': ffin, 'idcliente': idCliente},
+        userToken,
+      );
+      clientesVentaDias = (response.data as List<dynamic>)
+          .map((e) => ClienteVentaDia.fromJson(e))
           .toList();
     } catch (e) {
       error = e.toString().replaceAll('Exception:', '');

@@ -1,4 +1,5 @@
 import 'package:Gourmet360/core/constants/api_constants.dart';
+import 'package:Gourmet360/core/utils/cutom_utils.dart';
 import 'package:Gourmet360/models/camion_asignado.dart';
 import 'package:Gourmet360/models/cliente_ventas.dart';
 import 'package:Gourmet360/services/http_service.dart';
@@ -151,7 +152,8 @@ class ChoferViewModel extends ChangeNotifier {
     notifyListeners();
     try {
       final response = await HttpService.doGet(
-        ApiConstants.getResumenVentasClientesForAdminEndpoint,
+        ApiConstants.getResumenVentasClientesForAdminEndpoint +
+            CustomUils.fechaActual(),
         userToken,
       );
       clientesVentas = (response.data as List<dynamic>)
