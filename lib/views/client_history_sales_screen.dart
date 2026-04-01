@@ -91,96 +91,65 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
             );
           }
 
-          if (vm.clientesVentaDias.isEmpty) {
-            return Center(
-              child: Column(
-                children: [
-                  Text(
-                    'No hay datos disponibles para el cliente seleccionado.',
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      _loadData(DateTime.now());
-                    },
-                    child: const Text('Reintentar'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (vm.clientesVentas.isNotEmpty) {
+          if (vm.clientesVentaDias.isNotEmpty) {
             clientesVentaDias = vm.clientesVentaDias;
             _mapearDatos();
-            return Column(
-              children: [
-                TableCalendar(
-                  firstDay: DateTime.utc(2020),
-                  lastDay: DateTime.utc(2030),
-                  focusedDay: _focusedDay,
-
-                  selectedDayPredicate: (day) {
-                    return isSameDay(_selectedDay, day);
-                  },
-
-                  onDaySelected: (selectedDay, focusedDay) {
-                    setState(() {
-                      _selectedDay = selectedDay;
-                      _focusedDay = focusedDay;
-                    });
-                  },
-
-                  onPageChanged: (focusedDay) {
-                    _focusedDay = focusedDay;
-
-                    /// 🔥 aquí luego llamas tu backend real
-                    //_loadData(focusedDay);
-                  },
-
-                  calendarBuilders: CalendarBuilders(
-                    defaultBuilder: (context, day, focusedDay) {
-                      final normalized = DateTime(day.year, day.month, day.day);
-
-                      final data = ventasPorDia[normalized];
-
-                      return _buildDayCell(day, data);
-                    },
-                    todayBuilder: (context, day, focusedDay) {
-                      final normalized = DateTime(day.year, day.month, day.day);
-
-                      final data = ventasPorDia[normalized];
-
-                      return _buildDayCell(day, data, isToday: true);
-                    },
-                    selectedBuilder: (context, day, focusedDay) {
-                      final normalized = DateTime(day.year, day.month, day.day);
-
-                      final data = ventasPorDia[normalized];
-
-                      return _buildDayCell(day, data, isSelected: true);
-                    },
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                /// 👇 DETALLE DEL DÍA SELECCIONADO
-                if (_selectedDay != null) _buildDetalleDia(),
-              ],
-            );
           }
-          return Center(
-            child: Column(
-              children: [
-                Text('No se pudo cargar la lista de clientes.'),
-                ElevatedButton(
-                  onPressed: () {
-                    _loadData(DateTime.now());
+          return Column(
+            children: [
+              TableCalendar(
+                firstDay: DateTime.utc(2020),
+                lastDay: DateTime.utc(2030),
+                focusedDay: _focusedDay,
+
+                selectedDayPredicate: (day) {
+                  return isSameDay(_selectedDay, day);
+                },
+
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                    _selectedDay = selectedDay;
+                    _focusedDay = focusedDay;
+                  });
+                },
+
+                onPageChanged: (focusedDay) {
+                  _focusedDay = focusedDay;
+
+                  /// 🔥 aquí luego llamas tu backend real
+                  _loadData(focusedDay);
+                },
+
+                calendarBuilders: CalendarBuilders(
+                  defaultBuilder: (context, day, focusedDay) {
+                    final normalized = DateTime(day.year, day.month, day.day);
+
+                    final data = ventasPorDia[normalized];
+
+                    return _buildDayCell(day, data);
                   },
-                  child: const Text('Reintentar'),
+                  todayBuilder: (context, day, focusedDay) {
+                    final normalized = DateTime(day.year, day.month, day.day);
+
+                    final data = ventasPorDia[normalized];
+
+                    return _buildDayCell(day, data, isToday: true);
+                  },
+                  selectedBuilder: (context, day, focusedDay) {
+                    final normalized = DateTime(day.year, day.month, day.day);
+
+                    final data = ventasPorDia[normalized];
+
+                    return _buildDayCell(day, data, isSelected: true);
+                  },
                 ),
-              ],
-            ),
+              ),
+
+              const SizedBox(height: 20),
+
+              /// 👇 DETALLE DEL DÍA SELECCIONADO
+              if (_selectedDay != null) _buildDetalleDia(),
+            ],
           );
         },
       ),
@@ -195,6 +164,7 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
     bool isSelected = false,
   }) {
     return Container(
+      width: 65,
       margin: const EdgeInsets.all(4),
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
@@ -215,15 +185,7 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
           ),
 
           if (data != null) ...[
-            const SizedBox(height: 4),
-            Text(
-              '💰 ${data.totalContado}',
-              style: const TextStyle(fontSize: 10),
-            ),
-            Text(
-              '🤝 ${data.totalCredito}',
-              style: const TextStyle(fontSize: 10),
-            ),
+            Text('${data.totalContado}', style: const TextStyle(fontSize: 10)),
           ],
         ],
       ),

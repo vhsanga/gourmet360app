@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "app.riosoft.gourmet360app"
+    namespace = "app.nodoclic.gourmet360app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "app.riosoft.gourmet360app"
+        applicationId = "app.nodoclic.gourmet360app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

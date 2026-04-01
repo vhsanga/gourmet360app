@@ -3,6 +3,7 @@ import 'package:Gourmet360/core/utils/cutom_utils.dart';
 import 'package:Gourmet360/models/cliente_ventas.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
+import 'package:Gourmet360/views/client_history_sales_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -86,6 +87,18 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final vm = context.read<AdminViewModel>();
+
+    if (vm.clientesVentas.isNotEmpty) {
+      clientes = vm.clientesVentas;
+      _clientesFiltrados = _getFilteredClientes();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final vm = context.watch<AdminViewModel>();
     return Scaffold(
@@ -145,9 +158,6 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
 
           if (vm.clientesVentas.isNotEmpty) {
             print("Actualizando lista de clientes desde VM...");
-            clientes = vm.clientesVentas;
-            _clientesFiltrados.clear();
-            _clientesFiltrados = _getFilteredClientes();
             return SafeArea(
               child: Column(
                 children: [
@@ -255,6 +265,16 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
                 ),
               ],
               rows: _clientesFiltrados.map((cliente) {
+                void onRowTap() {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ClientHistorySalesScreen(cliente: cliente),
+                    ),
+                  );
+                }
+
                 return DataRow(
                   cells: [
                     DataCell(
@@ -288,12 +308,14 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
                           ],
                         ),
                       ),
+                      onTap: onRowTap,
                     ),
                     DataCell(
                       _buildMoneyChip(
                         cliente.ventaContadoHoy,
                         const Color(0xFF10b981),
                       ),
+                      onTap: onRowTap,
                     ),
                     DataCell(
                       _buildMoneyChip(
@@ -302,12 +324,14 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
                             ? const Color(0xFFef4444)
                             : const Color(0xFF6b7280),
                       ),
+                      onTap: onRowTap,
                     ),
                     DataCell(
                       _buildAccountChip(
                         cliente.devolucionHoy,
                         const Color(0xFFf59e0b),
                       ),
+                      onTap: onRowTap,
                     ),
                   ],
                 );
@@ -324,7 +348,7 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
       context: context,
       initialDate: _fechaSeleccionada,
       firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
+      lastDate: DateTime.now(),
       locale: const Locale('es', 'ES'),
       builder: (BuildContext context, Widget? child) {
         return Theme(

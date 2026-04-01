@@ -1,4 +1,4 @@
-package app.riosoft.gourmet360app
+package app.nodoclic.gourmet360app
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 
