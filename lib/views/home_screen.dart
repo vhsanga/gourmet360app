@@ -6,6 +6,8 @@ import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/home_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/localtion_viewmodel.dart';
+import 'package:Gourmet360/views/admin/clientes_ventas_screen.dart';
+import 'package:Gourmet360/views/chofer_sales_report_screen.dart';
 import 'package:Gourmet360/views/entrega_producto_screen.dart';
 import 'package:Gourmet360/views/templates/dialog_devolicion.dart';
 import 'package:Gourmet360/views/templates/dialog_registro_cliente.dart';
@@ -271,19 +273,27 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
       children: [
         Expanded(
           child: _buildStatCard(
-            icon: Icons.check_circle_outline,
-            value: '$completedToday',
-            label: 'entregados',
+            icon: Icons.attach_money_outlined,
+            value: '${despacho?.totalVentas.toStringAsFixed(2) ?? '0.00'}',
+            label: 'Efectivo',
             color: Colors.green,
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _buildStatCard(
-            icon: Icons.pending_outlined,
-            value: '${clientes.length}',
-            label: 'Clientes',
-            color: Colors.orange,
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ClientesVentasScreen()),
+              );
+            },
+            child: _buildStatCard(
+              icon: Icons.pending_outlined,
+              value: '${completedToday}/${clientes.length}',
+              label: 'Clientes',
+              color: Colors.orange,
+            ),
           ),
         ),
         const SizedBox(width: 12),
@@ -293,13 +303,13 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ProductsInventoryScreen(),
+                  builder: (context) => ChoferSalesReportScreen(),
                 ),
               );
             },
             child: _buildStatCard(
               icon: Icons.bakery_dining_rounded,
-              value: despacho?.restante.toString() ?? '0',
+              value: despacho?.asignado.toString() ?? '0',
               label: 'Productos',
               color: Colors.blue,
             ),
@@ -335,7 +345,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
           Text(
             value,
             style: const TextStyle(
-              fontSize: 24,
+              fontSize: 21,
               fontWeight: FontWeight.bold,
               color: Color(0xFF6B2A02),
             ),

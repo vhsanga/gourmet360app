@@ -106,18 +106,6 @@ class _ProductsInventoryScreenState extends State<ProductsInventoryScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        backgroundColor: const Color(0xFF6B2A02),
-        icon: const Icon(Icons.assignment_turned_in, color: Colors.white),
-        label: Text(
-          'Confirmar Carga',
-          style: GoogleFonts.montserrat(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
     );
   }
 

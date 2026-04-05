@@ -101,18 +101,11 @@ class _DrawerDriverWidgetState extends State<DrawerDriverWidget> {
                       );
                     },
                   ),
-                  _buildMenuItem(
-                    icon: Icons.history,
-                    title: 'Historial',
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Divider(),
                   ),
-                  _buildMenuItem(
+                  /*_buildMenuItem(
                     icon: Icons.person_outline,
                     title: 'Mi Perfil',
                     onTap: () {
@@ -132,7 +125,7 @@ class _DrawerDriverWidgetState extends State<DrawerDriverWidget> {
                     onTap: () {
                       Navigator.pop(context);
                     },
-                  ),
+                  ),*/
                 ],
               ),
             ),
