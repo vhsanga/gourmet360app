@@ -5,6 +5,7 @@ class ProductoAsignado {
   final String producto;
   final String categoria;
   final double precioUnitario;
+  final double precioUnitarioMin;
   final double cantidadEntregada;
   final double cantidadRestante;
   final double cantidadAsignada;
@@ -16,6 +17,7 @@ class ProductoAsignado {
     required this.producto,
     required this.categoria,
     required this.precioUnitario,
+    required this.precioUnitarioMin,
     required this.cantidadEntregada,
     required this.cantidadRestante,
     required this.cantidadAsignada,
@@ -29,6 +31,7 @@ class ProductoAsignado {
       producto: json['producto'] as String,
       categoria: json['categoria'] as String,
       precioUnitario: double.parse(json['precio_unitario'] as String),
+      precioUnitarioMin: double.parse(json['precio_unitario_min'] as String),
       cantidadEntregada: double.parse(json['cantidad_entregada'] as String),
       cantidadRestante: double.parse(json['cantidad_restante'] as String),
       cantidadAsignada: double.parse(json['cantidad_asignada'] as String),
@@ -67,6 +70,7 @@ class ProductoAsignado {
       producto: producto ?? this.producto,
       categoria: categoria ?? this.categoria,
       precioUnitario: precioUnitario ?? this.precioUnitario,
+      precioUnitarioMin: precioUnitarioMin ?? this.precioUnitarioMin,
       cantidadEntregada: cantidadEntregada ?? this.cantidadEntregada,
       cantidadRestante: cantidadRestante ?? this.cantidadRestante,
       cantidadAsignada: cantidadAsignada ?? this.cantidadAsignada,
@@ -75,7 +79,7 @@ class ProductoAsignado {
 
   @override
   String toString() {
-    return 'ProductoAsignado{idDespachoDetalle: $idDespachoDetalle, despachoId:$despachoId,  productoId: $productoId, producto: $producto, categoria: $categoria,  precioUnitario: $precioUnitario, cantidadEntregada: $cantidadEntregada, cantidadRestante: $cantidadRestante, cantidadAsignada: $cantidadAsignada}';
+    return 'ProductoAsignado{idDespachoDetalle: $idDespachoDetalle, despachoId:$despachoId,  productoId: $productoId, producto: $producto, categoria: $categoria,  precioUnitario: $precioUnitario, precioUnitarioMin: $precioUnitarioMin, cantidadEntregada: $cantidadEntregada, cantidadRestante: $cantidadRestante, cantidadAsignada: $cantidadAsignada}';
   }
 
   @override

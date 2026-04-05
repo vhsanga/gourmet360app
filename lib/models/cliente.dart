@@ -5,6 +5,7 @@ class Cliente {
   final String telefonoCliente;
   final String lat;
   final String lng;
+  final bool especial;
   final String observacion;
   final int entregado;
   final DateTime createdAt;
@@ -17,6 +18,7 @@ class Cliente {
     required this.telefonoCliente,
     required this.lat,
     required this.lng,
+    required this.especial,
     required this.observacion,
     required this.createdAt,
     required this.updatedAt,
@@ -31,6 +33,9 @@ class Cliente {
       telefonoCliente: json['telefonoCliente'] ?? '',
       lat: json['lat']?.toString() ?? '',
       lng: json['lng']?.toString() ?? '',
+      especial: (json['especial'] == 1 || json['especial'] == true)
+          ? true
+          : false,
       observacion: json['observacion'] ?? '',
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),

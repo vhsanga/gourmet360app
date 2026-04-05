@@ -410,6 +410,23 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
   }
 
   Widget _buildMoneyChip(double amount, Color color) {
+    if (amount == 0) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          '--',
+          style: TextStyle(
+            color: Colors.grey[400],
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+        ),
+      );
+    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(

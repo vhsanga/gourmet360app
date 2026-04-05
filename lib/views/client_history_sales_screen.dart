@@ -97,9 +97,11 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
           }
           return Column(
             children: [
+              SizedBox(height: 20),
               TableCalendar(
+                locale: 'es_ES',
                 firstDay: DateTime.utc(2020),
-                lastDay: DateTime.utc(2030),
+                lastDay: DateTime.now(),
                 focusedDay: _focusedDay,
 
                 selectedDayPredicate: (day) {
@@ -163,12 +165,15 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
     bool isToday = false,
     bool isSelected = false,
   }) {
+    bool hayDeuda = data != null && data.totalCredito > 0;
     return Container(
       width: 65,
       margin: const EdgeInsets.all(4),
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: isSelected
+        color: hayDeuda
+            ? Colors.red.shade200
+            : isSelected
             ? Colors.blue.shade200
             : isToday
             ? Colors.blue.shade50
@@ -201,19 +206,29 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
     );
 
     final data = ventasPorDia[normalized];
+    final fechaLegible = CustomUils.formatearFecha(_selectedDay!);
 
     if (data == null) {
-      return const Text("Sin ventas en este día");
+      return Column(
+        children: [
+          Text(
+            "Fecha:  $fechaLegible",
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          const Text("Sin ventas en este día"),
+        ],
+      );
     }
 
     return Column(
       children: [
         Text(
-          "Detalle del día ${_selectedDay!.day}/${_selectedDay!.month}",
+          "Fecha: $fechaLegible",
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         Text("Contado: ${data.totalContado}"),
-        Text("Crédito: ${data.totalCredito}"),
+        Text("Deuda: ${data.totalCredito}"),
       ],
     );
   }

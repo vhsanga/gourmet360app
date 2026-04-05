@@ -1,6 +1,7 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/models/cliente.dart';
 import 'package:Gourmet360/models/producto_asignados.dart';
+import 'package:Gourmet360/viewmodels/home_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/producto_viewmodel.dart';
 import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
@@ -9,11 +10,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class OrderItem {
   final ProductoAsignado product;
+  final Cliente clienteOrden;
   int quantity;
 
-  OrderItem({required this.product, required this.quantity});
+  OrderItem({
+    required this.product,
+    required this.clienteOrden,
+    required this.quantity,
+  });
 
-  double get subtotal => product.precioUnitario * quantity;
+  double get subtotal => clienteOrden.especial
+      ? product.precioUnitarioMin * quantity
+      : product.precioUnitario * quantity;
 }
 
 enum PaymentType { contado, credito }
@@ -89,7 +97,11 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
         orderItems[existingIndex].quantity += quantity;
       } else {
         orderItems.add(
-          OrderItem(product: selectedProduct!, quantity: quantity),
+          OrderItem(
+            product: selectedProduct!,
+            quantity: quantity,
+            clienteOrden: widget.cliente,
+          ),
         );
       }
 
@@ -143,7 +155,9 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
             (item) => {
               'idProducto': int.parse(item.product.productoId),
               'cantidad': item.quantity,
-              'precioUnitario': item.product.precioUnitario,
+              'precioUnitario': widget.cliente.especial
+                  ? item.product.precioUnitarioMin
+                  : item.product.precioUnitario,
             },
           )
           .toList(),
@@ -159,6 +173,10 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
     final success = await productoVM.entregarProductos(orderData, userToken);
     if (mounted) Navigator.pop(context); // cerrar loading
     if (success) {
+      context.read<HomeViewModel>().getDataHome(
+        userState!.usuario!.id,
+        userToken,
+      );
       DialogsWidget.showSuccess(
         title: 'Muy bien',
         message: productoVM.msj ?? 'Productos asignados correctamente',
@@ -285,13 +303,19 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                   ),
                 ),
                 const SizedBox(width: 2),
-                Text(
-                  widget.cliente.direccionCliente,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white.withOpacity(0.9),
+                if (widget.cliente.especial)
+                  Row(
+                    children: [
+                      Text(
+                        'Cliente Especial',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                      ),
+                      Icon(Icons.star, color: Colors.yellow.shade600, size: 16),
+                    ],
                   ),
-                ),
               ],
             ),
           ),
@@ -376,7 +400,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              product.categoria,
+                              product.cantidadRestante.toString(),
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
@@ -392,7 +416,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                             ),
                           ),
                           Text(
-                            '\$${product.precioUnitario.toStringAsFixed(2)}',
+                            '\$${widget.cliente.especial ? product.precioUnitarioMin.toStringAsFixed(2) : product.precioUnitario.toStringAsFixed(2)}',
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
@@ -638,7 +662,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                'x \$${item.product.precioUnitario.toStringAsFixed(2)}',
+                'x \$${widget.cliente.especial ? item.product.precioUnitarioMin.toStringAsFixed(2) : item.product.precioUnitario.toStringAsFixed(2)}',
                 style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
               ),
               const Spacer(),

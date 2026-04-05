@@ -448,13 +448,19 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                cliente.nombreCliente,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF6B2A02),
-                ),
+              Row(
+                children: [
+                  Text(
+                    cliente.nombreCliente,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF6B2A02),
+                    ),
+                  ),
+                  if (cliente.especial)
+                    Icon(Icons.star, color: Colors.amber, size: 18),
+                ],
               ),
               if (cliente.entregado > 0)
                 Icon(Icons.check_circle, color: Colors.green),
