@@ -1,4 +1,5 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
+import 'package:Gourmet360/core/utils/cutom_utils.dart';
 import 'package:Gourmet360/models/camion_asignado.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
@@ -40,6 +41,8 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
 
   double expensesToday = 10.00;
 
+  DateTime fechaUltimoDespachoPendiente = DateTime.now();
+
   double get totalToDeliver {
     return soldAmount - expensesToday;
   }
@@ -58,19 +61,17 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
 
   _loadData() {
     final userProvider = context.read<UserProvider>();
-      if (userProvider.status == UserStatus.loaded &&
-          userProvider.usuario != null) {
-        print("Cargando lista de conductores para admin...");
+    if (userProvider.status == UserStatus.loaded &&
+        userProvider.usuario != null) {
+      print("Cargando lista de conductores para admin...");
 
-        userSession = userProvider.usuario;
-        driverName = widget.camionAsignado.uNombre;
-        driverPlate = widget.camionAsignado.camionPlaca;
-        context
-            .read<AdminViewModel>()
-            .getResumenDespachosChoferForAdminEndpoint(
-              widget.camionAsignado.choferId,
-              userSession!.accessToken,
-            );
+      userSession = userProvider.usuario;
+      driverName = widget.camionAsignado.uNombre;
+      driverPlate = widget.camionAsignado.camionPlaca;
+      context.read<AdminViewModel>().getResumenDespachosChoferForAdminEndpoint(
+        widget.camionAsignado.choferId,
+        userSession!.accessToken,
+      );
     }
   }
 
@@ -84,30 +85,34 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (vm.error != null) {
-            return Center(child: Column(
-              children: [
-                Text(vm.error!),
-                ElevatedButton(
-                  onPressed: () {
-                    _loadData();
-                  },
-                  child: const Text('Reintentar'),
-                ),
-              ],
-            ));
+            return Center(
+              child: Column(
+                children: [
+                  Text(vm.error!),
+                  ElevatedButton(
+                    onPressed: () {
+                      _loadData();
+                    },
+                    child: const Text('Reintentar'),
+                  ),
+                ],
+              ),
+            );
           }
           if (vm.despachosChofer == null) {
-            return Center(child: Column(
-              children: [
-                Text('No hay datos disponibles.'),
-                ElevatedButton(
-                  onPressed: () {
-                    _loadData();
-                  },
-                  child: const Text('Reintentar'),
-                ),
-              ],
-            ));
+            return Center(
+              child: Column(
+                children: [
+                  Text('No hay datos disponibles.'),
+                  ElevatedButton(
+                    onPressed: () {
+                      _loadData();
+                    },
+                    child: const Text('Reintentar'),
+                  ),
+                ],
+              ),
+            );
           }
           if (vm.despachosChofer != null) {
             assignedProducts = vm.despachosChofer!.cantidad_asignada.toInt();
@@ -120,6 +125,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
             accountsReceivableAccumulated =
                 vm.despachosChofer!.cuentas_por_cobrar;
             expensesToday = vm.despachosChofer!.gastos;
+            fechaUltimoDespachoPendiente = vm.despachosChofer!.fecha;
           }
           return SafeArea(
             child: Column(
@@ -191,7 +197,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Miércoles, 20 de Noviembre 2024',
+                  CustomUils.formatearFecha(fechaUltimoDespachoPendiente),
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: const Color(0xFFF5E2C8),

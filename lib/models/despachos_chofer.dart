@@ -7,6 +7,7 @@ class DespachosChofer {
   final double ventas_contado;
   final double cuentas_por_cobrar;
   final double gastos;
+  final DateTime fecha;
 
   DespachosChofer({
     required this.cantidad_asignada,
@@ -17,6 +18,7 @@ class DespachosChofer {
     required this.ventas_contado,
     required this.cuentas_por_cobrar,
     required this.gastos,
+    required this.fecha,
   });
 
   factory DespachosChofer.fromJson(
@@ -58,6 +60,11 @@ class DespachosChofer {
           ) ??
           0,
       gastos: double.tryParse(jsonDespachos['gastos']?.toString() ?? '0') ?? 0,
+      fecha:
+          DateTime.tryParse(
+            jsonDespachos['fechaUltimoDespachoPendiente'] ?? '',
+          ) ??
+          DateTime.now(),
     );
   }
 }

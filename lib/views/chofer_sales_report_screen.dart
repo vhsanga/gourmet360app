@@ -1,4 +1,5 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
+import 'package:Gourmet360/core/utils/cutom_utils.dart';
 import 'package:Gourmet360/models/camion_asignado.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
@@ -37,6 +38,8 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
 
   double expensesToday = 10.00;
 
+  DateTime fechaUltimoDespachoPendiente = DateTime.now();
+
   double get totalToDeliver {
     return soldAmount - expensesToday;
   }
@@ -53,18 +56,16 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
     });
   }
 
-  void _loadData(){
+  void _loadData() {
     final userProvider = context.read<UserProvider>();
-      if (userProvider.status == UserStatus.loaded &&
-          userProvider.usuario != null) {
-        userSession = userProvider.usuario;
-        context
-            .read<AdminViewModel>()
-            .getResumenDespachosChoferForAdminEndpoint(
-              int.parse(userSession!.id),
-              userSession!.accessToken,
-            );
-      }
+    if (userProvider.status == UserStatus.loaded &&
+        userProvider.usuario != null) {
+      userSession = userProvider.usuario;
+      context.read<AdminViewModel>().getResumenDespachosChoferForAdminEndpoint(
+        int.parse(userSession!.id),
+        userSession!.accessToken,
+      );
+    }
   }
 
   @override
@@ -77,42 +78,46 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (vm.error != null) {
-            return Center(child: Column(
-              children: [
-                Text(vm.error!),
-                ElevatedButton(
-                  onPressed: () {
-                    _loadData();
-                  },
-                  child: const Text('Reintentar'),
-                ),
-              ],
-            ));
+            return Center(
+              child: Column(
+                children: [
+                  Text(vm.error!),
+                  ElevatedButton(
+                    onPressed: () {
+                      _loadData();
+                    },
+                    child: const Text('Reintentar'),
+                  ),
+                ],
+              ),
+            );
           }
           if (vm.despachosChofer == null) {
-            return Center(child: Column(
-              children: [
-                Text('No hay datos disponibles.'),
-                ElevatedButton(
-                  onPressed: () {
-                    _loadData();
-                  },
-                  child: const Text('Reintentar'),
-                ),
-              ],
-            ));
+            return Center(
+              child: Column(
+                children: [
+                  Text('No hay datos disponibles.'),
+                  ElevatedButton(
+                    onPressed: () {
+                      _loadData();
+                    },
+                    child: const Text('Reintentar'),
+                  ),
+                ],
+              ),
+            );
           }
           if (vm.despachosChofer != null) {
             assignedProducts = vm.despachosChofer!.cantidad_asignada.toInt();
             soldProducts = vm.despachosChofer!.cantidad_entregada.toInt();
             returnedProducts = vm.despachosChofer!.cantidad_devuelta.toInt();
-            remainingProducts =
-                assignedProducts - soldProducts - returnedProducts;
+            remainingProducts = vm.despachosChofer!.cantidad_restante.toInt();
             soldAmount = vm.despachosChofer!.ventas_contado;
             accountsReceivableToday = vm.despachosChofer!.ventas_credito;
             accountsReceivableAccumulated =
                 vm.despachosChofer!.cuentas_por_cobrar;
             expensesToday = vm.despachosChofer!.gastos;
+            fechaUltimoDespachoPendiente = vm.despachosChofer!.fecha;
           }
           return SafeArea(
             child: Column(
@@ -180,7 +185,7 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Miércoles, 20 de Noviembre 2024',
+                  CustomUils.formatearFecha(fechaUltimoDespachoPendiente),
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: const Color(0xFFF5E2C8),
