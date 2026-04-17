@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:Gourmet360/core/themes/app_theme_data.dart';
 
 class Client {
   final String id;
@@ -134,7 +135,7 @@ class _ClientsListScreenState extends State<ClientsListScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF6B2A02),
+        color: AppThemeData.identityColor,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -147,7 +148,10 @@ class _ClientsListScreenState extends State<ClientsListScreen> {
         children: [
           IconButton(
             onPressed: () {},
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back,
+              color: AppThemeData.primaryColor,
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -159,7 +163,7 @@ class _ClientsListScreenState extends State<ClientsListScreen> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppThemeData.primaryColor,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -167,7 +171,7 @@ class _ClientsListScreenState extends State<ClientsListScreen> {
                   '${clients.length} clientes registrados',
                   style: TextStyle(
                     fontSize: 13,
-                    color: const Color(0xFFF5E2C8),
+                    color: AppThemeData.identityColor,
                   ),
                 ),
               ],
@@ -212,7 +216,7 @@ class _ClientsListScreenState extends State<ClientsListScreen> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: const Color(0xFF6B2A02), width: 2),
+            borderSide: BorderSide(color: AppThemeData.primaryColor, width: 2),
           ),
         ),
       ),
@@ -246,7 +250,7 @@ class _ClientsListScreenState extends State<ClientsListScreen> {
             Icon(
               icon,
               size: 16,
-              color: isSelected ? Colors.white : const Color(0xFF6B2A02),
+              color: isSelected ? Colors.white : AppThemeData.primaryColor,
             ),
             const SizedBox(width: 4),
             Flexible(
@@ -264,9 +268,9 @@ class _ClientsListScreenState extends State<ClientsListScreen> {
           });
         },
         backgroundColor: const Color(0xFFF5E2C8),
-        selectedColor: const Color(0xFF6B2A02),
+        selectedColor: AppThemeData.primaryColor,
         labelStyle: TextStyle(
-          color: isSelected ? Colors.white : const Color(0xFF6B2A02),
+          color: isSelected ? Colors.white : AppThemeData.primaryColor,
         ),
         checkmarkColor: Colors.white,
       ),
@@ -338,7 +342,7 @@ class _ClientsListScreenState extends State<ClientsListScreen> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF6B2A02),
+              color: AppThemeData.primaryColor,
             ),
           ),
           const SizedBox(height: 2),
@@ -395,7 +399,7 @@ class _ClientsListScreenState extends State<ClientsListScreen> {
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF6B2A02),
+                            color: AppThemeData.primaryColor,
                           ),
                         ),
                       ),
@@ -410,7 +414,7 @@ class _ClientsListScreenState extends State<ClientsListScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: const Color(0xFF6B2A02),
+                              color: AppThemeData.primaryColor,
                             ),
                           ),
                           const SizedBox(height: 2),

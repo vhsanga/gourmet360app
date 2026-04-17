@@ -10,6 +10,7 @@ import 'package:Gourmet360/views/admin/mapa_camiones_screen.dart';
 import 'package:Gourmet360/views/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:Gourmet360/core/themes/app_theme_data.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({Key? key}) : super(key: key);
@@ -169,7 +170,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return SliverAppBar(
       expandedHeight: 100,
       pinned: true,
-      backgroundColor: const Color(0xFF6B2A02),
+      backgroundColor: AppThemeData.primaryColor,
 
       // 👉 ACTIONS: Menú 3 puntos
       actions: [
@@ -368,7 +369,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       style: TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.bold,
-        color: const Color(0xFF6B2A02),
+        color: AppThemeData.primaryColor,
       ),
     );
   }
@@ -418,7 +419,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF6B2A02),
+                        color: AppThemeData.primaryColor,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -504,7 +505,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: const Color(0xFF6B2A02),
+            color: AppThemeData.primaryColor,
           ),
         ),
         Text(
@@ -555,7 +556,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF6B2A02),
+                    color: AppThemeData.primaryColor,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -631,7 +632,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF6B2A02),
+                      color: AppThemeData.primaryColor,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -817,7 +818,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF6B2A02),
+                        color: AppThemeData.primaryColor,
                       ),
                     ),
                     const SizedBox(height: 4),

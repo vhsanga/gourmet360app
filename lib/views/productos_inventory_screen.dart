@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:Gourmet360/core/themes/app_theme_data.dart';
 
 class Product {
   final String name;
@@ -113,7 +114,7 @@ class _ProductsInventoryScreenState extends State<ProductsInventoryScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF6B2A02),
+        color: AppThemeData.identityColor,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -129,7 +130,10 @@ class _ProductsInventoryScreenState extends State<ProductsInventoryScreen> {
             children: [
               IconButton(
                 onPressed: () {},
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                icon: const Icon(
+                  Icons.arrow_back,
+                  color: AppThemeData.primaryColor,
+                ),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -141,7 +145,7 @@ class _ProductsInventoryScreenState extends State<ProductsInventoryScreen> {
                       style: GoogleFonts.montserrat(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: AppThemeData.primaryColor,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -149,7 +153,7 @@ class _ProductsInventoryScreenState extends State<ProductsInventoryScreen> {
                       'Productos pendientes por entregar',
                       style: GoogleFonts.montserrat(
                         fontSize: 13,
-                        color: const Color(0xFFF5E2C8),
+                        color: AppThemeData.primaryColor,
                       ),
                     ),
                   ],
@@ -269,7 +273,7 @@ class _ProductsInventoryScreenState extends State<ProductsInventoryScreen> {
             Icon(
               icon,
               size: 16,
-              color: isSelected ? Colors.white : const Color(0xFF6B2A02),
+              color: isSelected ? Colors.white : AppThemeData.primaryColor,
             ),
             const SizedBox(width: 6),
             Text(
@@ -287,9 +291,9 @@ class _ProductsInventoryScreenState extends State<ProductsInventoryScreen> {
           });
         },
         backgroundColor: const Color(0xFFF5E2C8),
-        selectedColor: const Color(0xFF6B2A02),
+        selectedColor: AppThemeData.primaryColor,
         labelStyle: GoogleFonts.montserrat(
-          color: isSelected ? Colors.white : const Color(0xFF6B2A02),
+          color: isSelected ? Colors.white : AppThemeData.primaryColor,
         ),
         checkmarkColor: Colors.white,
       ),
@@ -313,7 +317,7 @@ class _ProductsInventoryScreenState extends State<ProductsInventoryScreen> {
                 ),
                 child: Icon(
                   category.icon,
-                  color: const Color(0xFF6B2A02),
+                  color: AppThemeData.primaryColor,
                   size: 22,
                 ),
               ),
@@ -323,7 +327,7 @@ class _ProductsInventoryScreenState extends State<ProductsInventoryScreen> {
                 style: GoogleFonts.montserrat(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF6B2A02),
+                  color: AppThemeData.primaryColor,
                 ),
               ),
               const SizedBox(width: 8),
@@ -338,7 +342,7 @@ class _ProductsInventoryScreenState extends State<ProductsInventoryScreen> {
                   style: GoogleFonts.montserrat(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF6B2A02),
+                    color: AppThemeData.primaryColor,
                   ),
                 ),
               ),
@@ -386,7 +390,7 @@ class _ProductsInventoryScreenState extends State<ProductsInventoryScreen> {
                   style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF6B2A02),
+                    color: AppThemeData.primaryColor,
                   ),
                 ),
               ),
@@ -404,7 +408,7 @@ class _ProductsInventoryScreenState extends State<ProductsInventoryScreen> {
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF6B2A02),
+                    color: AppThemeData.primaryColor,
                   ),
                 ),
               ),

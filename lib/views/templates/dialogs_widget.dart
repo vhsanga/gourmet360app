@@ -1,5 +1,6 @@
 import 'package:Gourmet360/core/navigation/app_navigator.dart';
 import 'package:flutter/material.dart';
+import 'package:Gourmet360/core/themes/app_theme_data.dart';
 
 class DialogsWidget {
   // Diálogo de Loading
@@ -44,7 +45,7 @@ class DialogsWidget {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF6B2A02),
+                    color: AppThemeData.primaryColor,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -92,7 +93,7 @@ class DialogsWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF6B2A02),
+                  color: AppThemeData.primaryColor,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -171,7 +172,7 @@ class DialogsWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF6B2A02),
+                  color: AppThemeData.primaryColor,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -250,7 +251,7 @@ class DialogsWidget {
                   size: 50,
                   color: isDangerous
                       ? Colors.orange.shade700
-                      : const Color(0xFF6B2A02),
+                      : AppThemeData.primaryColor,
                 ),
               ),
               const SizedBox(height: 24),
@@ -259,7 +260,7 @@ class DialogsWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF6B2A02),
+                  color: AppThemeData.primaryColor,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -316,7 +317,7 @@ class DialogsWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: isDangerous
                               ? Colors.red.shade600
-                              : const Color(0xFF6B2A02),
+                              : AppThemeData.primaryColor,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -381,7 +382,7 @@ class DialogsWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF6B2A02),
+                  color: AppThemeData.primaryColor,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -403,7 +404,7 @@ class DialogsWidget {
                   hintText: hintText,
                   hintStyle: TextStyle(color: Colors.grey),
                   filled: true,
-                  fillColor: const Color(0xFFFFFCF5),
+                  fillColor: AppThemeData.backgroundColor,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -418,7 +419,7 @@ class DialogsWidget {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: const Color(0xFF6B2A02),
+                      color: AppThemeData.primaryColor,
                       width: 2,
                     ),
                   ),
@@ -465,7 +466,7 @@ class DialogsWidget {
                           onConfirm(controller.text);
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF6B2A02),
+                          backgroundColor: AppThemeData.primaryColor,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),

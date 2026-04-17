@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:Gourmet360/core/themes/app_theme_data.dart';
 
 class ClientData {
   final String id;
@@ -239,7 +240,7 @@ class _ClientsReportScreenState extends State<ClientsReportScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF6B2A02),
+        color: AppThemeData.identityColor,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -252,7 +253,10 @@ class _ClientsReportScreenState extends State<ClientsReportScreen> {
         children: [
           IconButton(
             onPressed: () {},
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back,
+              color: AppThemeData.primaryColor,
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -264,7 +268,7 @@ class _ClientsReportScreenState extends State<ClientsReportScreen> {
                   style: GoogleFonts.montserrat(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppThemeData.primaryColor,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -272,7 +276,7 @@ class _ClientsReportScreenState extends State<ClientsReportScreen> {
                   '${clients.length} clientes registrados',
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
-                    color: const Color(0xFFF5E2C8),
+                    color: AppThemeData.primaryColor,
                   ),
                 ),
               ],
@@ -313,7 +317,7 @@ class _ClientsReportScreenState extends State<ClientsReportScreen> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: const Color(0xFF6B2A02), width: 2),
+            borderSide: BorderSide(color: AppThemeData.primaryColor, width: 2),
           ),
         ),
       ),
@@ -349,7 +353,7 @@ class _ClientsReportScreenState extends State<ClientsReportScreen> {
           Icon(
             icon,
             size: 16,
-            color: isSelected ? Colors.white : const Color(0xFF6B2A02),
+            color: isSelected ? Colors.white : AppThemeData.primaryColor,
           ),
           const SizedBox(width: 4),
           Text(
@@ -367,9 +371,9 @@ class _ClientsReportScreenState extends State<ClientsReportScreen> {
         });
       },
       backgroundColor: const Color(0xFFF5E2C8),
-      selectedColor: const Color(0xFF6B2A02),
+      selectedColor: AppThemeData.primaryColor,
       labelStyle: GoogleFonts.montserrat(
-        color: isSelected ? Colors.white : const Color(0xFF6B2A02),
+        color: isSelected ? Colors.white : AppThemeData.primaryColor,
       ),
       checkmarkColor: Colors.white,
     );
@@ -431,7 +435,7 @@ class _ClientsReportScreenState extends State<ClientsReportScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF6B2A02),
+              color: AppThemeData.primaryColor,
             ),
           ),
           const SizedBox(height: 2),
@@ -471,7 +475,9 @@ class _ClientsReportScreenState extends State<ClientsReportScreen> {
             dataRowMaxHeight: 48, // <<< MÁS COMPACTO
             sortColumnIndex: _sortColumnIndex,
             sortAscending: _sortAscending,
-            headingRowColor: MaterialStateProperty.all(const Color(0xFF6B2A02)),
+            headingRowColor: MaterialStateProperty.all(
+              AppThemeData.primaryColor,
+            ),
             headingTextStyle: GoogleFonts.montserrat(
               fontSize: 11, // <<< REDUCIDO
               fontWeight: FontWeight.bold,
@@ -479,7 +485,7 @@ class _ClientsReportScreenState extends State<ClientsReportScreen> {
             ),
             dataTextStyle: GoogleFonts.montserrat(
               fontSize: 11, // <<< REDUCIDO
-              color: const Color(0xFF6B2A02),
+              color: AppThemeData.primaryColor,
             ),
 
             columns: [
@@ -519,7 +525,7 @@ class _ClientsReportScreenState extends State<ClientsReportScreen> {
                             style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.bold,
                               fontSize: 12, // <<< REDUCIDO
-                              color: const Color(0xFF6B2A02),
+                              color: AppThemeData.primaryColor,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -594,7 +600,7 @@ class _ClientsReportScreenState extends State<ClientsReportScreen> {
                       ), // <<< REDUCIDO
                       decoration: BoxDecoration(
                         color: client.clientType == ClientType.especial
-                            ? const Color(0xFF6B2A02)
+                            ? AppThemeData.primaryColor
                             : const Color(0xFFF5E2C8),
                         borderRadius: BorderRadius.circular(6),
                       ),
@@ -608,7 +614,7 @@ class _ClientsReportScreenState extends State<ClientsReportScreen> {
                             size: 12, // <<< REDUCIDO
                             color: client.clientType == ClientType.especial
                                 ? Colors.white
-                                : const Color(0xFF6B2A02),
+                                : AppThemeData.primaryColor,
                           ),
                           const SizedBox(width: 3),
                           Text(
@@ -620,7 +626,7 @@ class _ClientsReportScreenState extends State<ClientsReportScreen> {
                               fontWeight: FontWeight.bold,
                               color: client.clientType == ClientType.especial
                                   ? Colors.white
-                                  : const Color(0xFF6B2A02),
+                                  : AppThemeData.primaryColor,
                             ),
                           ),
                         ],

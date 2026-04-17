@@ -6,6 +6,7 @@ import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:Gourmet360/core/themes/app_theme_data.dart';
 
 class LoginPinScreen extends StatefulWidget {
   const LoginPinScreen({Key? key}) : super(key: key);
@@ -150,7 +151,7 @@ class _LoginPinScreenState extends State<LoginPinScreen> {
           style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.bold,
-            color: const Color(0xFF6B2A02),
+            color: AppThemeData.primaryColor,
           ),
         ),
         const SizedBox(height: 8),
@@ -167,11 +168,11 @@ class _LoginPinScreenState extends State<LoginPinScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Celular',
+          'usuario:',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: const Color(0xFF6B2A02),
+            color: AppThemeData.primaryColor,
           ),
         ),
         const SizedBox(height: 12),
@@ -179,7 +180,6 @@ class _LoginPinScreenState extends State<LoginPinScreen> {
           controller: _usernameController,
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           decoration: InputDecoration(
-            hintText: 'Ingresa tu número de teléfono',
             hintStyle: TextStyle(color: Colors.grey.shade400),
             prefixIcon: const Icon(
               Icons.person_outline,
@@ -197,7 +197,10 @@ class _LoginPinScreenState extends State<LoginPinScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: const Color(0xFF6B2A02), width: 2),
+              borderSide: BorderSide(
+                color: AppThemeData.primaryColor,
+                width: 2,
+              ),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 20,
@@ -217,11 +220,11 @@ class _LoginPinScreenState extends State<LoginPinScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'PIN de Seguridad',
+              'PIN de Seguridad:',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF6B2A02),
+                color: AppThemeData.primaryColor,
               ),
             ),
             IconButton(
@@ -234,7 +237,7 @@ class _LoginPinScreenState extends State<LoginPinScreen> {
                 _obscurePin
                     ? Icons.visibility_outlined
                     : Icons.visibility_off_outlined,
-                color: const Color(0xFF6B2A02),
+                color: AppThemeData.primaryColor,
               ),
             ),
           ],
@@ -245,10 +248,6 @@ class _LoginPinScreenState extends State<LoginPinScreen> {
           children: List.generate(6, (index) => _buildPinBox(index)),
         ),
         const SizedBox(height: 12),
-        Text(
-          'Ingresa tu PIN de 6 dígitos',
-          style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-        ),
       ],
     );
   }
@@ -262,7 +261,7 @@ class _LoginPinScreenState extends State<LoginPinScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: _pinControllers[index].text.isNotEmpty
-              ? const Color(0xFF6B2A02)
+              ? AppThemeData.primaryColor
               : const Color(0xFFF5E2C8),
           width: 2,
         ),
@@ -284,7 +283,7 @@ class _LoginPinScreenState extends State<LoginPinScreen> {
         style: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.bold,
-          color: const Color(0xFF6B2A02),
+          color: AppThemeData.primaryColor,
         ),
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         decoration: const InputDecoration(
@@ -309,12 +308,12 @@ class _LoginPinScreenState extends State<LoginPinScreen> {
       child: ElevatedButton(
         onPressed: isValid && !_isLoading ? _handleLogin : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF6B2A02),
+          backgroundColor: AppThemeData.primaryColor,
           foregroundColor: Colors.white,
           disabledBackgroundColor: Colors.grey.shade300,
           disabledForegroundColor: Colors.grey.shade500,
           elevation: isValid ? 4 : 0,
-          shadowColor: const Color(0xFF6B2A02).withOpacity(0.4),
+          shadowColor: AppThemeData.primaryColor.withOpacity(0.4),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -361,7 +360,7 @@ class _LoginPinScreenState extends State<LoginPinScreen> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: const Color(0xFF6B2A02),
+            color: AppThemeData.primaryColor,
             decoration: TextDecoration.underline,
           ),
         ),

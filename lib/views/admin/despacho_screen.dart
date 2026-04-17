@@ -7,6 +7,7 @@ import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:Gourmet360/core/themes/app_theme_data.dart';
 
 class DespachoScreen extends StatefulWidget {
   CamionAsignado? camionAsignado;
@@ -168,7 +169,7 @@ class _DespachoScreenState extends State<DespachoScreen> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF6B2A02),
+                          color: AppThemeData.primaryColor,
                         ),
                       ),
                     ),
@@ -210,7 +211,7 @@ class _DespachoScreenState extends State<DespachoScreen> {
           ),
         ],
       ),
-      backgroundColor: const Color(0xFF6B2A02),
+      backgroundColor: AppThemeData.primaryColor,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.white),
         onPressed: () => Navigator.pop(context),
@@ -235,7 +236,7 @@ class _DespachoScreenState extends State<DespachoScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: product.cantidad > 0
-              ? const Color(0xFF6B2A02)
+              ? AppThemeData.primaryColor
               : const Color(0xFFF5E2C8),
           width: 2,
         ),
@@ -269,7 +270,7 @@ class _DespachoScreenState extends State<DespachoScreen> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xFF6B2A02),
+                                color: AppThemeData.primaryColor,
                               ),
                             ),
                             if (product.cantidad > 0) ...[
@@ -317,13 +318,13 @@ class _DespachoScreenState extends State<DespachoScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: const Color(0xFF6B2A02),
+                              color: AppThemeData.primaryColor,
                             ),
                             decoration: InputDecoration(
                               hintText: 'Cantidad',
                               hintStyle: TextStyle(color: Colors.grey.shade400),
                               filled: true,
-                              fillColor: const Color(0xFFFFFCF5),
+                              fillColor: AppThemeData.backgroundColor,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
@@ -338,7 +339,7 @@ class _DespachoScreenState extends State<DespachoScreen> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: const Color(0xFF6B2A02),
+                                  color: AppThemeData.primaryColor,
                                   width: 2,
                                 ),
                               ),
@@ -433,8 +434,8 @@ class _DespachoScreenState extends State<DespachoScreen> {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6B2A02),
-                  foregroundColor: const Color(0xFFFFFCF5),
+                  backgroundColor: AppThemeData.primaryColor,
+                  foregroundColor: AppThemeData.backgroundColor,
                   elevation: 4,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),

@@ -1,5 +1,6 @@
 import 'package:Gourmet360/core/navigation/app_navigator.dart';
 import 'package:Gourmet360/core/providers/user_provider.dart';
+import 'package:Gourmet360/core/themes/app_theme_data.dart';
 import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/auth_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
@@ -47,18 +48,7 @@ class PanaderiaDeliveryApp extends StatelessWidget {
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: [const Locale('en', 'US'), const Locale('es', 'ES')],
-        theme: ThemeData(
-          textTheme: GoogleFonts.montserratTextTheme(
-            Theme.of(context).textTheme,
-          ),
-          primaryColor: const Color(0xFF6B2A02),
-          scaffoldBackgroundColor: const Color(0xFFFFFCF5),
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF6B2A02),
-            secondary: const Color(0xFFF5E2C8),
-          ),
-          useMaterial3: true,
-        ),
+        theme: AppThemeData.theme,
         home: const AppWrapper(), // Cambiamos WelcomeScreen por AppWrapper
       ),
     );
@@ -103,7 +93,7 @@ class AppWrapper extends StatelessWidget {
   // Splash screen temporal mientras se carga el usuario
   Widget _buildSplashScreen() {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFCF5),
+      backgroundColor: AppThemeData.backgroundColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -113,7 +103,7 @@ class AppWrapper extends StatelessWidget {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: const Color(0xFF6B2A02),
+                color: AppThemeData.primaryColor,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: const Icon(
@@ -128,7 +118,7 @@ class AppWrapper extends StatelessWidget {
               style: GoogleFonts.montserrat(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF6B2A02),
+                color: AppThemeData.primaryColor,
               ),
             ),
             const SizedBox(height: 20),
@@ -138,7 +128,7 @@ class AppWrapper extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               'Cargando...',
-              style: GoogleFonts.montserrat(color: const Color(0xFF6B2A02)),
+              style: GoogleFonts.montserrat(color: AppThemeData.primaryColor),
             ),
           ],
         ),

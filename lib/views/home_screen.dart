@@ -13,9 +13,9 @@ import 'package:Gourmet360/views/templates/dialog_devolicion.dart';
 import 'package:Gourmet360/views/templates/dialog_registro_cliente.dart';
 import 'package:Gourmet360/views/templates/drawer_driver_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:Gourmet360/views/productos_inventory_screen.dart';
 import 'package:Gourmet360/views/user_profile_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:Gourmet360/core/themes/app_theme_data.dart';
 
 class HomePortalScreen extends StatefulWidget {
   const HomePortalScreen({Key? key}) : super(key: key);
@@ -194,7 +194,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF6B2A02),
+        color: AppThemeData.identityColor,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -251,7 +251,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
       return Text(
         userState.usuario?.nombre ?? "",
         style: TextStyle(
-          color: Colors.white,
+          color: AppThemeData.primaryColor,
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
@@ -355,7 +355,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
             label,
             style: TextStyle(
               fontSize: 12,
-              color: const Color(0xFF6B2A02).withOpacity(0.7),
+              color: AppThemeData.primaryColor.withOpacity(0.7),
             ),
           ),
         ],
@@ -494,7 +494,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                   icon: const Icon(Icons.compare_arrows, size: 18),
                   label: const Text('Devolucion'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF6B2A02),
+                    foregroundColor: AppThemeData.primaryColor,
                     side: const BorderSide(color: Color(0xFF6B2A02)),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -519,7 +519,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                   icon: const Icon(Icons.arrow_circle_right_outlined, size: 18),
                   label: const Text('Entregar'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF6B2A02),
+                    foregroundColor: AppThemeData.primaryColor,
                     side: const BorderSide(color: Color(0xFF6B2A02)),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),

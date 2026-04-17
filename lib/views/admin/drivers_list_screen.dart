@@ -9,6 +9,7 @@ import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:Gourmet360/core/themes/app_theme_data.dart';
 
 class DriversListScreen extends StatefulWidget {
   const DriversListScreen({Key? key}) : super(key: key);
@@ -120,7 +121,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddDriverDialog(context),
-        backgroundColor: const Color(0xFF6B2A02),
+        backgroundColor: AppThemeData.primaryColor,
         icon: const Icon(Icons.add, color: Colors.white),
         label: Text(
           'Nuevo Conductor',
@@ -142,7 +143,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF6B2A02),
+        color: AppThemeData.identityColor,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -155,7 +156,10 @@ class _DriversListScreenState extends State<DriversListScreen> {
         children: [
           IconButton(
             onPressed: () {},
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back,
+              color: AppThemeData.primaryColor,
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -167,7 +171,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppThemeData.primaryColor,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -216,7 +220,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: const Color(0xFF6B2A02), width: 2),
+            borderSide: BorderSide(color: AppThemeData.primaryColor, width: 2),
           ),
         ),
       ),
@@ -284,7 +288,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF6B2A02),
+                  color: AppThemeData.primaryColor,
                 ),
               ),
               Text(label, style: TextStyle(fontSize: 12, color: Colors.grey)),
@@ -297,7 +301,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
 
   Widget _buildMenuDriverCard(CamionAsignado driver) {
     return PopupMenuButton<int>(
-      icon: const Icon(Icons.more_vert, color: const Color(0xFF6B2A02)),
+      icon: const Icon(Icons.more_vert, color: AppThemeData.primaryColor),
       color: Colors.white,
       onSelected: (value) {
         if (value == 1) {
@@ -387,7 +391,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF6B2A02),
+                            color: AppThemeData.primaryColor,
                           ),
                         ),
                       ),
@@ -402,7 +406,7 @@ class _DriversListScreenState extends State<DriversListScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: const Color(0xFF6B2A02),
+                              color: AppThemeData.primaryColor,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -435,8 +439,8 @@ class _DriversListScreenState extends State<DriversListScreen> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        const Color(0xFF6B2A02),
-                        const Color(0xFF6B2A02).withOpacity(0.85),
+                        AppThemeData.primaryColor,
+                        AppThemeData.primaryColor.withOpacity(0.85),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
@@ -829,7 +833,7 @@ class _AddDriverDialogState extends State<AddDriverDialog> {
           child: Container(
             height: 2,
             color: _currentStep > 0
-                ? const Color(0xFF6B2A02)
+                ? AppThemeData.primaryColor
                 : const Color(0xFFF5E2C8),
           ),
         ),
@@ -849,7 +853,7 @@ class _AddDriverDialogState extends State<AddDriverDialog> {
           height: 36,
           decoration: BoxDecoration(
             color: isActive || isCompleted
-                ? const Color(0xFF6B2A02)
+                ? AppThemeData.primaryColor
                 : const Color(0xFFF5E2C8),
             shape: BoxShape.circle,
           ),
@@ -860,7 +864,9 @@ class _AddDriverDialogState extends State<AddDriverDialog> {
                     '${step + 1}',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: isActive ? Colors.white : const Color(0xFF6B2A02),
+                      color: isActive
+                          ? Colors.white
+                          : AppThemeData.primaryColor,
                     ),
                   ),
           ),
@@ -871,7 +877,7 @@ class _AddDriverDialogState extends State<AddDriverDialog> {
           style: TextStyle(
             fontSize: 11,
             fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-            color: isActive ? const Color(0xFF6B2A02) : Colors.grey.shade600,
+            color: isActive ? AppThemeData.primaryColor : Colors.grey.shade600,
           ),
         ),
       ],
@@ -884,7 +890,7 @@ class _AddDriverDialogState extends State<AddDriverDialog> {
       style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.bold,
-        color: const Color(0xFF6B2A02),
+        color: AppThemeData.primaryColor,
       ),
     );
   }
@@ -908,7 +914,7 @@ class _AddDriverDialogState extends State<AddDriverDialog> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: const Color(0xFF6B2A02),
+            color: AppThemeData.primaryColor,
           ),
         ),
         const SizedBox(height: 8),
@@ -922,9 +928,9 @@ class _AddDriverDialogState extends State<AddDriverDialog> {
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(color: Colors.grey.shade400),
-            prefixIcon: Icon(icon, color: const Color(0xFF6B2A02), size: 20),
+            prefixIcon: Icon(icon, color: AppThemeData.primaryColor, size: 20),
             filled: true,
-            fillColor: const Color(0xFFFFFCF5),
+            fillColor: AppThemeData.backgroundColor,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -935,7 +941,10 @@ class _AddDriverDialogState extends State<AddDriverDialog> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: const Color(0xFF6B2A02), width: 2),
+              borderSide: BorderSide(
+                color: AppThemeData.primaryColor,
+                width: 2,
+              ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -971,7 +980,7 @@ class _AddDriverDialogState extends State<AddDriverDialog> {
                   setState(() => _currentStep--);
                 },
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF6B2A02),
+                  foregroundColor: AppThemeData.primaryColor,
                   side: const BorderSide(color: Color(0xFF6B2A02), width: 2),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -1013,7 +1022,7 @@ class _AddDriverDialogState extends State<AddDriverDialog> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6B2A02),
+                backgroundColor: AppThemeData.primaryColor,
                 foregroundColor: Colors.white,
                 disabledBackgroundColor: Colors.grey.shade300,
                 shape: RoundedRectangleBorder(

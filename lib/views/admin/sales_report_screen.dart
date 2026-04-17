@@ -7,6 +7,7 @@ import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:Gourmet360/core/themes/app_theme_data.dart';
 
 class SalesReportScreen extends StatefulWidget {
   CamionAsignado camionAsignado;
@@ -167,7 +168,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF6B2A02),
+        color: AppThemeData.identityColor,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -180,7 +181,10 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
         children: [
           IconButton(
             onPressed: () {},
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back,
+              color: AppThemeData.primaryColor,
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -192,7 +196,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                   style: GoogleFonts.montserrat(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppThemeData.primaryColor,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -200,7 +204,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                   CustomUils.formatearFecha(fechaUltimoDespachoPendiente),
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
-                    color: const Color(0xFFF5E2C8),
+                    color: AppThemeData.primaryColor,
                   ),
                 ),
               ],
@@ -217,14 +221,14 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFF6B2A02),
-            const Color(0xFF6B2A02).withOpacity(0.85),
+            AppThemeData.primaryColor,
+            AppThemeData.primaryColor.withOpacity(0.85),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF6B2A02).withOpacity(0.3),
+            color: AppThemeData.primaryColor.withOpacity(0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -245,7 +249,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                 style: GoogleFonts.montserrat(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF6B2A02),
+                  color: AppThemeData.primaryColor,
                 ),
               ),
             ),
@@ -305,7 +309,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
       style: GoogleFonts.montserrat(
         fontSize: 18,
         fontWeight: FontWeight.bold,
-        color: const Color(0xFF6B2A02),
+        color: AppThemeData.primaryColor,
       ),
     );
   }
@@ -352,7 +356,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                       style: GoogleFonts.montserrat(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF6B2A02),
+                        color: AppThemeData.primaryColor,
                       ),
                     ),
                     Text(
@@ -459,7 +463,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF6B2A02),
+              color: AppThemeData.primaryColor,
             ),
           ),
         ],
@@ -509,7 +513,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                       style: GoogleFonts.montserrat(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF6B2A02),
+                        color: AppThemeData.primaryColor,
                       ),
                     ),
                     Text(
@@ -658,12 +662,12 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
       child: ElevatedButton(
         onPressed: _registrarEntrega,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF6B2A02),
+          backgroundColor: AppThemeData.primaryColor,
           foregroundColor: Colors.white,
           disabledBackgroundColor: Colors.grey.shade300,
           disabledForegroundColor: Colors.grey.shade500,
           elevation: 4,
-          shadowColor: const Color(0xFF6B2A02).withOpacity(0.4),
+          shadowColor: AppThemeData.primaryColor.withOpacity(0.4),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),

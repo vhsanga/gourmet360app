@@ -7,6 +7,7 @@ import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:Gourmet360/core/themes/app_theme_data.dart';
 
 class OrderItem {
   final ProductoAsignado product;
@@ -265,7 +266,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF6B2A02),
+        color: AppThemeData.identityColor,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -278,7 +279,10 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
         children: [
           IconButton(
             onPressed: () {},
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back,
+              color: AppThemeData.primaryColor,
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -291,7 +295,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppThemeData.primaryColor,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -310,7 +314,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                         'Cliente Especial',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.white.withOpacity(0.9),
+                          color: AppThemeData.primaryColor.withOpacity(0.9),
                         ),
                       ),
                       Icon(Icons.star, color: Colors.yellow.shade600, size: 16),
@@ -330,7 +334,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
       style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
-        color: const Color(0xFF6B2A02),
+        color: AppThemeData.primaryColor,
       ),
     );
   }
@@ -357,13 +361,13 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF6B2A02),
+              color: AppThemeData.primaryColor,
             ),
           ),
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFFFFCF5),
+              color: AppThemeData.backgroundColor,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: const Color(0xFFF5E2C8), width: 2),
             ),
@@ -404,7 +408,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xFF6B2A02),
+                                color: AppThemeData.primaryColor,
                               ),
                             ),
                           ),
@@ -449,7 +453,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF6B2A02),
+              color: AppThemeData.primaryColor,
             ),
           ),
           const SizedBox(height: 8),
@@ -469,7 +473,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                       color: Color(0xFF6B2A02),
                     ),
                     filled: true,
-                    fillColor: const Color(0xFFFFFCF5),
+                    fillColor: AppThemeData.backgroundColor,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
@@ -484,7 +488,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
-                        color: const Color(0xFF6B2A02),
+                        color: AppThemeData.primaryColor,
                         width: 2,
                       ),
                     ),
@@ -502,7 +506,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6B2A02),
+                    backgroundColor: AppThemeData.primaryColor,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -596,7 +600,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF6B2A02),
+                    color: AppThemeData.primaryColor,
                   ),
                 ),
               ),
@@ -607,7 +611,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF6B2A02),
+                    color: AppThemeData.primaryColor,
                   ),
                 ),
               ),
@@ -633,7 +637,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                         _updateQuantity(index, item.quantity - 1);
                       },
                       icon: const Icon(Icons.remove, size: 18),
-                      color: const Color(0xFF6B2A02),
+                      color: AppThemeData.primaryColor,
                       padding: const EdgeInsets.all(8),
                       constraints: const BoxConstraints(),
                     ),
@@ -644,7 +648,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF6B2A02),
+                          color: AppThemeData.primaryColor,
                         ),
                       ),
                     ),
@@ -653,7 +657,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                         _updateQuantity(index, item.quantity + 1);
                       },
                       icon: const Icon(Icons.add, size: 18),
-                      color: const Color(0xFF6B2A02),
+                      color: AppThemeData.primaryColor,
                       padding: const EdgeInsets.all(8),
                       constraints: const BoxConstraints(),
                     ),
@@ -779,14 +783,14 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFF6B2A02),
-            const Color(0xFF6B2A02).withOpacity(0.85),
+            AppThemeData.primaryColor,
+            AppThemeData.primaryColor.withOpacity(0.85),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF6B2A02).withOpacity(0.3),
+            color: AppThemeData.primaryColor.withOpacity(0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -845,7 +849,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
           child: ElevatedButton(
             onPressed: orderItems.isEmpty ? null : _confirmOrder,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6B2A02),
+              backgroundColor: AppThemeData.primaryColor,
               foregroundColor: Colors.white,
               disabledBackgroundColor: Colors.grey.shade300,
               shape: RoundedRectangleBorder(

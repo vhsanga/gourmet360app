@@ -1,8 +1,6 @@
 import 'package:Gourmet360/views/admin/drivers_list_screen.dart';
-import 'package:Gourmet360/views/clients_list_screen.dart';
-import 'package:Gourmet360/views/home_screen.dart';
-import 'package:Gourmet360/views/user_profile_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:Gourmet360/core/themes/app_theme_data.dart';
 
 class DrawerAdminWidget extends StatefulWidget {
   const DrawerAdminWidget({super.key});
@@ -15,7 +13,7 @@ class _DrawerAdminWidgetState extends State<DrawerAdminWidget> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: const Color(0xFFFFFCF5),
+      backgroundColor: AppThemeData.backgroundColor,
       child: SafeArea(
         child: Column(
           children: [
@@ -133,7 +131,7 @@ class _DrawerAdminWidgetState extends State<DrawerAdminWidget> {
           icon,
           color:
               iconColor ??
-              (isSelected ? const Color(0xFF6B2A02) : Colors.grey.shade700),
+              (isSelected ? AppThemeData.primaryColor : Colors.grey.shade700),
           size: 24,
         ),
         title: Text(
@@ -143,7 +141,7 @@ class _DrawerAdminWidgetState extends State<DrawerAdminWidget> {
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
             color:
                 textColor ??
-                (isSelected ? const Color(0xFF6B2A02) : Colors.grey.shade700),
+                (isSelected ? AppThemeData.primaryColor : Colors.grey.shade700),
           ),
         ),
         trailing: isSelected

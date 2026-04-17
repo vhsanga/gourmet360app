@@ -2,6 +2,7 @@ import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:Gourmet360/core/themes/app_theme_data.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({Key? key}) : super(key: key);
@@ -37,7 +38,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           SliverAppBar(
             expandedHeight: 200,
             pinned: true,
-            backgroundColor: const Color(0xFF6B2A02),
+            backgroundColor: AppThemeData.primaryColor,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
@@ -45,8 +46,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      const Color(0xFF6B2A02),
-                      const Color(0xFF6B2A02).withOpacity(0.8),
+                      AppThemeData.primaryColor,
+                      AppThemeData.primaryColor.withOpacity(0.8),
                     ],
                   ),
                 ),
@@ -62,7 +63,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         shape: BoxShape.circle,
                         color: const Color(0xFFF5E2C8),
                         border: Border.all(
-                          color: const Color(0xFFFFFCF5),
+                          color: AppThemeData.backgroundColor,
                           width: 4,
                         ),
                         boxShadow: [
@@ -87,7 +88,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFFFFFCF5),
+                        color: AppThemeData.backgroundColor,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -105,7 +106,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF6B2A02),
+                          color: AppThemeData.primaryColor,
                         ),
                       ),
                     ),
@@ -187,7 +188,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
-        color: const Color(0xFF6B2A02),
+        color: AppThemeData.primaryColor,
       ),
     );
   }
@@ -219,7 +220,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               color: const Color(0xFFF5E2C8),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: const Color(0xFF6B2A02), size: 24),
+            child: Icon(icon, color: AppThemeData.primaryColor, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -239,7 +240,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   value,
                   style: TextStyle(
                     fontSize: 16,
-                    color: const Color(0xFF6B2A02),
+                    color: AppThemeData.primaryColor,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -257,14 +258,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFF6B2A02),
-            const Color(0xFF6B2A02).withOpacity(0.8),
+            AppThemeData.primaryColor,
+            AppThemeData.primaryColor.withOpacity(0.8),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF6B2A02).withOpacity(0.3),
+            color: AppThemeData.primaryColor.withOpacity(0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -305,7 +306,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       'PBX-1234',
                       style: TextStyle(
                         fontSize: 24,
-                        color: const Color(0xFFFFFCF5),
+                        color: AppThemeData.backgroundColor,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 2,
                       ),
@@ -341,7 +342,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         'Chevrolet',
                         style: TextStyle(
                           fontSize: 16,
-                          color: const Color(0xFFFFFCF5),
+                          color: AppThemeData.backgroundColor,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -371,7 +372,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         'NPR 2020',
                         style: TextStyle(
                           fontSize: 16,
-                          color: const Color(0xFFFFFCF5),
+                          color: AppThemeData.backgroundColor,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -400,8 +401,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6B2A02),
-              foregroundColor: const Color(0xFFFFFCF5),
+              backgroundColor: AppThemeData.primaryColor,
+              foregroundColor: AppThemeData.backgroundColor,
               elevation: 4,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -421,7 +422,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFF6B2A02),
+              foregroundColor: AppThemeData.primaryColor,
               side: const BorderSide(color: Color(0xFF6B2A02), width: 2),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),

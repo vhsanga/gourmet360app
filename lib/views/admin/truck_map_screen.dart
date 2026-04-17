@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'dart:async';
+import 'package:Gourmet360/core/themes/app_theme_data.dart';
 
 class TruckMapScreen extends StatefulWidget {
   const TruckMapScreen({Key? key}) : super(key: key);
@@ -129,7 +129,7 @@ class _TruckMapScreenState extends State<TruckMapScreen> {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF6B2A02),
+        color: AppThemeData.identityColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -143,7 +143,10 @@ class _TruckMapScreenState extends State<TruckMapScreen> {
         children: [
           IconButton(
             onPressed: () {},
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back,
+              color: AppThemeData.primaryColor,
+            ),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
           ),
@@ -157,7 +160,7 @@ class _TruckMapScreenState extends State<TruckMapScreen> {
                   style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppThemeData.primaryColor,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -176,7 +179,7 @@ class _TruckMapScreenState extends State<TruckMapScreen> {
                       'Actualizado $lastUpdate',
                       style: GoogleFonts.montserrat(
                         fontSize: 11,
-                        color: const Color(0xFFF5E2C8),
+                        color: AppThemeData.primaryColor,
                       ),
                     ),
                   ],
@@ -246,7 +249,7 @@ class _TruckMapScreenState extends State<TruckMapScreen> {
                             style: GoogleFonts.montserrat(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              color: const Color(0xFF6B2A02),
+                              color: AppThemeData.primaryColor,
                             ),
                           ),
                         ),
@@ -261,7 +264,7 @@ class _TruckMapScreenState extends State<TruckMapScreen> {
                               style: GoogleFonts.montserrat(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xFF6B2A02),
+                                color: AppThemeData.primaryColor,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -322,7 +325,7 @@ class _TruckMapScreenState extends State<TruckMapScreen> {
                                 style: GoogleFonts.montserrat(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF6B2A02),
+                                  color: AppThemeData.primaryColor,
                                 ),
                               ),
                             ],
@@ -371,7 +374,7 @@ class _TruckMapScreenState extends State<TruckMapScreen> {
                             ),
                           ),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF6B2A02),
+                            foregroundColor: AppThemeData.primaryColor,
                             side: const BorderSide(
                               color: Color(0xFF6B2A02),
                               width: 2,
@@ -417,7 +420,7 @@ class _TruckMapScreenState extends State<TruckMapScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF6B2A02),
+              color: AppThemeData.primaryColor,
             ),
           ),
           Text(
@@ -436,7 +439,7 @@ class _TruckMapScreenState extends State<TruckMapScreen> {
   Widget _buildCenterButton() {
     return FloatingActionButton(
       onPressed: _centerOnTruck,
-      backgroundColor: const Color(0xFF6B2A02),
+      backgroundColor: AppThemeData.primaryColor,
       child: const Icon(Icons.my_location, color: Colors.white),
     );
   }
@@ -451,7 +454,7 @@ class _TruckMapScreenState extends State<TruckMapScreen> {
       backgroundColor: Colors.white,
       child: Icon(
         _showDriverInfo ? Icons.keyboard_arrow_down : Icons.info_outline,
-        color: const Color(0xFF6B2A02),
+        color: AppThemeData.primaryColor,
       ),
     );
   }

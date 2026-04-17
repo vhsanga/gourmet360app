@@ -6,6 +6,7 @@ import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
 import 'package:Gourmet360/views/client_history_sales_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:Gourmet360/core/themes/app_theme_data.dart';
 
 class ClientesVentasScreen extends StatefulWidget {
   const ClientesVentasScreen({Key? key}) : super(key: key);
@@ -105,14 +106,14 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Color(0xFF6B2A02),
+        backgroundColor: AppThemeData.identityColor,
         iconTheme: IconThemeData(
-          color: Colors.white, //change your color here
+          color: AppThemeData.primaryColor, //change your color here
         ),
         title: const Text(
           'Clientes y Ventas',
           style: TextStyle(
-            color: Colors.white,
+            color: AppThemeData.primaryColor,
             fontWeight: FontWeight.bold,
             fontSize: 24,
           ),
@@ -231,7 +232,7 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.calendar_month),
-                  color: const Color(0xFF6B2A02),
+                  color: AppThemeData.primaryColor,
                   tooltip: 'Seleccionar fecha',
                   onPressed: () => _seleccionarFecha(context),
                 ),
@@ -393,7 +394,7 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 11,
-              color: isActive ? const Color(0xFF6B2A02) : Colors.grey[700],
+              color: isActive ? AppThemeData.primaryColor : Colors.grey[700],
             ),
           ),
           const SizedBox(width: 2),
@@ -402,7 +403,7 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
                 ? (_sortAscending ? Icons.arrow_upward : Icons.arrow_downward)
                 : Icons.unfold_more,
             size: 14,
-            color: isActive ? const Color(0xFF6B2A02) : Colors.grey[400],
+            color: isActive ? AppThemeData.primaryColor : Colors.grey[400],
           ),
         ],
       ),

@@ -1,3 +1,4 @@
+import 'package:Gourmet360/core/themes/app_theme_data.dart';
 import 'package:Gourmet360/views/login_pin_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -57,7 +58,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF6B2A02),
+      backgroundColor: AppThemeData.identityColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32.0),
@@ -76,7 +77,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         style: TextStyle(
                           fontSize: 48,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFFFFFCF5),
+                          color: AppThemeData.primaryColor,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -108,7 +109,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         'Gestión de entregas con sabor artesanal',
                         style: TextStyle(
                           fontSize: 18,
-                          color: const Color(0xFFF5E2C8),
+                          color: AppThemeData.primaryColor,
                           height: 1.5,
                         ),
                         textAlign: TextAlign.center,
@@ -139,8 +140,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFFFFCF5),
-                            foregroundColor: const Color(0xFF6B2A02),
+                            backgroundColor: AppThemeData.primaryColor,
+                            foregroundColor: AppThemeData.backgroundColor,
                             elevation: 8,
                             shadowColor: Colors.black.withOpacity(0.3),
                             shape: RoundedRectangleBorder(

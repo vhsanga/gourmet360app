@@ -1,6 +1,5 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/core/utils/cutom_utils.dart';
-import 'package:Gourmet360/models/camion_asignado.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
@@ -8,6 +7,7 @@ import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:Gourmet360/core/themes/app_theme_data.dart';
 
 class ChoferSalesReportScreen extends StatefulWidget {
   ChoferSalesReportScreen({Key? key}) : super(key: key);
@@ -155,7 +155,7 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF6B2A02),
+        color: AppThemeData.identityColor,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -168,7 +168,10 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
         children: [
           IconButton(
             onPressed: () {},
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back,
+              color: AppThemeData.primaryColor,
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -180,7 +183,7 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
                   style: GoogleFonts.montserrat(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppThemeData.primaryColor,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -188,7 +191,7 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
                   CustomUils.formatearFecha(fechaUltimoDespachoPendiente),
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
-                    color: const Color(0xFFF5E2C8),
+                    color: AppThemeData.primaryColor,
                   ),
                 ),
               ],
@@ -205,7 +208,7 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
       style: GoogleFonts.montserrat(
         fontSize: 18,
         fontWeight: FontWeight.bold,
-        color: const Color(0xFF6B2A02),
+        color: AppThemeData.primaryColor,
       ),
     );
   }
@@ -252,7 +255,7 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
                       style: GoogleFonts.montserrat(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF6B2A02),
+                        color: AppThemeData.primaryColor,
                       ),
                     ),
                     Text(
@@ -359,7 +362,7 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF6B2A02),
+              color: AppThemeData.primaryColor,
             ),
           ),
         ],

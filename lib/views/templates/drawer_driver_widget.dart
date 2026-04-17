@@ -1,11 +1,11 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/views/admin/clientes_ventas_screen.dart';
 import 'package:Gourmet360/views/chofer_sales_report_screen.dart';
-import 'package:Gourmet360/views/clients_list_screen.dart';
 import 'package:Gourmet360/views/home_screen.dart';
 import 'package:Gourmet360/views/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:Gourmet360/core/themes/app_theme_data.dart';
 
 class DrawerDriverWidget extends StatefulWidget {
   const DrawerDriverWidget({super.key});
@@ -18,7 +18,7 @@ class _DrawerDriverWidgetState extends State<DrawerDriverWidget> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: const Color(0xFFFFFCF5),
+      backgroundColor: AppThemeData.backgroundColor,
       child: SafeArea(
         child: Column(
           children: [
@@ -187,7 +187,7 @@ class _DrawerDriverWidgetState extends State<DrawerDriverWidget> {
           icon,
           color:
               iconColor ??
-              (isSelected ? const Color(0xFF6B2A02) : Colors.grey.shade700),
+              (isSelected ? AppThemeData.primaryColor : Colors.grey.shade700),
           size: 24,
         ),
         title: Text(
@@ -197,7 +197,7 @@ class _DrawerDriverWidgetState extends State<DrawerDriverWidget> {
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
             color:
                 textColor ??
-                (isSelected ? const Color(0xFF6B2A02) : Colors.grey.shade700),
+                (isSelected ? AppThemeData.primaryColor : Colors.grey.shade700),
           ),
         ),
         trailing: isSelected
