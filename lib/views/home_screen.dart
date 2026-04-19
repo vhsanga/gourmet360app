@@ -12,6 +12,7 @@ import 'package:Gourmet360/views/entrega_producto_screen.dart';
 import 'package:Gourmet360/views/templates/dialog_devolicion.dart';
 import 'package:Gourmet360/views/templates/dialog_registro_cliente.dart';
 import 'package:Gourmet360/views/templates/drawer_driver_widget.dart';
+import 'package:Gourmet360/views/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:Gourmet360/views/user_profile_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -83,6 +84,17 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                     padding: const EdgeInsets.all(20.0),
                     child: Builder(
                       builder: (_) {
+                        if (vm.cerrarSesion) {
+                          context.read<UserProvider>().logout().then((_) {
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const WelcomeScreen(),
+                              ),
+                              (Route<dynamic> route) => false,
+                            );
+                          });
+                        }
                         if (vm.isLoading) {
                           return Column(
                             children: [

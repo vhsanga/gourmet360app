@@ -25,7 +25,11 @@ class HttpService {
       final res = HttpResponse.fromMap(body);
       return res;
     } else {
-      throw Exception('Error consultar información: ${response.statusCode}');
+      throw Exception(
+        response.body.isNotEmpty
+            ? 'Error: ${json.decode(response.body)['mensaje']}'
+            : 'Error: ${response.statusCode}',
+      );
     }
   }
 

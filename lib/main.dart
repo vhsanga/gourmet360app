@@ -11,6 +11,7 @@ import 'package:Gourmet360/viewmodels/producto_viewmodel.dart';
 import 'package:Gourmet360/views/admin/admin_dashboard_screen.dart';
 import 'package:Gourmet360/views/home_screen.dart';
 import 'package:Gourmet360/views/welcome_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -72,6 +73,9 @@ class AppWrapper extends StatelessWidget {
         // Si existe usuario → Home
         if (user.status == UserStatus.loaded) {
           if (user.usuario!.rol == 'admin') {
+            if (kIsWeb) {
+              return const AdminDashboardScreen();
+            }
             return const AdminBiometricGate();
           } else {
             return const HomePortalScreen();

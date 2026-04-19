@@ -1,8 +1,10 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/core/utils/cutom_utils.dart';
+import 'package:Gourmet360/models/producto_restante.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
+import 'package:Gourmet360/views/templates/dialog_productos_sobrantes_list.dart';
 import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -40,6 +42,8 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
 
   DateTime fechaUltimoDespachoPendiente = DateTime.now();
 
+  List<ProductoRestante> productosRestantes = [];
+
   double get totalToDeliver {
     return soldAmount - expensesToday;
   }
@@ -56,7 +60,7 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
     });
   }
 
-  void _loadData() {
+  Future<void> _loadData() async {
     final userProvider = context.read<UserProvider>();
     if (userProvider.status == UserStatus.loaded &&
         userProvider.usuario != null) {
@@ -65,7 +69,40 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
         int.parse(userSession!.id),
         userSession!.accessToken,
       );
+
+      final adminVM = context.read<AdminViewModel>();
+      await adminVM.getDetalleProductosSobrantes(
+        int.parse(userSession!.id),
+        userSession!.accessToken,
+      );
+
+      productosRestantes = adminVM.productosRestantes;
+      if (mounted) setState(() {});
     }
+  }
+
+  Future<void> _loadSobrantesList() async {
+    final userProvider = context.read<UserProvider>();
+    if (userProvider.status == UserStatus.loaded &&
+        userProvider.usuario != null) {
+      print("Cargando lista de sobrantes para admin...");
+
+      userSession = userProvider.usuario;
+      await context.read<AdminViewModel>().getDetalleProductosSobrantes(
+        int.parse(userSession!.id),
+        userSession!.accessToken,
+      );
+      productosRestantes = context.read<AdminViewModel>().productosRestantes;
+      if (mounted) setState(() {});
+    }
+  }
+
+  Future<void> _showSobrantesDialog() async {
+    if (productosRestantes.isEmpty) {
+      await _loadSobrantesList();
+    }
+    if (!mounted) return;
+    DialogProductosSobrantes.showDialogSobrantesList(productosRestantes);
   }
 
   @override
@@ -310,11 +347,14 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
             Colors.orange.shade700,
           ),
           const SizedBox(height: 12),
-          _buildProductStatRow(
-            'Sobrantes',
-            remainingProducts,
-            Icons.inventory,
-            Colors.grey.shade600,
+          InkWell(
+            onTap: _showSobrantesDialog,
+            child: _buildProductStatRow(
+              'Sobrantes',
+              remainingProducts,
+              Icons.inventory,
+              Colors.grey.shade600,
+            ),
           ),
           const SizedBox(height: 16),
           ClipRRect(

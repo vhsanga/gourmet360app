@@ -11,6 +11,7 @@ class HomeViewModel extends ChangeNotifier {
   List<ProductoAsignado> productos = [];
   List<Cliente> clientes = [];
   Despacho? despacho;
+  bool cerrarSesion = false;
 
   Future<bool> getDataHome(String idChofer, String token) async {
     isLoading = true;
@@ -34,6 +35,10 @@ class HomeViewModel extends ChangeNotifier {
       return true;
     } catch (e) {
       error = e.toString().replaceAll('Exception:', '');
+      if (error!.contains('Usuario inactivo')) {
+        cerrarSesion = true;
+        notifyListeners();
+      }
       return false;
     } finally {
       isLoading = false;

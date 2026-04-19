@@ -1,6 +1,7 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/models/camion_asignado.dart';
 import 'package:Gourmet360/models/usuario.dart';
+import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
 import 'package:Gourmet360/views/admin/despacho_screen.dart';
 import 'package:Gourmet360/views/admin/sales_report_screen.dart';
@@ -26,10 +27,43 @@ class _DriversListScreenState extends State<DriversListScreen> {
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadData();
     });
+  }
+
+  @override
+  void dispose() {
+    context.read<AdminViewModel>().removeListener(_onAdminViewModelChanged);
+    super.dispose();
+  }
+
+  void _onAdminViewModelChanged() {
+    final adminVM = context.read<AdminViewModel>();
+    if (adminVM.isLoading) {
+      DialogsWidget.showLoading(message: 'Eliminando...');
+    } else if (adminVM.isSuccess && adminVM.msj != null) {
+      Navigator.pop(context);
+      Navigator.pop(context);
+      DialogsWidget.showSuccess(
+        title: 'Operación Exitosa',
+        message: adminVM.msj!,
+        onClose: () {
+          // Reload the drivers list after successful deletion
+          _loadData();
+        },
+      );
+      // Reset the success state
+      adminVM.isSuccess = false;
+      adminVM.msj = null;
+      context.read<AdminViewModel>().removeListener(_onAdminViewModelChanged);
+    } else if (adminVM.error != null) {
+      Navigator.pop(context);
+      DialogsWidget.showError(title: 'Error', message: adminVM.error!);
+      // Reset the error state
+      adminVM.error = null;
+      context.read<AdminViewModel>().removeListener(_onAdminViewModelChanged);
+    }
   }
 
   void _loadData() {
@@ -155,7 +189,9 @@ class _DriversListScreenState extends State<DriversListScreen> {
       child: Row(
         children: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pop(context);
+            },
             icon: const Icon(
               Icons.arrow_back,
               color: AppThemeData.primaryColor,
@@ -185,115 +221,6 @@ class _DriversListScreenState extends State<DriversListScreen> {
               ],
             ),
           ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.filter_list, color: Colors.white, size: 28),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: TextField(
-        onChanged: (value) {
-          setState(() {
-            searchQuery = value;
-          });
-        },
-        style: TextStyle(),
-        decoration: InputDecoration(
-          hintText: 'Buscar por nombre o placa...',
-          hintStyle: TextStyle(color: Colors.grey),
-          prefixIcon: const Icon(Icons.search, color: Color(0xFF6B2A02)),
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: const Color(0xFFF5E2C8), width: 2),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: AppThemeData.primaryColor, width: 2),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatsRow() {
-    final activeDrivers = 0;
-    final inactiveDrivers = camiones.length - activeDrivers;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildStatCard(
-              'Activos',
-              activeDrivers.toString(),
-              Icons.check_circle,
-              Colors.green,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildStatCard(
-              'Inactivos',
-              inactiveDrivers.toString(),
-              Icons.cancel,
-              Colors.grey,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatCard(
-    String label,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppThemeData.primaryColor,
-                ),
-              ),
-              Text(label, style: TextStyle(fontSize: 12, color: Colors.grey)),
-            ],
-          ),
         ],
       ),
     );
@@ -305,26 +232,20 @@ class _DriversListScreenState extends State<DriversListScreen> {
       color: Colors.white,
       onSelected: (value) {
         if (value == 1) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SalesReportScreen(camionAsignado: driver),
-            ),
+          DialogsWidget.showConfirmation(
+            title: 'Eliminar Conductor',
+            message:
+                '¿Estás seguro de que deseas eliminar a ${driver.uNombre}?',
+            onConfirm: () {
+              context.read<AdminViewModel>().addListener(
+                _onAdminViewModelChanged,
+              );
+              context.read<AdminViewModel>().inactivarUsuarioForAdminEndpoint(
+                driver.uId,
+                userSession!.accessToken,
+              );
+            },
           );
-        } else if (value == 2) {
-          // Abrir Reportes
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => DespachoScreen(camionAsignado: driver),
-            ),
-          );
-        } else if (value == 3) {
-          // Acción 3
-          //Navigator.push(
-          // context,
-          // MaterialPageRoute(builder: (context) => const TruckMapScreen()),
-          //);
         }
       },
       itemBuilder: (context) => [
@@ -332,19 +253,9 @@ class _DriversListScreenState extends State<DriversListScreen> {
           value: 1,
           child: Row(
             children: const [
-              Icon(Icons.monetization_on, color: Color(0xFF6B2A02)),
+              Icon(Icons.delete, color: Color(0xFF6B2A02)),
               SizedBox(width: 10),
-              Text("Reporte de ventas"),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 2,
-          child: Row(
-            children: const [
-              Icon(Icons.local_shipping_outlined, color: Color(0xFF6B2A02)),
-              SizedBox(width: 10),
-              Text("Asignar Despacho"),
+              Text("Eliminar Chofer"),
             ],
           ),
         ),
@@ -410,23 +321,6 @@ class _DriversListScreenState extends State<DriversListScreen> {
                             ),
                           ),
                           const SizedBox(height: 2),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.phone,
-                                size: 14,
-                                color: Colors.grey.shade600,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                driver.uCelular,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                            ],
-                          ),
                         ],
                       ),
                     ),
@@ -434,85 +328,70 @@ class _DriversListScreenState extends State<DriversListScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppThemeData.primaryColor,
-                        AppThemeData.primaryColor.withOpacity(0.85),
-                      ],
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                DespachoScreen(camionAsignado: driver),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppThemeData.primaryColor,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: Colors.grey.shade300,
+                        disabledForegroundColor: Colors.grey.shade500,
+                        elevation: 4,
+                        shadowColor: AppThemeData.primaryColor.withOpacity(0.4),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('Despachar', style: TextStyle(fontSize: 14)),
+                          const SizedBox(width: 12),
+                          const Icon(Icons.local_shipping_outlined, size: 24),
+                        ],
+                      ),
                     ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                SalesReportScreen(camionAsignado: driver),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppThemeData.primaryColor,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: Colors.grey.shade300,
+                        disabledForegroundColor: Colors.grey.shade500,
+                        elevation: 4,
+                        shadowColor: AppThemeData.primaryColor.withOpacity(0.4),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(
-                            Icons.local_shipping_rounded,
-                            color: Color(0xFFF5E2C8),
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Vehículo Asignado',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: const Color(0xFFF5E2C8),
-                            ),
-                          ),
+                          Text('Ventas', style: TextStyle(fontSize: 14)),
+                          const SizedBox(width: 12),
+                          const Icon(Icons.monetization_on, size: 24),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            driver.camionPlaca,
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              letterSpacing: 2,
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              '${driver.camionCapacidad} kg',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              '${driver.camionMarca} ${driver.camionModelo}',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: const Color(0xFFF5E2C8),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),

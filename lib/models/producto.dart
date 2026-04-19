@@ -24,13 +24,15 @@ class Producto {
   factory Producto.fromJson(Map<String, dynamic> json) {
     return Producto(
       id: int.tryParse((json['id'] ?? 0).toString()) ?? 0,
-      nombre: json['nombre'] as String,
-      unidad: json['unidad'] as String,
-      precioUnitario: double.parse(json['precio_unitario'] as String),
-      precioUnitarioMin: double.parse(json['precio_unitario_min'] as String),
-      costoUnitario: double.parse(json['costo_unitario'] as String),
-      categoriaId: json['categoria_id'] as String,
-      categoriaNombre: json['categoria_nombre'] as String,
+      nombre: json['nombre']?.toString() ?? '',
+      unidad: json['unidad']?.toString() ?? '',
+      precioUnitario: double.parse((json['precio_unitario'] ?? '0').toString()),
+      precioUnitarioMin: double.parse(
+        (json['precio_unitario_min'] ?? '0').toString(),
+      ),
+      costoUnitario: double.parse((json['costo_unitario'] ?? '0').toString()),
+      categoriaId: json['categoria_id']?.toString() ?? '',
+      categoriaNombre: json['categoria_nombre']?.toString() ?? '',
     );
   }
 

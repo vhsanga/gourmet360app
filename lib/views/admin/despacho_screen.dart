@@ -211,9 +211,9 @@ class _DespachoScreenState extends State<DespachoScreen> {
           ),
         ],
       ),
-      backgroundColor: AppThemeData.primaryColor,
+      backgroundColor: AppThemeData.identityColor,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back, color: AppThemeData.primaryColor),
         onPressed: () => Navigator.pop(context),
       ),
     );

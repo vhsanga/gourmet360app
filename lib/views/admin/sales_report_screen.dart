@@ -1,8 +1,10 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/core/utils/cutom_utils.dart';
 import 'package:Gourmet360/models/camion_asignado.dart';
+import 'package:Gourmet360/models/producto_restante.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
+import 'package:Gourmet360/views/templates/dialog_productos_sobrantes_list.dart';
 import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,6 +21,9 @@ class SalesReportScreen extends StatefulWidget {
 
 class _SalesReportScreenState extends State<SalesReportScreen> {
   Usuario? userSession;
+
+  List<ProductoRestante> productosRestantes = [];
+
   // Datos del conductor
   String driverName = '';
 
@@ -60,7 +65,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
     });
   }
 
-  _loadData() {
+  Future<void> _loadData() async {
     final userProvider = context.read<UserProvider>();
     if (userProvider.status == UserStatus.loaded &&
         userProvider.usuario != null) {
@@ -69,11 +74,44 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
       userSession = userProvider.usuario;
       driverName = widget.camionAsignado.uNombre;
       driverPlate = widget.camionAsignado.camionPlaca;
-      context.read<AdminViewModel>().getResumenDespachosChoferForAdminEndpoint(
+
+      final adminVM = context.read<AdminViewModel>();
+      await adminVM.getResumenDespachosChoferForAdminEndpoint(
         widget.camionAsignado.choferId,
         userSession!.accessToken,
       );
+      await adminVM.getDetalleProductosSobrantes(
+        widget.camionAsignado.choferId,
+        userSession!.accessToken,
+      );
+
+      productosRestantes = adminVM.productosRestantes;
+      if (mounted) setState(() {});
     }
+  }
+
+  Future<void> _loadSobrantesList() async {
+    final userProvider = context.read<UserProvider>();
+    if (userProvider.status == UserStatus.loaded &&
+        userProvider.usuario != null) {
+      print("Cargando lista de sobrantes para admin...");
+
+      userSession = userProvider.usuario;
+      await context.read<AdminViewModel>().getDetalleProductosSobrantes(
+        widget.camionAsignado.choferId,
+        userSession!.accessToken,
+      );
+      productosRestantes = context.read<AdminViewModel>().productosRestantes;
+      if (mounted) setState(() {});
+    }
+  }
+
+  Future<void> _showSobrantesDialog() async {
+    if (productosRestantes.isEmpty) {
+      await _loadSobrantesList();
+    }
+    if (!mounted) return;
+    DialogProductosSobrantes.showDialogSobrantesList(productosRestantes);
   }
 
   @override
@@ -180,7 +218,9 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
       child: Row(
         children: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pop(context);
+            },
             icon: const Icon(
               Icons.arrow_back,
               color: AppThemeData.primaryColor,
@@ -411,11 +451,14 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
             Colors.orange.shade700,
           ),
           const SizedBox(height: 12),
-          _buildProductStatRow(
-            'Sobrantes',
-            remainingProducts,
-            Icons.inventory,
-            Colors.grey.shade600,
+          InkWell(
+            onTap: _showSobrantesDialog,
+            child: _buildProductStatRow(
+              'Sobrantes',
+              remainingProducts,
+              Icons.inventory,
+              Colors.grey.shade600,
+            ),
           ),
           const SizedBox(height: 16),
           ClipRRect(

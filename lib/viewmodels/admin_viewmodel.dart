@@ -4,12 +4,14 @@ import 'package:Gourmet360/models/cliente_ventas.dart';
 import 'package:Gourmet360/models/dashboard_despachos.dart';
 import 'package:Gourmet360/models/dashboard_ventas.dart';
 import 'package:Gourmet360/models/despachos_chofer.dart';
+import 'package:Gourmet360/models/producto_restante.dart';
 import 'package:Gourmet360/services/http_service.dart';
 import 'package:Gourmet360/core/constants/api_constants.dart';
 import 'package:flutter/material.dart';
 
 class AdminViewModel extends ChangeNotifier {
   bool isLoading = false;
+  bool isSuccess = false;
   String? msj;
   String? error;
   DashboardDespachos? dashboardDespachos;
@@ -17,6 +19,7 @@ class AdminViewModel extends ChangeNotifier {
   DespachosChofer? despachosChofer;
   List<ClienteVentas> clientesVentas = [];
   List<ClienteVentaDia> clientesVentaDias = [];
+  List<ProductoRestante> productosRestantes = [];
 
   Future<void> fetchDashboardDataToday(String userToken) async {
     isLoading = true;
@@ -130,6 +133,54 @@ class AdminViewModel extends ChangeNotifier {
       clientesVentaDias = (response.data as List<dynamic>)
           .map((e) => ClienteVentaDia.fromJson(e))
           .toList();
+    } catch (e) {
+      error = e.toString().replaceAll('Exception:', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> getDetalleProductosSobrantes(
+    int choferId,
+    String userToken,
+  ) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+    try {
+      final response = await HttpService.doGet(
+        ApiConstants.getDetalleProductosRestantesForAdminEndpoint +
+            choferId.toString(),
+        userToken,
+      );
+      productosRestantes = (response.data as List<dynamic>)
+          .map((e) => ProductoRestante.fromJson(e))
+          .toList();
+    } catch (e) {
+      error = e.toString().replaceAll('Exception:', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> inactivarUsuarioForAdminEndpoint(
+    int choferId,
+    String userToken,
+  ) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+    try {
+      final response = await HttpService.doPost(
+        ApiConstants.inactivarUsuarioForAdminEndpoint,
+        {"idusuario": choferId},
+        userToken,
+      );
+      isSuccess = response.ok;
+      msj = response.mensaje;
+      notifyListeners();
     } catch (e) {
       error = e.toString().replaceAll('Exception:', '');
     } finally {
