@@ -113,7 +113,10 @@ class _DriversListScreenState extends State<DriversListScreen> {
             print("Lista de camiones VACIA desde VM.");
             return Center(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  _buildHeader(),
+                  SizedBox(height: 50),
                   Text('No hay camiones asignados.'),
                   ElevatedButton(
                     onPressed: () {

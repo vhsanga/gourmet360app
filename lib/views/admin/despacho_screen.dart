@@ -3,6 +3,7 @@ import 'package:Gourmet360/models/camion_asignado.dart';
 import 'package:Gourmet360/models/producto.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/producto_viewmodel.dart';
+import 'package:Gourmet360/views/templates/dialog_registro_producto.dart';
 import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -97,12 +98,14 @@ class _DespachoScreenState extends State<DespachoScreen> {
             return Center(
               child: Column(
                 children: [
+                  SizedBox(height: 50),
                   Text('No hay productos para despacho'),
+                  SizedBox(height: 4),
                   ElevatedButton(
                     onPressed: () {
-                      _loadData();
+                      _mostrarDialogoRegistroProducto(context);
                     },
-                    child: const Text('Reintentar'),
+                    child: const Text('Crear primer producto'),
                   ),
                 ],
               ),
@@ -122,6 +125,8 @@ class _DespachoScreenState extends State<DespachoScreen> {
                     children: [
                       _buildChoferCard(),
                       SizedBox(height: 20),
+                      _buildActionCreateNewProducto(),
+                      SizedBox(height: 20),
                       _buildProductsList(),
                       const SizedBox(height: 60),
                       if (_itemsAsignados.isNotEmpty) _buildActionButtons(),
@@ -133,6 +138,33 @@ class _DespachoScreenState extends State<DespachoScreen> {
           );
         },
       ),
+    );
+  }
+
+  void _mostrarDialogoRegistroProducto(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => DialogRegistroProducto(userSession: userSession!),
+    );
+  }
+
+  Widget _buildActionCreateNewProducto() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            _mostrarDialogoRegistroProducto(context);
+          },
+          child: Row(
+            children: [
+              Icon(Icons.add, size: 20),
+              SizedBox(width: 8),
+              Text('Crear Nuevo Producto'),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

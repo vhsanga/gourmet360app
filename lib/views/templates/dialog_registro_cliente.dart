@@ -39,7 +39,12 @@ class _DialogoRegistroClienteState extends State<DialogoRegistroCliente> {
 
   void _guardarCliente() async {
     if (_formKey.currentState!.validate()) {
+      final navigator = Navigator.of(context, rootNavigator: true);
+      DialogsWidget.showLoading(message: 'Obteniendo ubicación...');
       final pos = await context.read<LocationViewModel>().getPositionOnce();
+      if (!mounted) return;
+      navigator.pop();
+
       String lat = '';
       String lng = '';
       if (pos != null) {
@@ -60,22 +65,22 @@ class _DialogoRegistroClienteState extends State<DialogoRegistroCliente> {
 
       final choferVM = context.read<ChoferViewModel>();
       DialogsWidget.showLoading(message: 'Procesando...');
-      final navigator = Navigator.of(context, rootNavigator: true);
       final success = await choferVM.registrarCliente(
         datos,
-        widget.userSession?.accessToken ?? '',
+        widget.userSession.accessToken ?? '',
       );
       if (!mounted) return;
       navigator.pop();
       if (success) {
         DialogsWidget.showSuccess(
           title: 'Muy bien',
-          message: choferVM.msj ?? 'Devolucion guardada correctamente',
+          message: choferVM.msj ?? 'Cliente guardado correctamente',
           onClose: () {
+            if (!mounted) return;
             Navigator.pop(context);
             context.read<HomeViewModel>().getDataHome(
-              widget.userSession!.id,
-              widget.userSession!.accessToken,
+              widget.userSession.id,
+              widget.userSession.accessToken,
             );
           },
         );
@@ -183,15 +188,6 @@ class _DialogoRegistroClienteState extends State<DialogoRegistroCliente> {
                     prefixIcon: Icon(Icons.phone),
                   ),
                   keyboardType: TextInputType.phone,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'El teléfono es requerido';
-                    }
-                    if (value.length != 10) {
-                      return 'El teléfono debe tener 10 dígitos';
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 16),
                 CheckboxListTile(

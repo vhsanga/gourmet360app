@@ -204,7 +204,9 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
       child: Row(
         children: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pop(context);
+            },
             icon: const Icon(
               Icons.arrow_back,
               color: AppThemeData.primaryColor,
