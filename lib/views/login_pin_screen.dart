@@ -178,6 +178,7 @@ class _LoginPinScreenState extends State<LoginPinScreen> {
         const SizedBox(height: 12),
         TextField(
           controller: _usernameController,
+          keyboardType: TextInputType.phone,
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           decoration: InputDecoration(
             hintStyle: TextStyle(color: Colors.grey.shade400),

@@ -278,7 +278,9 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
       child: Row(
         children: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pop(context);
+            },
             icon: const Icon(
               Icons.arrow_back,
               color: AppThemeData.primaryColor,

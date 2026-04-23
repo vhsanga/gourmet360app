@@ -420,6 +420,11 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   }
 
   void _mostrarDialogoRegistro(BuildContext context) {
+    print(userSession);
+    if (userSession == null) {
+      final userProvider = context.read<UserProvider>();
+      userSession = userProvider.usuario;
+    }
     showDialog(
       context: context,
       builder: (context) => DialogoRegistroCliente(
@@ -430,6 +435,10 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   }
 
   void _mostrarDialogoDevolucion(BuildContext context, Cliente cliente) {
+    if (userSession == null) {
+      final userProvider = context.read<UserProvider>();
+      userSession = userProvider.usuario;
+    }
     showDialog(
       context: context,
       builder: (context) =>

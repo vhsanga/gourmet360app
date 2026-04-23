@@ -113,7 +113,6 @@ class _DriversListScreenState extends State<DriversListScreen> {
             print("Lista de camiones VACIA desde VM.");
             return Center(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _buildHeader(),
                   SizedBox(height: 50),
@@ -537,6 +536,8 @@ class _AddDriverDialogState extends State<AddDriverDialog> {
                         const SizedBox(height: 16),
                         _buildTextField(
                           controller: _nombreController,
+                          keyboardType: TextInputType.name,
+                          textCapitalization: TextCapitalization.words,
                           label: 'Nombre Completo',
                           icon: Icons.person_outline,
                           hint: 'Ej: Juan Pérez',
@@ -642,12 +643,6 @@ class _AddDriverDialogState extends State<AddDriverDialog> {
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
                           ],
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Por favor ingrese la capacidad';
-                            }
-                            return null;
-                          },
                         ),
                       ],
                     ],

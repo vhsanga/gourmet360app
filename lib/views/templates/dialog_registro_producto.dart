@@ -147,6 +147,8 @@ class _DialogRegistroProductoState extends State<DialogRegistroProducto> {
                     // Nombre
                     TextFormField(
                       controller: _nombreController,
+                      keyboardType: TextInputType.name,
+                      textCapitalization: TextCapitalization.words,
                       decoration: InputDecoration(
                         labelText: 'Nombre del Producto',
                         border: OutlineInputBorder(

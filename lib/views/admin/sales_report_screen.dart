@@ -142,7 +142,9 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
             return Center(
               child: Column(
                 children: [
+                  SizedBox(height: 60),
                   Text('No hay datos disponibles.'),
+                  SizedBox(height: 4),
                   ElevatedButton(
                     onPressed: () {
                       _loadData();

@@ -133,7 +133,9 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
             return Center(
               child: Column(
                 children: [
+                  SizedBox(height: 60),
                   Text('No hay datos disponibles.'),
+                  SizedBox(height: 4),
                   ElevatedButton(
                     onPressed: () {
                       _loadData();
@@ -661,7 +663,10 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
       DialogsWidget.showSuccess(
         title: 'Muy bien',
         message: choferVM.msj ?? 'Guardado correctamente',
-        onClose: () {},
+        onClose: () {
+          if (!mounted) return;
+          Navigator.pop(context);
+        },
       );
       return;
     } else {

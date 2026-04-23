@@ -507,11 +507,12 @@ class _DespachoScreenState extends State<DespachoScreen> {
         title: 'Muy bien',
         message: productoVM.msj ?? 'Productos asignados correctamente',
         onClose: () {
+          navigator.pop();
+          _itemsAsignados.clear();
           for (final p in _productos) {
             p.cantidad = 0;
           }
-          Navigator.pop(context);
-          Navigator.pop(context);
+          setState(() {});
         },
       );
       return;

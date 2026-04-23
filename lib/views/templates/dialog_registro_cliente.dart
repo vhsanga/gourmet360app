@@ -164,6 +164,8 @@ class _DialogoRegistroClienteState extends State<DialogoRegistroCliente> {
                 // Contacto
                 TextFormField(
                   controller: _contactoController,
+                  keyboardType: TextInputType.name,
+                  textCapitalization: TextCapitalization.words,
                   decoration: const InputDecoration(
                     labelText: 'Contacto *',
                     hintText: 'Ej: Ing. Juan Pérez',

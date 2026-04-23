@@ -31,11 +31,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   double progress = 0;
   double todayRevenue = 0;
 
-  final double accountsReceivable = 0;
+  double accountsReceivable = 0;
 
-  final int rejectedProducts = 0;
-  final int damagedProducts = 0;
-  double cantidad_devuelta = 0;
+  double cantidadDevuelta = 0;
 
   @override
   void initState() {
@@ -104,7 +102,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               return Center(
                 child: Column(
                   children: [
+                    SizedBox(height: 60),
                     Text('No hay datos disponibles.'),
+                    SizedBox(height: 4),
                     ElevatedButton(
                       onPressed: () {
                         _loadData();
@@ -126,7 +126,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             if (vm.dashboardVentas != null) {
               dashboardVentas = vm.dashboardVentas;
               todayRevenue = dashboardVentas!.total_ventas_contado;
-              cantidad_devuelta = dashboardVentas!.cantidad_devuelta;
+              accountsReceivable = dashboardVentas!.total_ventas_credito;
+              cantidadDevuelta = dashboardVentas!.cantidad_devuelta;
             }
 
             return SafeArea(
@@ -143,12 +144,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           const SizedBox(height: 24),
                           _buildProductsCard(),
                           const SizedBox(height: 24),
-                          _buildAccountsReceivableCard(),
-                          const SizedBox(height: 24),
                           _buildAdminReportsCard(),
                           const SizedBox(height: 24),
-                          _buildSectionTitle('Control de Calidad'),
-                          const SizedBox(height: 12),
+                          _buildAccountsReceivableCard(),
+                          const SizedBox(height: 24),
                           _buildQualityControlCard(),
                           const SizedBox(height: 20),
                           _buildCamionesPositoinsCard(),
@@ -774,8 +773,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildQualityControlCard() {
-    final totalIssues = rejectedProducts + damagedProducts;
-
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -823,7 +820,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Total: ${cantidad_devuelta.toStringAsFixed(0)} unidades',
+                      'Total: ${cantidadDevuelta.toStringAsFixed(0)} unidades',
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey.shade600,

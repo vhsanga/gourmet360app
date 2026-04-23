@@ -21,7 +21,10 @@ class LocationViewModel extends ChangeNotifier {
     _positionSubscription = _locationService.getLocationStream().listen(
       (Position position) {
         _currentPosition = position;
-
+        print("1111111");
+        print(this.onLocationChanged);
+        print("2222222");
+        print(position);
         if (this.onLocationChanged != null) {
           this.onLocationChanged!(position.latitude, position.longitude);
         }
