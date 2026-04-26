@@ -316,7 +316,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ChoferSalesReportScreen(),
+                  builder: (context) => ChoferSalesReportScreen( idDespacho: despacho?.id ),
                 ),
               );
             },

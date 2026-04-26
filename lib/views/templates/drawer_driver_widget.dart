@@ -88,19 +88,7 @@ class _DrawerDriverWidgetState extends State<DrawerDriverWidget> {
                       );
                     },
                   ),
-                  _buildMenuItem(
-                    icon: Icons.route_outlined,
-                    title: 'Mi reporte',
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ChoferSalesReportScreen(),
-                        ),
-                      );
-                    },
-                  ),
+
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Divider(),

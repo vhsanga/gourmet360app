@@ -86,17 +86,15 @@ class ChoferViewModel extends ChangeNotifier {
   }
 
   Future<bool> registrarGastoDespacho(
-    double gastos,
-    int despachoId,
+    Map<String, dynamic> params,
     String userToken,
   ) async {
     isLoading = true;
     msj = null;
     notifyListeners();
     try {
-      Map<String, dynamic> params = {"gastos": gastos};
       final response = await HttpService.doPost(
-        ApiConstants.saveRegistrarGastoEndpoint + despachoId.toString(),
+        ApiConstants.saveRegistrarGastoEndpoint,
         params,
         userToken,
       );

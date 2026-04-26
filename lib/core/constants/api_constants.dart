@@ -18,7 +18,7 @@ class ApiConstants {
   static const String getResumenVentasClientesForAdminEndpoint =
       '/admin/resumen-ventas-clientes/';
   static const String saveRegistrarGastoEndpoint =
-      '/admin/update-gasto-despacho/';
+      '/admin/update-gasto-despacho';
   static const String saveRegistrarUbicacionChoferEndpoint =
       '/usuario/ubicacion/';
   static const String saveDevolucionesClienteEndpoint = '/usuario/devolucion';

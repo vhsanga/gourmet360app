@@ -5,6 +5,7 @@ import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
 import 'package:Gourmet360/views/templates/dialog_productos_sobrantes_list.dart';
+import 'package:Gourmet360/views/templates/dialog_registro_gasto.dart';
 import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,7 +13,9 @@ import 'package:provider/provider.dart';
 import 'package:Gourmet360/core/themes/app_theme_data.dart';
 
 class ChoferSalesReportScreen extends StatefulWidget {
-  ChoferSalesReportScreen({Key? key}) : super(key: key);
+  final idDespacho;
+  ChoferSalesReportScreen({Key? key, required this.idDespacho})
+    : super(key: key);
 
   @override
   State<ChoferSalesReportScreen> createState() =>
@@ -547,11 +550,6 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
       backgroundColor = const Color(0xFFF5E2C8).withOpacity(0.3);
     }
 
-    // Controller para el input (puedes moverlo a tu State si necesitas persistencia)
-    final TextEditingController controller = TextEditingController(
-      text: expensesToday.toStringAsFixed(2),
-    );
-
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -581,11 +579,8 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
           // Input Text
           Expanded(
             flex: 2,
-            child: TextField(
-              controller: controller,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
+            child: Text(
+              expensesToday.toStringAsFixed(2),
               textAlign: TextAlign.right,
               style: GoogleFonts.montserrat(
                 fontSize: 16,
@@ -596,85 +591,74 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
                     ? Colors.red.shade700
                     : Colors.orange.shade700,
               ),
-              decoration: InputDecoration(
-                prefixStyle: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: isPositive
-                      ? Colors.green.shade700
-                      : isNegative
-                      ? Colors.red.shade700
-                      : Colors.orange.shade700,
-                ),
-                isDense: true,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 8,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: color, width: 2),
-                ),
-              ),
             ),
           ),
           const SizedBox(width: 8),
 
           // Botón Guardar
-          ElevatedButton.icon(
-            onPressed: () {
-              final newValue = double.tryParse(controller.text);
-              if (newValue != null) {
-                _registrarGasto(newValue);
-              }
-            },
-            icon: const Icon(Icons.save, size: 16),
-            label: const Text('Guardar'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: color,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+          if (expensesToday == 0)
+            ElevatedButton.icon(
+              onPressed: () {
+                _registrarGasto();
+              },
+              icon: const Icon(Icons.save, size: 16),
+              label: const Text('Registrar'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: color,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
   }
 
-  _registrarGasto(double valor) async {
-    final choferVM = context.read<ChoferViewModel>();
-    DialogsWidget.showLoading(message: 'Procesando...');
-    final navigator = Navigator.of(context, rootNavigator: true);
-    final success = await choferVM.registrarGastoDespacho(
-      valor,
-      userSession!.idDespacho!,
-      userSession?.accessToken ?? '',
+  _registrarGasto() async {
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (_) => DialogoRegistroGasto(
+        idDespacho: widget.idDespacho,
+        idChofer: int.parse(userSession!.id),
+      ),
     );
-    if (!mounted) return;
-    navigator.pop();
-    if (success) {
-      DialogsWidget.showSuccess(
-        title: 'Muy bien',
-        message: choferVM.msj ?? 'Guardado correctamente',
-        onClose: () {
-          if (!mounted) return;
-          Navigator.pop(context);
-        },
+
+    if (result != null) {
+      // JSON listo para enviar a la API
+
+      final choferVM = context.read<ChoferViewModel>();
+      DialogsWidget.showLoading(message: 'Procesando...');
+      final navigator = Navigator.of(context, rootNavigator: true);
+
+      final success = await choferVM.registrarGastoDespacho(
+        result,
+        userSession?.accessToken ?? '',
       );
-      return;
-    } else {
-      DialogsWidget.showError(
-        title: 'Atención',
-        message: choferVM.msj ?? 'Error desconocido',
-      );
-      return;
+      if (!mounted) return;
+      navigator.pop();
+      if (success) {
+        DialogsWidget.showSuccess(
+          title: 'Muy bien',
+          message: choferVM.msj ?? 'Guardado correctamente',
+          onClose: () {
+            if (!mounted) return;
+            Navigator.pop(context);
+          },
+        );
+        return;
+      } else {
+        DialogsWidget.showError(
+          title: 'Atención',
+          message: choferVM.msj ?? 'Error desconocido',
+        );
+        return;
+      }
     }
   }
 
