@@ -31,6 +31,8 @@ class ApiConstants {
   static const String crearProductoForAdminEndpoint = '/admin/crear-producto';
   static const String getProductosClienteEndpoint =
       '/usuario/consultar-productos-cliente';
+  static const String pagarCreditoEndpoint = '/admin/pagar-venta-credito';
+
   static const int connectTimeout = 5000;
   static const int receiveTimeout = 10000;
 }

@@ -4,6 +4,7 @@ import 'package:Gourmet360/models/cliente_ventas.dart';
 import 'package:Gourmet360/models/dashboard_despachos.dart';
 import 'package:Gourmet360/models/dashboard_ventas.dart';
 import 'package:Gourmet360/models/despachos_chofer.dart';
+import 'package:Gourmet360/models/gastos.dart';
 import 'package:Gourmet360/models/producto_restante.dart';
 import 'package:Gourmet360/services/http_service.dart';
 import 'package:Gourmet360/core/constants/api_constants.dart';
@@ -17,6 +18,7 @@ class AdminViewModel extends ChangeNotifier {
   DashboardDespachos? dashboardDespachos;
   DashboardVentas? dashboardVentas;
   DespachosChofer? despachosChofer;
+  List<Gasto>? gastos;
   List<ClienteVentas> clientesVentas = [];
   List<ClienteVentaDia> clientesVentaDias = [];
   List<ProductoRestante> productosRestantes = [];
@@ -62,6 +64,9 @@ class AdminViewModel extends ChangeNotifier {
         response.data['ventasHoy'],
         response.data['cuentasPorCobrar'],
       );
+      gastos = (response.data['gastos'] as List<dynamic>)
+          .map((e) => Gasto.fromJson(e))
+          .toList();
     } catch (e) {
       error = e.toString().replaceAll('Exception:', '');
     } finally {
@@ -199,6 +204,31 @@ class AdminViewModel extends ChangeNotifier {
     try {
       final response = await HttpService.doPost(
         ApiConstants.crearProductoForAdminEndpoint,
+        params,
+        userToken,
+      );
+      msj = response.mensaje;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      msj = e.toString().replaceAll('Exception:', '');
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> cobrarDeuda(
+    Map<String, dynamic> params,
+    String userToken,
+  ) async {
+    isLoading = true;
+    msj = null;
+    notifyListeners();
+    try {
+      final response = await HttpService.doPost(
+        ApiConstants.pagarCreditoEndpoint,
         params,
         userToken,
       );

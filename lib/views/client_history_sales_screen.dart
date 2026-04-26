@@ -4,6 +4,8 @@ import 'package:Gourmet360/models/cliente_venta_dia.dart';
 import 'package:Gourmet360/models/cliente_ventas.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
+import 'package:Gourmet360/views/templates/dialogo_cobro_deuda.dart';
+import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -165,7 +167,7 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
     bool isToday = false,
     bool isSelected = false,
   }) {
-    bool hayDeuda = data != null && data.totalCredito > 0;
+    bool hayDeuda = (data != null && data.totalPagado < data.totalCredito);
     return Container(
       width: 65,
       margin: const EdgeInsets.all(4),
@@ -206,6 +208,8 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
     );
 
     final data = ventasPorDia[normalized];
+    bool hayDeuda = (data != null && data.totalPagado < data.totalCredito);
+
     final fechaLegible = CustomUils.formatearFecha(_selectedDay!);
 
     if (data == null) {
@@ -227,9 +231,66 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
           "Fecha: $fechaLegible",
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        Text("Pagado: ${data.totalContado}"),
-        Text("Deuda: ${data.totalCredito}"),
+
+        if (!hayDeuda && data.totalContado > 0)
+          Text("Cobrado: ${data.totalContado}"),
+        if (!hayDeuda && data.totalPagado > 0)
+          Text("Cobrado: ${data.totalPagado}"),
+
+        if (hayDeuda) Text("Deuda: ${data.totalCredito}"),
+
+        if (hayDeuda)
+          ElevatedButton(
+            onPressed: () {
+              _cobrarDeuda(data.idVenta, data.totalCredito);
+            },
+            child: Text("Cobrar Deuda"),
+          ),
       ],
     );
+  }
+
+  _cobrarDeuda(int idVenta, double valorDeuda) async {
+    if (idVenta == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("No hay venta registrada para el cobro")),
+      );
+      return;
+    }
+    final result = await showDialog<Map<String, num>>(
+      context: context,
+      builder: (_) =>
+          DialogoCobroDeuda(ventaId: idVenta, deudaTotal: valorDeuda),
+    );
+
+    if (result != null) {
+      final admVM = context.read<AdminViewModel>();
+      DialogsWidget.showLoading(message: 'Procesando...');
+      final navigator = Navigator.of(context, rootNavigator: true);
+
+      final success = await admVM.cobrarDeuda(
+        result,
+        userSession?.accessToken ?? '',
+      );
+      if (!mounted) return;
+      navigator.pop();
+      if (success) {
+        DialogsWidget.showSuccess(
+          title: 'Muy bien',
+          message: admVM.msj ?? 'Guardado correctamente',
+          onClose: () {
+            if (!mounted) return;
+            _loadData(DateTime.now());
+          },
+        );
+        return;
+      } else {
+        DialogsWidget.showError(
+          title: 'Atención',
+          message: admVM.msj ?? 'Error desconocido',
+        );
+        return;
+      }
+    }
   }
 }

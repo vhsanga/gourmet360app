@@ -1,5 +1,6 @@
 class ClienteVentas {
   final String id;
+  final int? idVenta;
   final String nombre;
   final String? contacto;
   final String? direccion;
@@ -12,6 +13,7 @@ class ClienteVentas {
   ClienteVentas({
     required this.id,
     required this.nombre,
+    this.idVenta,
     this.contacto,
     this.direccion,
     this.telefono,
@@ -25,11 +27,14 @@ class ClienteVentas {
     return ClienteVentas(
       id: _parseString(json['id']),
       nombre: _parseString(json['nombre']),
+      idVenta: json['id_venta'] != null
+          ? int.tryParse(json['id_venta'].toString())
+          : null,
       contacto: _parseString(json['contacto']),
       direccion: _parseString(json['direccion']),
       telefono: _parseString(json['telefono']),
       ventaContadoHoy: _parseDouble(json['venta_contado_hoy']),
-      dedudaAcumulada: _parseDouble(json['deduda_acumulada']),
+      dedudaAcumulada: _parseDouble(json['deuda_acumulada']),
       especial: _parseString(json['especial']) == '0' ? false : true,
       devolucionHoy: _parseDouble(json['devolucion_hoy']),
     );
@@ -56,6 +61,7 @@ class ClienteVentas {
       'telefono': telefono,
       'venta_contado_hoy': ventaContadoHoy,
       'deduda_acumulada': dedudaAcumulada,
+      'id_venta': idVenta,
     };
   }
 

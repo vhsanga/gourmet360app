@@ -297,15 +297,6 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
                                 maxLines: 3,
                               ),
                             ),
-                            if (cliente.especial)
-                              Padding(
-                                padding: const EdgeInsets.only(left: 2),
-                                child: Icon(
-                                  Icons.star,
-                                  color: Colors.amber[600],
-                                  size: 14,
-                                ),
-                              ),
                           ],
                         ),
                       ),

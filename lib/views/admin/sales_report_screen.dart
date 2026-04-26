@@ -1,9 +1,11 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/core/utils/cutom_utils.dart';
 import 'package:Gourmet360/models/camion_asignado.dart';
+import 'package:Gourmet360/models/gastos.dart';
 import 'package:Gourmet360/models/producto_restante.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
+import 'package:Gourmet360/views/templates/dialog_gastos_detalles.dart';
 import 'package:Gourmet360/views/templates/dialog_productos_sobrantes_list.dart';
 import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +25,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
   Usuario? userSession;
 
   List<ProductoRestante> productosRestantes = [];
+  List<Gasto> gastos = [];
 
   // Datos del conductor
   String driverName = '';
@@ -86,6 +89,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
       );
 
       productosRestantes = adminVM.productosRestantes;
+      gastos = adminVM.gastos ?? [];
       if (mounted) setState(() {});
     }
   }
@@ -102,6 +106,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
         userSession!.accessToken,
       );
       productosRestantes = context.read<AdminViewModel>().productosRestantes;
+      gastos = context.read<AdminViewModel>().gastos ?? [];
       if (mounted) setState(() {});
     }
   }
@@ -112,6 +117,14 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
     }
     if (!mounted) return;
     DialogProductosSobrantes.showDialogSobrantesList(productosRestantes);
+  }
+
+  Future<void> _showGastosDialog() async {
+    if (gastos.isEmpty) {
+      await _loadSobrantesList();
+    }
+    if (!mounted) return;
+    DialogoGastosDetalles.showDialogGastosList(gastos);
   }
 
   @override
@@ -598,12 +611,17 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
             isWarning: true,
           ),
           const SizedBox(height: 12),
-          _buildFinancialStatRow(
-            'Gastos del Día',
-            expensesToday,
-            Icons.local_gas_station,
-            Colors.red,
-            isNegative: true,
+          InkWell(
+            onTap: () {
+              _showGastosDialog();
+            },
+            child: _buildFinancialStatRow(
+              'Gastos del Día',
+              expensesToday,
+              Icons.local_gas_station,
+              Colors.red,
+              isNegative: true,
+            ),
           ),
         ],
       ),

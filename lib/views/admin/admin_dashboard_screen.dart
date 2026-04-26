@@ -687,24 +687,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(
-                      Icons.analytics_rounded,
+                      Icons.people_rounded,
                       color: Colors.blue.shade700,
                       size: 32,
                     ),
                   ),
 
                   const Text(
-                    'Reportes',
+                    'Clientes',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF0D3B66),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'de ventas',
-                    style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                   ),
                 ],
               ),
@@ -757,11 +752,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF0D3B66),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '',
-                    style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                   ),
                 ],
               ),
