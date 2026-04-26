@@ -479,8 +479,6 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                       color: Color(0xFF6B2A02),
                     ),
                   ),
-                  if (cliente.especial)
-                    Icon(Icons.star, color: Colors.amber, size: 18),
                 ],
               ),
               if (cliente.entregado > 0)
@@ -530,10 +528,8 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => EntregaProductoScreen(
-                          cliente: cliente,
-                          productos: productos,
-                        ),
+                        builder: (context) =>
+                            EntregaProductoScreen(cliente: cliente),
                       ),
                     );
                   },

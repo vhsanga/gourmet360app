@@ -227,7 +227,7 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
           "Fecha: $fechaLegible",
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        Text("Contado: ${data.totalContado}"),
+        Text("Pagado: ${data.totalContado}"),
         Text("Deuda: ${data.totalCredito}"),
       ],
     );

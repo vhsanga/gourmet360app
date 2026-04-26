@@ -191,18 +191,7 @@ class _DialogoRegistroClienteState extends State<DialogoRegistroCliente> {
                   ),
                   keyboardType: TextInputType.phone,
                 ),
-                const SizedBox(height: 16),
-                CheckboxListTile(
-                  title: const Text('Es cliente especial'),
-                  value: _esClienteEspecial,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      _esClienteEspecial = value ?? false;
-                    });
-                  },
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
-                ),
+
                 const SizedBox(height: 24),
 
                 // Botones

@@ -5,6 +5,7 @@ class ProductoAsignado {
   final String producto;
   final String categoria;
   final double precioUnitario;
+  final double? precioCliente;
   final double precioUnitarioMin;
   final double cantidadEntregada;
   final double cantidadRestante;
@@ -17,6 +18,7 @@ class ProductoAsignado {
     required this.producto,
     required this.categoria,
     required this.precioUnitario,
+    required this.precioCliente,
     required this.precioUnitarioMin,
     required this.cantidadEntregada,
     required this.cantidadRestante,
@@ -31,6 +33,9 @@ class ProductoAsignado {
       producto: json['producto'] as String,
       categoria: json['categoria'] as String,
       precioUnitario: double.parse(json['precio_unitario'] as String),
+      precioCliente: json['precio_cliente'] != null
+          ? double.parse(json['precio_cliente'] as String)
+          : null,
       precioUnitarioMin: double.parse(json['precio_unitario_min'] as String),
       cantidadEntregada: double.parse(json['cantidad_entregada'] as String),
       cantidadRestante: double.parse(json['cantidad_restante'] as String),
@@ -59,6 +64,7 @@ class ProductoAsignado {
     String? producto,
     String? categoria,
     double? precioUnitario,
+    double? precioCliente,
     double? cantidadEntregada,
     double? cantidadRestante,
     double? cantidadAsignada,
@@ -70,6 +76,7 @@ class ProductoAsignado {
       producto: producto ?? this.producto,
       categoria: categoria ?? this.categoria,
       precioUnitario: precioUnitario ?? this.precioUnitario,
+      precioCliente: precioCliente ?? this.precioCliente,
       precioUnitarioMin: precioUnitarioMin ?? this.precioUnitarioMin,
       cantidadEntregada: cantidadEntregada ?? this.cantidadEntregada,
       cantidadRestante: cantidadRestante ?? this.cantidadRestante,

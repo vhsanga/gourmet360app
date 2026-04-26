@@ -1,6 +1,7 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/models/cliente.dart';
 import 'package:Gourmet360/models/producto_asignados.dart';
+import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/home_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/producto_viewmodel.dart';
 import 'package:Gourmet360/views/templates/dialogs_widget.dart';
@@ -20,21 +21,15 @@ class OrderItem {
     required this.quantity,
   });
 
-  double get subtotal => clienteOrden.especial
-      ? product.precioUnitarioMin * quantity
-      : product.precioUnitario * quantity;
+  double get subtotal => product.precioUnitario * quantity;
 }
 
 enum PaymentType { contado, credito }
 
 class EntregaProductoScreen extends StatefulWidget {
   Cliente cliente;
-  List<ProductoAsignado> productos;
-  EntregaProductoScreen({
-    super.key,
-    required this.cliente,
-    required this.productos,
-  });
+
+  EntregaProductoScreen({super.key, required this.cliente});
 
   @override
   State<EntregaProductoScreen> createState() => _EntregaProductoScreenState();
@@ -47,11 +42,23 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
   // Formulario
   ProductoAsignado? selectedProduct;
   final TextEditingController quantityController = TextEditingController();
+  final TextEditingController newPricingController = TextEditingController();
   PaymentType selectedPaymentType = PaymentType.contado;
+  Usuario? userSession;
+  List<ProductoAsignado> productos = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+    });
+  }
 
   @override
   void dispose() {
     quantityController.dispose();
+    newPricingController.dispose();
     super.dispose();
   }
 
@@ -97,6 +104,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
       if (existingIndex != -1) {
         orderItems[existingIndex].quantity += quantity;
       } else {
+        
         orderItems.add(
           OrderItem(
             product: selectedProduct!,
@@ -156,9 +164,10 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
             (item) => {
               'idProducto': int.parse(item.product.productoId),
               'cantidad': item.quantity,
-              'precioUnitario': widget.cliente.especial
-                  ? item.product.precioUnitarioMin
-                  : item.product.precioUnitario,
+              'precioUnitario':
+                  item.product.precioCliente ?? item.product.precioUnitario,
+              if (item.product.precioCliente != null)
+                'precioCliente': item.product.precioCliente,
             },
           )
           .toList(),
@@ -216,44 +225,86 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
     );
   }
 
+  void _loadData() {
+    final userProvider = context.read<UserProvider>();
+    if (userProvider.status == UserStatus.loaded &&
+        userProvider.usuario != null) {
+      userSession = userProvider.usuario;
+      context.read<ProductoViewModel>().listarProductosCliente(
+        int.parse(userSession!.id),
+        int.parse(widget.cliente.idCliente),
+        userSession!.accessToken,
+      );
+    } else {
+      print("No hay sesión de usuario activa.");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final vm = context.watch<ProductoViewModel>();
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
             _buildHeader(),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSectionTitle('Agregar Productos'),
-                    const SizedBox(height: 16),
-                    _buildProductForm(),
-                    const SizedBox(height: 24),
-                    _buildSectionTitle('Productos en el Pedido'),
-                    const SizedBox(height: 4),
-                    Text(
-                      '$totalItems unidades',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
-                        fontWeight: FontWeight.w600,
-                      ),
+            Builder(
+              builder: (context) {
+                if (vm.isLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (vm.error != null) {
+                  return Center(
+                    child: Column(
+                      children: [
+                        Text(vm.error!),
+                        ElevatedButton(
+                          onPressed: () {
+                            _loadData();
+                          },
+                          child: const Text('Reintentar'),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 12),
-                    _buildOrderItemsList(),
-                    const SizedBox(height: 24),
-                    _buildSectionTitle('Tipo de Pago'),
-                    const SizedBox(height: 12),
-                    _buildPaymentTypeSelector(),
-                    const SizedBox(height: 24),
-                    _buildTotalCard(),
-                  ],
-                ),
-              ),
+                  );
+                }
+                if (vm.productosAsignados.isNotEmpty) {
+                  productos = vm.productosAsignados;
+                }
+                return Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionTitle('Agregar Productos'),
+                        const SizedBox(height: 16),
+                        _buildProductForm(),
+                        const SizedBox(height: 24),
+                        _buildSectionTitle('Productos en el Pedido'),
+                        const SizedBox(height: 4),
+                        Text(
+                          '$totalItems unidades',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildOrderItemsList(),
+                        const SizedBox(height: 24),
+                        _buildSectionTitle('Tipo de Pago'),
+                        const SizedBox(height: 12),
+                        _buildPaymentTypeSelector(),
+                        const SizedBox(height: 24),
+                        _buildTotalCard(),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -309,19 +360,6 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                   ),
                 ),
                 const SizedBox(width: 2),
-                if (widget.cliente.especial)
-                  Row(
-                    children: [
-                      Text(
-                        'Cliente Especial',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppThemeData.primaryColor.withOpacity(0.9),
-                        ),
-                      ),
-                      Icon(Icons.star, color: Colors.yellow.shade600, size: 16),
-                    ],
-                  ),
               ],
             ),
           ),
@@ -389,7 +427,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                   child: Icon(Icons.arrow_drop_down, color: Color(0xFF6B2A02)),
                 ),
                 borderRadius: BorderRadius.circular(12),
-                items: widget.productos.map((product) {
+                items: productos.map((product) {
                   return DropdownMenuItem<ProductoAsignado>(
                     value: product,
                     child: Padding(
@@ -421,14 +459,35 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                               style: TextStyle(fontWeight: FontWeight.w600),
                             ),
                           ),
-                          Text(
-                            '\$${widget.cliente.especial ? product.precioUnitarioMin.toStringAsFixed(2) : product.precioUnitario.toStringAsFixed(2)}',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green.shade700,
+                          if (product.precioCliente == null)
+                            Text(
+                              '\$${product.precioUnitario.toStringAsFixed(2)}',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green.shade700,
+                              ),
                             ),
-                          ),
+                          if (product.precioCliente != null)
+                            Column(
+                              children: [
+                                Text(
+                                  '\$${product.precioCliente!.toStringAsFixed(2)}',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.green.shade700,
+                                  ),
+                                ),
+                                Text(
+                                  'Especial',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.orange,
+                                  ),
+                                ),
+                              ],
+                            ),
                         ],
                       ),
                     ),
@@ -517,10 +576,156 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                   ),
                 ),
               ),
+              const SizedBox(width: 12),
+              if (selectedProduct != null &&
+                  selectedProduct!.precioCliente == null)
+                SizedBox(
+                  height: 56,
+                  child: ElevatedButton.icon(
+                    onPressed: _showDialogPrice,
+                    icon: const Icon(Icons.star, size: 20),
+                    label: Text(
+                      '',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppThemeData.primaryColor,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                    ),
+                  ),
+                ),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  _showDialogPrice() {
+    if (selectedProduct == null) {
+      _showSnackBar('Por favor selecciona un producto primero', isError: true);
+      return;
+    }
+
+    newPricingController.clear();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Precio Especial'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Producto: ${selectedProduct!.producto}',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Precio actual: \$${selectedProduct!.precioUnitario.toStringAsFixed(2)}',
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: newPricingController,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                ],
+                decoration: InputDecoration(
+                  labelText: 'Nuevo Precio',
+                  hintText: '0.00',
+                  prefixIcon: const Icon(Icons.attach_money),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: AppThemeData.primaryColor,
+                      width: 2,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                newPricingController.clear();
+              },
+              child: Text(
+                'Cancelar',
+                style: TextStyle(color: Colors.grey.shade600),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final newPrice = double.tryParse(newPricingController.text);
+
+                if (newPricingController.text.isEmpty) {
+                  _showSnackBar('Por favor ingresa un precio', isError: true);
+                  return;
+                }
+
+                if (newPrice == null || newPrice <= 0) {
+                  _showSnackBar('El precio debe ser mayor a 0', isError: true);
+                  return;
+                }
+
+                setState(() {
+                  // Crear nuevo producto con el precio actualizado
+                  final updatedProduct = selectedProduct!.copyWith(
+                    precioUnitario: newPrice,
+                    precioCliente: newPrice,
+                  );
+
+                  // Actualizar en la lista de productos para mantener sincronización
+                  final index = productos.indexWhere(
+                    (p) =>
+                        p.idDespachoDetalle == updatedProduct.idDespachoDetalle,
+                  );
+                  if (index != -1) {
+                    productos[index] = updatedProduct;
+                  }
+
+                  // Actualizar el producto seleccionado
+                  selectedProduct = updatedProduct;
+                });
+
+                Navigator.pop(context);
+
+                if (quantityController.text.isNotEmpty) {
+                  _addProduct();
+                }
+                newPricingController.clear();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppThemeData.primaryColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Actualizar',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -668,7 +873,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                'x \$${widget.cliente.especial ? item.product.precioUnitarioMin.toStringAsFixed(2) : item.product.precioUnitario.toStringAsFixed(2)}',
+                'x \$${item.product.precioUnitario.toStringAsFixed(2)}',
                 style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
               ),
               const Spacer(),
@@ -782,22 +987,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
   Widget _buildTotalCard() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppThemeData.primaryColor,
-            AppThemeData.primaryColor.withOpacity(0.85),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppThemeData.primaryColor.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -806,14 +996,17 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
             children: [
               Text(
                 'Total a Pagar',
-                style: TextStyle(fontSize: 14, color: const Color(0xFFF5E2C8)),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppThemeData.primaryColor,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
                 '$totalItems productos',
                 style: TextStyle(
                   fontSize: 12,
-                  color: const Color(0xFFF5E2C8).withOpacity(0.8),
+                  color: AppThemeData.primaryColor,
                 ),
               ),
             ],
@@ -823,7 +1016,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
             style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: AppThemeData.primaryColor,
             ),
           ),
         ],
