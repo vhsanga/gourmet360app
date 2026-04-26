@@ -77,14 +77,13 @@ class _DialogoDevolucionProductosState
 
   void _guardarDevolucion() async {
     if (_formKey.currentState!.validate()) {
-      final cantidad = int.parse(_cantidadController.text);
       final choferVM = context.read<ChoferViewModel>();
       final detalles = _productos
           .where((p) => p.cantidad > 0)
           .map((p) => {'productoId': p.id, 'cantidad': p.cantidad})
           .toList();
       Map<String, dynamic> data = {
-        "cantidad": cantidad,
+        "cantidad": totalProducts,
         "clienteId": int.parse(widget.cliente.idCliente),
         "choferId": int.parse(widget.userSession.id),
         "despachoId": widget.despacho.id,

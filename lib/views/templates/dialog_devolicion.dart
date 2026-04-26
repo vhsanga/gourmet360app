@@ -34,36 +34,11 @@ class _DialogoDevolucionState extends State<DialogoDevolucion> {
 
   void _guardarDevolucion() async {
     if (_formKey.currentState!.validate()) {
-      final cantidad = int.parse(_cantidadController.text);
-
-      final choferVM = context.read<ChoferViewModel>();
       DialogsWidget.showLoading(message: 'Procesando...');
       final navigator = Navigator.of(context, rootNavigator: true);
-      final success = await choferVM.registrarDevolucionCliente(
-        cantidad,
-        int.parse(widget.cliente.idCliente),
-        int.parse(widget.userSession.id),
-        0,
-        widget.userSession.accessToken ?? '',
-      );
+
       if (!mounted) return;
       navigator.pop();
-      if (success) {
-        DialogsWidget.showSuccess(
-          title: 'Muy bien',
-          message: choferVM.msj ?? 'Cliente registrado correctfamente',
-          onClose: () {
-            Navigator.pop(context);
-          },
-        );
-        return;
-      } else {
-        DialogsWidget.showError(
-          title: 'Atención',
-          message: choferVM.msj ?? 'Error desconocido',
-        );
-        return;
-      }
     }
   }
 
