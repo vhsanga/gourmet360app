@@ -9,6 +9,7 @@ import 'package:Gourmet360/viewmodels/localtion_viewmodel.dart';
 import 'package:Gourmet360/views/admin/clientes_ventas_screen.dart';
 import 'package:Gourmet360/views/chofer_sales_report_screen.dart';
 import 'package:Gourmet360/views/entrega_producto_screen.dart';
+import 'package:Gourmet360/views/templates/dialog_cortesia.dart';
 import 'package:Gourmet360/views/templates/dialog_devolucion_productos.dart';
 import 'package:Gourmet360/views/templates/dialog_registro_cliente.dart';
 import 'package:Gourmet360/views/templates/drawer_driver_widget.dart';
@@ -449,6 +450,21 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
     );
   }
 
+  void _mostrarDialogoCortesia(BuildContext context, Cliente cliente) {
+    if (userSession == null) {
+      final userProvider = context.read<UserProvider>();
+      userSession = userProvider.usuario;
+    }
+    showDialog(
+      context: context,
+      builder: (context) => DialogoCortesia(
+        cliente: cliente,
+        userSession: userSession!,
+        despacho: despacho!,
+      ),
+    );
+  }
+
   Widget _buildDeliveryCard(Cliente cliente) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -538,13 +554,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            EntregaProductoScreen(cliente: cliente),
-                      ),
-                    );
+                    _mostrarDialogoCortesia(context, cliente);
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppThemeData.primaryColor,

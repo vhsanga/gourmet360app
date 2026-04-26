@@ -4,20 +4,19 @@ import 'package:Gourmet360/models/cliente.dart';
 import 'package:Gourmet360/models/despacho.dart';
 import 'package:Gourmet360/models/producto.dart';
 import 'package:Gourmet360/models/usuario.dart';
-import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/producto_viewmodel.dart';
 import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-class DialogoDevolucionProductos extends StatefulWidget {
+class DialogoCortesia extends StatefulWidget {
   final Cliente cliente;
   final Despacho despacho;
   final Usuario userSession;
   final Function(String idCliente, int cantidad)? onGuardar;
 
-  const DialogoDevolucionProductos({
+  const DialogoCortesia({
     Key? key,
     required this.cliente,
     required this.userSession,
@@ -26,12 +25,10 @@ class DialogoDevolucionProductos extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<DialogoDevolucionProductos> createState() =>
-      _DialogoDevolucionProductosState();
+  State<DialogoCortesia> createState() => _DialogoCortesiaState();
 }
 
-class _DialogoDevolucionProductosState
-    extends State<DialogoDevolucionProductos> {
+class _DialogoCortesiaState extends State<DialogoCortesia> {
   final _formKey = GlobalKey<FormState>();
   List<Producto> _productos = [];
   final Map<String, TextEditingController> _controllers = {};
@@ -76,22 +73,29 @@ class _DialogoDevolucionProductosState
 
   void _guardarDevolucion() async {
     if (_formKey.currentState!.validate()) {
-      final choferVM = context.read<ChoferViewModel>();
+      final choferVM = context.read<ProductoViewModel>();
       final detalles = _productos
           .where((p) => p.cantidad > 0)
-          .map((p) => {'productoId': p.id, 'cantidad': p.cantidad})
+          .map(
+            (p) => {
+              'idProducto': p.id,
+              'cantidad': p.cantidad,
+              "precioUnitario": 0,
+            },
+          )
           .toList();
       Map<String, dynamic> data = {
-        "cantidad": totalProducts,
-        "clienteId": int.parse(widget.cliente.idCliente),
-        "choferId": int.parse(widget.userSession.id),
-        "despachoId": widget.despacho.id,
+        "idCliente": int.parse(widget.cliente.idCliente),
+        "idChofer": int.parse(widget.userSession.id),
+        "idDespacho": widget.despacho.id,
+        "tipoPago": "cortesia",
+        "total": 0,
         "detalles": detalles,
       };
 
       DialogsWidget.showLoading(message: 'Procesando...');
       final navigator = Navigator.of(context, rootNavigator: true);
-      final success = await choferVM.registrarDevolucionCliente(
+      final success = await choferVM.entregarProductos(
         data,
         widget.userSession.accessToken ?? '',
       );
@@ -145,14 +149,14 @@ class _DialogoDevolucionProductosState
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(
-                        Icons.assignment_return,
+                        Icons.favorite,
                         color: Color(0xFFef4444),
                         size: 24,
                       ),
                     ),
                     const SizedBox(width: 12),
                     const Text(
-                      'Cambios',
+                      'Cortesia / Yapas',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
