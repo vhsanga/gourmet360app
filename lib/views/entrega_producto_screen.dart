@@ -104,7 +104,6 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
       if (existingIndex != -1) {
         orderItems[existingIndex].quantity += quantity;
       } else {
-        
         orderItems.add(
           OrderItem(
             product: selectedProduct!,
@@ -581,16 +580,16 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                   selectedProduct!.precioCliente == null)
                 SizedBox(
                   height: 56,
-                  child: ElevatedButton.icon(
+                  child: OutlinedButton.icon(
                     onPressed: _showDialogPrice,
                     icon: const Icon(Icons.star, size: 20),
                     label: Text(
                       '',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppThemeData.primaryColor,
-                      foregroundColor: Colors.white,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppThemeData.primaryColor,
+                      side: const BorderSide(color: Color(0xFF6B2A02)),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

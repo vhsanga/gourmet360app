@@ -43,6 +43,7 @@ class _DialogoDevolucionState extends State<DialogoDevolucion> {
         cantidad,
         int.parse(widget.cliente.idCliente),
         int.parse(widget.userSession.id),
+        0,
         widget.userSession.accessToken ?? '',
       );
       if (!mounted) return;
@@ -100,7 +101,7 @@ class _DialogoDevolucionState extends State<DialogoDevolucion> {
                   ),
                   const SizedBox(width: 12),
                   const Text(
-                    'Devolución',
+                    'Devolución Old',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,

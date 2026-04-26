@@ -9,7 +9,7 @@ import 'package:Gourmet360/viewmodels/localtion_viewmodel.dart';
 import 'package:Gourmet360/views/admin/clientes_ventas_screen.dart';
 import 'package:Gourmet360/views/chofer_sales_report_screen.dart';
 import 'package:Gourmet360/views/entrega_producto_screen.dart';
-import 'package:Gourmet360/views/templates/dialog_devolicion.dart';
+import 'package:Gourmet360/views/templates/dialog_devolucion_productos.dart';
 import 'package:Gourmet360/views/templates/dialog_registro_cliente.dart';
 import 'package:Gourmet360/views/templates/drawer_driver_widget.dart';
 import 'package:Gourmet360/views/welcome_screen.dart';
@@ -441,8 +441,11 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
     }
     showDialog(
       context: context,
-      builder: (context) =>
-          DialogoDevolucion(cliente: cliente, userSession: userSession!),
+      builder: (context) => DialogoDevolucionProductos(
+        cliente: cliente,
+        userSession: userSession!,
+        despacho: despacho!,
+      ),
     );
   }
 
@@ -506,24 +509,34 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
           Row(
             children: [
               Expanded(
-                child: OutlinedButton.icon(
+                child: ElevatedButton(
                   onPressed: () {
                     _mostrarDialogoDevolucion(context, cliente);
                   },
-                  icon: const Icon(Icons.compare_arrows, size: 18),
-                  label: const Text('Devolucion'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppThemeData.primaryColor,
                     side: const BorderSide(color: Color(0xFF6B2A02)),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 8,
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.compare_arrows, size: 18),
+                      SizedBox(width: 4),
+                      Text('Cambios'),
+                    ],
                   ),
                 ),
               ),
               SizedBox(width: 12),
               Expanded(
-                child: OutlinedButton.icon(
+                child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -533,14 +546,57 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.arrow_circle_right_outlined, size: 18),
-                  label: const Text('Entregar'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppThemeData.primaryColor,
                     side: const BorderSide(color: Color(0xFF6B2A02)),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 8,
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.favorite, size: 18),
+                      SizedBox(width: 4),
+                      Text('Cortesia'),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            EntregaProductoScreen(cliente: cliente),
+                      ),
+                    );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppThemeData.primaryColor,
+                    side: const BorderSide(color: Color(0xFF6B2A02)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 8,
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.arrow_circle_right_outlined, size: 18),
+                      SizedBox(width: 4),
+                      Text('Entregar'),
+                    ],
                   ),
                 ),
               ),
