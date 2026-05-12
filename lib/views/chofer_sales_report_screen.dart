@@ -1,5 +1,6 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/core/utils/cutom_utils.dart';
+import 'package:Gourmet360/models/gastos.dart';
 import 'package:Gourmet360/models/producto_restante.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
@@ -47,6 +48,8 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
 
   List<ProductoRestante> productosRestantes = [];
 
+  List<Gasto> gastos = [];
+
   double get totalToDeliver {
     return soldAmount - expensesToday;
   }
@@ -68,18 +71,19 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
     if (userProvider.status == UserStatus.loaded &&
         userProvider.usuario != null) {
       userSession = userProvider.usuario;
-      context.read<AdminViewModel>().getResumenDespachosChoferForAdminEndpoint(
+      final adminVM = context.read<AdminViewModel>();
+
+      await adminVM.getResumenDespachosChoferForAdminEndpoint(
         int.parse(userSession!.id),
         userSession!.accessToken,
       );
-
-      final adminVM = context.read<AdminViewModel>();
       await adminVM.getDetalleProductosSobrantes(
         int.parse(userSession!.id),
         userSession!.accessToken,
       );
 
       productosRestantes = adminVM.productosRestantes;
+      gastos = adminVM.gastos;
       if (mounted) setState(() {});
     }
   }
@@ -556,66 +560,50 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
         color: backgroundColor,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Row(
-        children: [
-          // Icono
-          Icon(icon, size: 22, color: color),
-          const SizedBox(width: 12),
+      child: InkWell(
+        onTap: () {
+          _registrarGasto();
+        },
+        child: Row(
+          children: [
+            // Icono
+            Icon(icon, size: 22, color: color),
+            const SizedBox(width: 12),
 
-          // Texto/Label
-          Expanded(
-            flex: 2,
-            child: Text(
-              label,
-              style: GoogleFonts.montserrat(
-                fontSize: 13,
-                color: Colors.grey.shade700,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-
-          // Input Text
-          Expanded(
-            flex: 2,
-            child: Text(
-              expensesToday.toStringAsFixed(2),
-              textAlign: TextAlign.right,
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: isPositive
-                    ? Colors.green.shade700
-                    : isNegative
-                    ? Colors.red.shade700
-                    : Colors.orange.shade700,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-
-          // Botón Guardar
-          if (expensesToday == 0)
-            ElevatedButton.icon(
-              onPressed: () {
-                _registrarGasto();
-              },
-              icon: const Icon(Icons.save, size: 16),
-              label: const Text('Registrar'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: color,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+            // Texto/Label
+            Expanded(
+              flex: 2,
+              child: Text(
+                label,
+                style: GoogleFonts.montserrat(
+                  fontSize: 13,
+                  color: Colors.grey.shade700,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
-        ],
+            const SizedBox(width: 8),
+
+            // Input Text
+            Expanded(
+              flex: 2,
+              child: Text(
+                expensesToday.toStringAsFixed(2),
+                textAlign: TextAlign.right,
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: isPositive
+                      ? Colors.green.shade700
+                      : isNegative
+                      ? Colors.red.shade700
+                      : Colors.orange.shade700,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
+        ),
       ),
     );
   }
@@ -626,6 +614,7 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
       builder: (_) => DialogoRegistroGasto(
         idDespacho: widget.idDespacho,
         idChofer: int.parse(userSession!.id),
+        gastosExistentes: gastos,
       ),
     );
 

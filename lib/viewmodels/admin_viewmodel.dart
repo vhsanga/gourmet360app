@@ -18,7 +18,7 @@ class AdminViewModel extends ChangeNotifier {
   DashboardDespachos? dashboardDespachos;
   DashboardVentas? dashboardVentas;
   DespachosChofer? despachosChofer;
-  List<Gasto>? gastos;
+  List<Gasto> gastos = [];
   List<ClienteVentas> clientesVentas = [];
   List<ClienteVentaDia> clientesVentaDias = [];
   List<ProductoRestante> productosRestantes = [];
