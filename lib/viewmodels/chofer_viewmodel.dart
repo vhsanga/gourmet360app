@@ -85,6 +85,31 @@ class ChoferViewModel extends ChangeNotifier {
     }
   }
 
+  Future<bool> editarliente(
+    Map<String, dynamic> params,
+    String userToken,
+  ) async {
+    isLoading = true;
+    msj = null;
+    notifyListeners();
+    try {
+      final response = await HttpService.doPost(
+        ApiConstants.saveEditarClienteEndpoint,
+        params,
+        userToken,
+      );
+      msj = response.mensaje;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      msj = e.toString().replaceAll('Exception:', '');
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<bool> registrarGastoDespacho(
     Map<String, dynamic> params,
     String userToken,

@@ -11,6 +11,7 @@ import 'package:Gourmet360/views/chofer_sales_report_screen.dart';
 import 'package:Gourmet360/views/entrega_producto_screen.dart';
 import 'package:Gourmet360/views/templates/dialog_cortesia.dart';
 import 'package:Gourmet360/views/templates/dialog_devolucion_productos.dart';
+import 'package:Gourmet360/views/templates/dialog_editar_cliente.dart';
 import 'package:Gourmet360/views/templates/dialog_registro_cliente.dart';
 import 'package:Gourmet360/views/templates/drawer_driver_widget.dart';
 import 'package:Gourmet360/views/welcome_screen.dart';
@@ -316,7 +317,8 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ChoferSalesReportScreen( idDespacho: despacho?.id ),
+                  builder: (context) =>
+                      ChoferSalesReportScreen(idDespacho: despacho?.id),
                 ),
               );
             },

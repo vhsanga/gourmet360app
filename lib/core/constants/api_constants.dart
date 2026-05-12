@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const String baseUrl = 'http://192.168.231.146:3000/api/v1';
+  static const String baseUrl = 'http://192.168.100.7:3000/api/v1';
   static const String loginEndpoint = '/auth/login';
   static const String usersDataHomeEndPoint = '/usuario/data-home';
   static const String saveVentaEndpoint = '/admin/save-venta';
@@ -9,6 +9,7 @@ class ApiConstants {
   static const String getProductosForAdminEndpoint = '/admin/productos';
   static const String getCamionesForAdminEndpoint = '/admin/camiones';
   static const String saveRegistrarClienteEndpoint = '/usuario/create-cliente';
+  static const String saveEditarClienteEndpoint = '/usuario/update-cliente';
   static const String dashboardDataAdminEndpoint =
       '/admin/dashboard-data-admin/';
   static const String getResumenDespachosChoferForAdminEndpoint =
@@ -32,6 +33,8 @@ class ApiConstants {
   static const String getProductosClienteEndpoint =
       '/usuario/consultar-productos-cliente';
   static const String pagarCreditoEndpoint = '/admin/pagar-venta-credito';
+  static const String listarClienteEndpoint = '/cliente';
+  static const String eliminarClienteEndpoint = '/cliente/eliminar';
 
   static const int connectTimeout = 5000;
   static const int receiveTimeout = 10000;

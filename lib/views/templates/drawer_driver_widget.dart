@@ -1,4 +1,5 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
+import 'package:Gourmet360/views/admin/clientes_admin_screen.dart';
 import 'package:Gourmet360/views/admin/clientes_ventas_screen.dart';
 import 'package:Gourmet360/views/chofer_sales_report_screen.dart';
 import 'package:Gourmet360/views/home_screen.dart';
@@ -76,14 +77,14 @@ class _DrawerDriverWidgetState extends State<DrawerDriverWidget> {
                     },
                   ),
                   _buildMenuItem(
-                    icon: Icons.local_shipping_outlined,
-                    title: 'Clientes',
+                    icon: Icons.person_2_sharp,
+                    title: 'Administracion de Clientes',
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ClientesVentasScreen(),
+                          builder: (context) => ClientesAdminScreen(),
                         ),
                       );
                     },

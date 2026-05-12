@@ -29,7 +29,12 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
     var _clientes = clientes.where((cliente) {
       return cliente.nombre.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
-    _clientes.sort((a, b) {
+    return _ordenarClientes(_clientes);
+  }
+
+  List<ClienteVentas> _ordenarClientes(List<ClienteVentas> lista) {
+    final ordenada = List<ClienteVentas>.from(lista);
+    ordenada.sort((a, b) {
       int comparison;
       switch (_sortBy) {
         case 'ventaContadoHoy':
@@ -38,13 +43,15 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
         case 'dedudaAcumulada':
           comparison = a.dedudaAcumulada.compareTo(b.dedudaAcumulada);
           break;
+        case 'devolucionHoy':
+          comparison = a.devolucionHoy.compareTo(b.devolucionHoy);
+          break;
         default: // nombre
-          comparison = a.nombre.compareTo(b.nombre);
+          comparison = a.nombre.toLowerCase().compareTo(b.nombre.toLowerCase());
       }
       return _sortAscending ? comparison : -comparison;
     });
-
-    return _clientes;
+    return ordenada;
   }
 
   double get _totalVentaContado {
@@ -162,6 +169,43 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
             return SafeArea(
               child: Column(
                 children: [
+                  // Barra de búsqueda
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                    child: TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                          _clientesFiltrados = _getFilteredClientes();
+                        });
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Buscar cliente...',
+                        prefixIcon: const Icon(Icons.search),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 16,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppThemeData.primaryColor,
+                            width: 1.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                   // Tabla
                   Expanded(
                     child: Container(
@@ -375,6 +419,7 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
             _sortBy = sortKey;
             _sortAscending = true;
           }
+          _clientesFiltrados = _ordenarClientes(_clientesFiltrados);
         });
       },
       child: Row(
