@@ -35,6 +35,9 @@ class ApiConstants {
   static const String pagarCreditoEndpoint = '/admin/pagar-venta-credito';
   static const String listarClienteEndpoint = '/cliente';
   static const String eliminarClienteEndpoint = '/cliente/eliminar';
+  static const String ventaProductoClienteEndpoint =
+      '/admin/venta-productos-cliente/';
+  static const String eliminarProductoEndpoint = '/admin/eliminar-producto';
 
   static const int connectTimeout = 5000;
   static const int receiveTimeout = 10000;

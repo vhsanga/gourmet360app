@@ -2,14 +2,14 @@ class ClienteVentaDia {
   final int idVenta;
   final String dia;
   final double totalContado;
-  final double totalCredito;
+  final double totalDeuda;
   final double totalPagado;
 
   ClienteVentaDia({
     required this.idVenta,
     required this.dia,
     required this.totalContado,
-    required this.totalCredito,
+    required this.totalDeuda,
     required this.totalPagado,
   });
 
@@ -20,7 +20,7 @@ class ClienteVentaDia {
           : 0,
       dia: _parseString(json['dia']),
       totalContado: _parseDouble(json['total_contado']),
-      totalCredito: _parseDouble(json['total_credito']),
+      totalDeuda: _parseDouble(json['total_credito']),
       totalPagado: _parseDouble(json['total_pagado']),
     );
   }
@@ -42,7 +42,7 @@ class ClienteVentaDia {
       'id_venta': idVenta,
       'dia': dia,
       'total_contado': totalContado,
-      'total_credito': totalCredito,
+      'total_credito': totalDeuda,
     };
   }
 
@@ -56,13 +56,13 @@ class ClienteVentaDia {
       dia: dia ?? this.dia,
       idVenta: idVenta ?? this.idVenta,
       totalContado: totalContado ?? this.totalContado,
-      totalCredito: totalCredito ?? this.totalCredito,
+      totalDeuda: totalDeuda ?? this.totalDeuda,
       totalPagado: totalPagado ?? this.totalPagado,
     );
   }
 
   @override
   String toString() {
-    return 'ClienteVentaDia{dia: $dia, totalContado: $totalContado, totalCredito: $totalCredito}';
+    return 'ClienteVentaDia{dia: $dia, totalContado: $totalContado, totalDeuda: $totalDeuda}';
   }
 }

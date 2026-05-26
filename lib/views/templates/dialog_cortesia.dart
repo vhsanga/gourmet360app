@@ -90,6 +90,9 @@ class _DialogoCortesiaState extends State<DialogoCortesia> {
         "idDespacho": widget.despacho.id,
         "tipoPago": "cortesia",
         "total": 0,
+        'efectivo': 0,
+        'transferencia': 0,
+        'pagado': 0,
         "detalles": detalles,
       };
 

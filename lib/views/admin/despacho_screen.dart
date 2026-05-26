@@ -297,13 +297,33 @@ class _DespachoScreenState extends State<DespachoScreen> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              product.nombre,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: AppThemeData.primaryColor,
-                              ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  product.nombre,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppThemeData.primaryColor,
+                                  ),
+                                ),
+                                Text(
+                                  'Categoría: ${product.categoriaNombre}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                Text(
+                                  'Precio unitario: \$${product.precioUnitario.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
                             ),
                             if (product.cantidad > 0) ...[
                               Container(
@@ -339,50 +359,61 @@ class _DespachoScreenState extends State<DespachoScreen> {
                             ],
                           ],
                         ),
-                        Container(
-                          width: 120,
-                          child: TextField(
-                            controller: _controllers[product.id],
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                            ],
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppThemeData.primaryColor,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: 'Cantidad',
-                              hintStyle: TextStyle(color: Colors.grey.shade400),
-                              filled: true,
-                              fillColor: AppThemeData.backgroundColor,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: const Color(0xFFF5E2C8),
-                                  width: 2,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
+                        Row(
+                          children: [
+                            Container(
+                              width: 120,
+                              child: TextField(
+                                controller: _controllers[product.id],
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                ],
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
                                   color: AppThemeData.primaryColor,
-                                  width: 2,
                                 ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
+                                decoration: InputDecoration(
+                                  hintText: 'Cantidad',
+                                  hintStyle: TextStyle(
+                                    color: Colors.grey.shade400,
+                                  ),
+                                  filled: true,
+                                  fillColor: AppThemeData.backgroundColor,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: const Color(0xFFF5E2C8),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: AppThemeData.primaryColor,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                ),
+                                onChanged: (value) =>
+                                    _updateQuantity(product, value),
                               ),
                             ),
-                            onChanged: (value) =>
-                                _updateQuantity(product, value),
-                          ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () =>
+                                  dialogDeleteProducto(product.id.toString()),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -393,6 +424,40 @@ class _DespachoScreenState extends State<DespachoScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void dialogDeleteProducto(String idProducto) {
+    DialogsWidget.showConfirmation(
+      title: 'Eliminar producto',
+      message: '¿Estás seguro de que deseas eliminar este producto?',
+      confirmText: 'Eliminar',
+      isDangerous: true,
+      onConfirm: () async {
+        final userSession = context.read<UserProvider>().usuario!;
+        final vm = context.read<ProductoViewModel>();
+
+        DialogsWidget.showLoading(message: 'Eliminando...');
+        final success = await vm.eliminarProducto(
+          idProducto,
+          userSession.accessToken,
+        );
+        if (!mounted) return;
+        Navigator.of(context, rootNavigator: true).pop();
+
+        if (success) {
+          DialogsWidget.showSuccess(
+            title: 'Listo',
+            message: vm.msj ?? 'Producto eliminado correctamente',
+            onClose: _loadData,
+          );
+        } else {
+          DialogsWidget.showError(
+            title: 'Error',
+            message: vm.msj ?? 'No se pudo eliminar el producto',
+          );
+        }
+      },
     );
   }
 

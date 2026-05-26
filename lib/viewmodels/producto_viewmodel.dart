@@ -115,4 +115,27 @@ class ProductoViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<bool> eliminarProducto(String idProducto, String userToken) async {
+    isLoading = true;
+    msj = null;
+    notifyListeners();
+    try {
+      Map<String, dynamic> params = {'id': idProducto};
+      final response = await HttpService.doPost(
+        ApiConstants.eliminarProductoEndpoint,
+        params,
+        userToken,
+      );
+      msj = response.mensaje;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      msj = e.toString().replaceAll('Exception:', '');
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 }

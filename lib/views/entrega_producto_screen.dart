@@ -21,7 +21,8 @@ class OrderItem {
     required this.quantity,
   });
 
-  double get subtotal => product.precioUnitario * quantity;
+  double get subtotal =>
+      (product.precioCliente ?? product.precioUnitario) * quantity;
 }
 
 enum PaymentType { contado, credito }
@@ -43,7 +44,9 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
   ProductoAsignado? selectedProduct;
   final TextEditingController quantityController = TextEditingController();
   final TextEditingController newPricingController = TextEditingController();
-  PaymentType selectedPaymentType = PaymentType.contado;
+  final TextEditingController efectivoController = TextEditingController();
+  final TextEditingController transferenciaController = TextEditingController();
+
   Usuario? userSession;
   List<ProductoAsignado> productos = [];
 
@@ -59,6 +62,8 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
   void dispose() {
     quantityController.dispose();
     newPricingController.dispose();
+    efectivoController.dispose();
+    transferenciaController.dispose();
     super.dispose();
   }
 
@@ -156,6 +161,17 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
       userToken = userState.token ?? '';
     }
 
+    final double efectivo = double.tryParse(efectivoController.text) ?? 0.0;
+    final double transferencia =
+        double.tryParse(transferenciaController.text) ?? 0.0;
+    if (efectivo + transferencia > totalAmount) {
+      _showSnackBar(
+        'El pago ingresado (\$${(efectivo + transferencia).toStringAsFixed(2)}) supera el total (\$${totalAmount.toStringAsFixed(2)})',
+        isError: true,
+      );
+      return;
+    }
+
     // Aquí iría la lógica para guardar el pedido
     final orderData = {
       'detalles': orderItems
@@ -171,7 +187,9 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
           )
           .toList(),
       'total': totalAmount,
-      'tipoPago': selectedPaymentType.name,
+      'efectivo': efectivo,
+      'transferencia': transferencia,
+      'pagado': efectivo + transferencia,
       'idCliente': int.parse(widget.cliente.idCliente),
       'idDespacho': int.parse(idDespacho),
       'idChofer': int.parse(userState.usuario!.id),
@@ -209,7 +227,9 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
       orderItems.clear();
       selectedProduct = null;
       quantityController.clear();
-      selectedPaymentType = PaymentType.contado;
+      newPricingController.clear();
+      efectivoController.clear();
+      transferenciaController.clear();
     });
   }
 
@@ -294,11 +314,9 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                         const SizedBox(height: 12),
                         _buildOrderItemsList(),
                         const SizedBox(height: 24),
-                        _buildSectionTitle('Tipo de Pago'),
-                        const SizedBox(height: 12),
-                        _buildPaymentTypeSelector(),
-                        const SizedBox(height: 24),
                         _buildTotalCard(),
+                        const SizedBox(height: 24),
+                        _buildBottomBar(),
                       ],
                     ),
                   ),
@@ -308,7 +326,6 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomBar(),
     );
   }
 
@@ -325,42 +342,45 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: const Icon(
-              Icons.arrow_back,
-              color: AppThemeData.primaryColor,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                //
-                Text(
-                  'Registrar Venta',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: AppThemeData.primaryColor,
-                  ),
+          Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(
+                  Icons.arrow_back,
+                  color: AppThemeData.primaryColor,
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  widget.cliente.nombreCliente,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white.withOpacity(0.9),
-                  ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Registrar Venta',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: AppThemeData.primaryColor,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      widget.cliente.nombreCliente,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white.withValues(alpha: 0.9),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 2),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
@@ -872,7 +892,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                'x \$${item.product.precioUnitario.toStringAsFixed(2)}',
+                'x \$${(item.product.precioCliente ?? item.product.precioUnitario).toStringAsFixed(2)}',
                 style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
               ),
               const Spacer(),
@@ -900,123 +920,125 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
     );
   }
 
-  Widget _buildPaymentTypeSelector() {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildPaymentOption(
-            PaymentType.contado,
-            'Contado',
-            Icons.money,
-            Colors.green,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildPaymentOption(
-            PaymentType.credito,
-            'Crédito',
-            Icons.credit_card,
-            Colors.orange,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPaymentOption(
-    PaymentType type,
-    String label,
-    IconData icon,
-    Color color,
-  ) {
-    final isSelected = selectedPaymentType == type;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedPaymentType = type;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.1) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? color : const Color(0xFFF5E2C8),
-            width: 2,
-          ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: color.withOpacity(0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : [],
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? color : Colors.grey.shade400,
-              size: 32,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: isSelected ? color : Colors.grey.shade600,
-              ),
-            ),
-            if (isSelected) ...[
-              const SizedBox(height: 8),
-              Icon(Icons.check_circle, color: color, size: 20),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildTotalCard() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Total a Pagar',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppThemeData.primaryColor,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Total a Pagar',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppThemeData.primaryColor,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '$totalItems productos',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppThemeData.primaryColor,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 4),
               Text(
-                '$totalItems productos',
+                '\$${totalAmount.toStringAsFixed(2)}',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
                   color: AppThemeData.primaryColor,
                 ),
               ),
             ],
           ),
-          Text(
-            '\$${totalAmount.toStringAsFixed(2)}',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: AppThemeData.primaryColor,
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: efectivoController,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+            ],
+            decoration: InputDecoration(
+              labelText: 'Efectivo',
+              prefixText: '\$ ',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: AppThemeData.primaryColor,
+                  width: 1.5,
+                ),
+              ),
             ),
+            onChanged: (value) {
+              final abono = double.tryParse(value) ?? 0;
+              if (abono > totalAmount && totalAmount > 0) {
+                efectivoController.text = totalAmount.toStringAsFixed(2);
+                efectivoController.selection = TextSelection.fromPosition(
+                  TextPosition(offset: efectivoController.text.length),
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'El efectivo no puede superar el total: \$${totalAmount.toStringAsFixed(2)}',
+                    ),
+                    backgroundColor: Colors.red.shade700,
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              }
+            },
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: transferenciaController,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+            ],
+            decoration: InputDecoration(
+              labelText: 'Valor de la transferencia',
+              prefixText: '\$ ',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: AppThemeData.primaryColor,
+                  width: 1.5,
+                ),
+              ),
+            ),
+            onChanged: (value) {
+              final transferencia = double.tryParse(value) ?? 0;
+              if (transferencia > totalAmount && totalAmount > 0) {
+                transferenciaController.text = totalAmount.toStringAsFixed(2);
+                transferenciaController.selection = TextSelection.fromPosition(
+                  TextPosition(offset: transferenciaController.text.length),
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'La transferencia no puede superar el total: \$${totalAmount.toStringAsFixed(2)}',
+                    ),
+                    backgroundColor: Colors.red.shade700,
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              }
+            },
           ),
         ],
       ),

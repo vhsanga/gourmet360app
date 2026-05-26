@@ -50,7 +50,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
           userSession!.id,
           userSession!.accessToken,
         );
-        context.read<LocationViewModel>().startTracking(
+        /*context.read<LocationViewModel>().startTracking(
           onLocationChanged: (lat, lng) {
             // Esta llamada ocurre en segundo plano cada vez que el GPS se mueve
             context.read<ChoferViewModel>().registrarUbicacionChofer(
@@ -60,7 +60,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
               userSession!.accessToken,
             );
           },
-        );
+        );*/
       }
     });
   }
