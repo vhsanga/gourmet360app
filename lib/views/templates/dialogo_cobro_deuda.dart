@@ -36,22 +36,6 @@ class _DialogoCobroDeudaState extends State<DialogoCobroDeuda> {
   void _guardar() {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_monto < widget.deudaTotal) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('El monto a cobrar no cubre la deuda total')),
-      );
-      return;
-    }
-
-    if (_monto != widget.deudaTotal) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('El monto a cobrar no corresponde a la deuda total'),
-        ),
-      );
-      return;
-    }
-
     setState(() => _guardando = true);
 
     final json = {'ventaId': widget.ventaId, 'monto': _monto};
@@ -290,9 +274,7 @@ class _Body extends StatelessWidget {
               if (val > deudaTotal) {
                 return 'No puede superar la deuda (\$${deudaTotal.toStringAsFixed(2)})';
               }
-              if (val < deudaTotal) {
-                return 'No puede ser menor a la deuda (\$${deudaTotal.toStringAsFixed(2)})';
-              }
+
               return null;
             },
             onChanged: (_) => onChanged(),
@@ -332,27 +314,6 @@ class _Footer extends StatelessWidget {
       child: Row(
         children: [
           // Monto a cobrar
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'A cobrar',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                '\$${monto.toStringAsFixed(2)}',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: monto > 0
-                      ? colorScheme.primary
-                      : colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
           const Spacer(),
 
           // Botón cancelar

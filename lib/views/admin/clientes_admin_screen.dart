@@ -5,6 +5,7 @@ import 'package:Gourmet360/models/cliente_admin.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/cliente_viewmodel.dart';
 import 'package:Gourmet360/views/templates/dialog_editar_cliente.dart';
+import 'package:Gourmet360/views/templates/dialog_registro_cliente.dart';
 import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -109,7 +110,7 @@ class _ClientesAdminScreenState extends State<ClientesAdminScreen> {
         actions: [
           IconButton(
             tooltip: 'Agregar cliente',
-            onPressed: () {},
+            onPressed: _openCrearCliente,
             icon: const Icon(Icons.person_add_alt_1_outlined),
           ),
         ],
@@ -191,11 +192,23 @@ class _ClientesAdminScreenState extends State<ClientesAdminScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: _openCrearCliente,
         backgroundColor: AppThemeData.primaryColor,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.person_add_alt_1),
         label: const Text('Nuevo cliente'),
+      ),
+    );
+  }
+
+  void _openCrearCliente() {
+    final userSession = context.read<UserProvider>().usuario!;
+    showDialog(
+      context: context,
+      builder: (_) => DialogoRegistroCliente(
+        idChofer: 0,
+        userSession: userSession,
+        onSuccess: _loadData,
       ),
     );
   }

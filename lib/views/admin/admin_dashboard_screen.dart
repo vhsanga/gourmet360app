@@ -7,6 +7,7 @@ import 'package:Gourmet360/views/admin/cliente_report_screen.dart';
 import 'package:Gourmet360/views/admin/clientes_ventas_screen.dart';
 import 'package:Gourmet360/views/admin/drivers_list_screen.dart';
 import 'package:Gourmet360/views/admin/mapa_camiones_screen.dart';
+import 'package:Gourmet360/views/admin/ventas_totales_dias_screen.dart';
 import 'package:Gourmet360/views/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -185,7 +186,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             } else if (value == 2) {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ClientsReportScreen()),
+                MaterialPageRoute(
+                  builder: (context) => VentasTotalesDiasScreen(),
+                ),
               );
             } else if (value == 3) {
               await context.read<UserProvider>().logout();

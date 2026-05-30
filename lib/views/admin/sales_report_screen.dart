@@ -33,22 +33,26 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
   String driverPlate = '';
 
   // Datos de productos (panes)
-  int assignedProducts = 1000;
+  int assignedProducts = 0;
 
-  int soldProducts = 820;
+  int soldProducts = 0;
 
-  int returnedProducts = 100;
+  int returnedProducts = 0;
 
-  int remainingProducts = 80;
+  int remainingProducts = 0;
 
   // Datos financieros
-  double soldAmount = 98.40;
+  double soldAmount = 0.00;
 
-  double accountsReceivableToday = 8.50;
+  double accountsReceivableToday = 0.00;
 
-  double accountsReceivableAccumulated = 35.00;
+  double accountsReceivableAccumulated = 0.00;
 
-  double expensesToday = 10.00;
+  double efectivo = 0.00;
+
+  double transferencia = 0.00;
+
+  double expensesToday = 0.00;
 
   DateTime fechaUltimoDespachoPendiente = DateTime.now();
 
@@ -178,6 +182,8 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
             accountsReceivableToday = vm.despachosChofer!.ventas_credito;
             accountsReceivableAccumulated =
                 vm.despachosChofer!.cuentas_por_cobrar;
+            efectivo = vm.despachosChofer!.efectivo;
+            transferencia = vm.despachosChofer!.transferencia;
             expensesToday = vm.despachosChofer!.gastos;
             fechaUltimoDespachoPendiente = vm.despachosChofer!.fecha;
           }
@@ -587,12 +593,14 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
             ],
           ),
           const SizedBox(height: 20),
-          _buildFinancialStatRow(
+          _buildVentasHoyRow(
             'Dinero Vendido Hoy',
             soldAmount,
             Icons.point_of_sale,
             Colors.green,
             isPositive: true,
+            efectivo: efectivo,
+            transferencia: transferencia,
           ),
           const SizedBox(height: 12),
           _buildFinancialStatRow(
@@ -683,6 +691,116 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                   : isNegative
                   ? Colors.red.shade700
                   : Colors.orange.shade700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVentasHoyRow(
+    String label,
+    double value,
+    IconData icon,
+    Color color, {
+    bool isPositive = false,
+    bool isNegative = false,
+    bool isWarning = false,
+    double efectivo = 0,
+    double transferencia = 0,
+  }) {
+    Color backgroundColor;
+    if (isPositive) {
+      backgroundColor = Colors.green.shade50;
+    } else if (isNegative) {
+      backgroundColor = Colors.red.shade50;
+    } else if (isWarning) {
+      backgroundColor = Colors.orange.shade50;
+    } else {
+      backgroundColor = const Color(0xFFF5E2C8).withOpacity(0.3);
+    }
+
+    final valueColor = isPositive
+        ? Colors.green.shade700
+        : isNegative
+        ? Colors.red.shade700
+        : Colors.orange.shade700;
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 22),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 13,
+                    color: Colors.grey.shade700,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+
+                const SizedBox(height: 6),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.payments_outlined,
+                          size: 13,
+                          color: Colors.grey.shade500,
+                        ),
+                        const SizedBox(width: 3),
+                        Text(
+                          'Efectivo: \$${efectivo.toStringAsFixed(2)}',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 11,
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.swap_horiz,
+                          size: 13,
+                          color: Colors.grey.shade500,
+                        ),
+                        const SizedBox(width: 3),
+                        Text(
+                          'Transferencia: \$${transferencia.toStringAsFixed(2)}',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 11,
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '${isNegative ? '-' : ''}\$${value.toStringAsFixed(2)}',
+            style: GoogleFonts.montserrat(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: valueColor,
             ),
           ),
         ],

@@ -9,11 +9,13 @@ import 'package:provider/provider.dart';
 class DialogoRegistroCliente extends StatefulWidget {
   final int idChofer;
   final Usuario userSession;
+  final VoidCallback? onSuccess;
 
   const DialogoRegistroCliente({
     Key? key,
     required this.idChofer,
     required this.userSession,
+    this.onSuccess,
   }) : super(key: key);
 
   @override
@@ -78,10 +80,14 @@ class _DialogoRegistroClienteState extends State<DialogoRegistroCliente> {
           onClose: () {
             if (!mounted) return;
             Navigator.pop(context);
-            context.read<HomeViewModel>().getDataHome(
-              widget.userSession.id,
-              widget.userSession.accessToken,
-            );
+            if (widget.onSuccess != null) {
+              widget.onSuccess!();
+            } else {
+              context.read<HomeViewModel>().getDataHome(
+                widget.userSession.id,
+                widget.userSession.accessToken,
+              );
+            }
           },
         );
         return;

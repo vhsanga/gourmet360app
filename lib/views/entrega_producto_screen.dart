@@ -596,27 +596,25 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              if (selectedProduct != null &&
-                  selectedProduct!.precioCliente == null)
-                SizedBox(
-                  height: 56,
-                  child: OutlinedButton.icon(
-                    onPressed: _showDialogPrice,
-                    icon: const Icon(Icons.star, size: 20),
-                    label: Text(
-                      '',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+              SizedBox(
+                height: 56,
+                child: OutlinedButton.icon(
+                  onPressed: _showDialogPrice,
+                  icon: const Icon(Icons.star, size: 20),
+                  label: Text(
+                    '',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppThemeData.primaryColor,
+                    side: const BorderSide(color: Color(0xFF6B2A02)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppThemeData.primaryColor,
-                      side: const BorderSide(color: Color(0xFF6B2A02)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                   ),
                 ),
+              ),
             ],
           ),
         ],
@@ -645,11 +643,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                 'Producto: ${selectedProduct!.producto}',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 12),
-              Text(
-                'Precio actual: \$${selectedProduct!.precioUnitario.toStringAsFixed(2)}',
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-              ),
+
               const SizedBox(height: 16),
               TextField(
                 controller: newPricingController,

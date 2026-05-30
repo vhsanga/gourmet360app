@@ -6,6 +6,7 @@ import 'package:Gourmet360/models/dashboard_ventas.dart';
 import 'package:Gourmet360/models/despachos_chofer.dart';
 import 'package:Gourmet360/models/gastos.dart';
 import 'package:Gourmet360/models/producto_restante.dart';
+import 'package:Gourmet360/models/ventas_totales_dia.dart';
 import 'package:Gourmet360/services/http_service.dart';
 import 'package:Gourmet360/core/constants/api_constants.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ class AdminViewModel extends ChangeNotifier {
   List<ClienteVentas> clientesVentas = [];
   List<ClienteVentaDia> clientesVentaDias = [];
   List<ProductoRestante> productosRestantes = [];
+  List<VentasTotalesDia> ventasTotalesDias = [];
 
   Future<void> fetchDashboardDataToday(String userToken) async {
     isLoading = true;
@@ -37,6 +39,27 @@ class AdminViewModel extends ChangeNotifier {
         response.data['despachos'],
       );
       dashboardVentas = DashboardVentas.fromJson(response.data['ventas']);
+    } catch (e) {
+      error = e.toString().replaceAll('Exception:', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchVentasTotalesDia(String userToken) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      final response = await HttpService.doGet(
+        ApiConstants.ventasTotalesDiaAdminEndpoint,
+        userToken,
+      );
+      ventasTotalesDias = (response.data as List<dynamic>)
+          .map((e) => VentasTotalesDia.fromJson(e))
+          .toList();
     } catch (e) {
       error = e.toString().replaceAll('Exception:', '');
     } finally {
