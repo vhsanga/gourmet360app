@@ -1,10 +1,14 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/core/utils/cutom_utils.dart';
+import 'package:Gourmet360/models/cortesias.dart';
+import 'package:Gourmet360/models/devoluciones.dart';
 import 'package:Gourmet360/models/gastos.dart';
 import 'package:Gourmet360/models/producto_restante.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
+import 'package:Gourmet360/views/templates/dialog_productos_cortesias_list.dart';
+import 'package:Gourmet360/views/templates/dialog_productos_devueltos_list.dart';
 import 'package:Gourmet360/views/templates/dialog_productos_sobrantes_list.dart';
 import 'package:Gourmet360/views/templates/dialog_registro_gasto.dart';
 import 'package:Gourmet360/views/templates/dialogs_widget.dart';
@@ -33,6 +37,8 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
 
   int returnedProducts = 0;
 
+  int cortesiasProducts = 0;
+
   int remainingProducts = 0;
 
   // Datos financieros
@@ -53,6 +59,10 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
   List<ProductoRestante> productosRestantes = [];
 
   List<Gasto> gastos = [];
+
+  List<Cortesias> cortesias = [];
+
+  List<Devoluciones> devoluciones = [];
 
   double get totalToDeliver {
     return soldAmount - expensesToday;
@@ -88,6 +98,11 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
 
       productosRestantes = adminVM.productosRestantes;
       gastos = adminVM.gastos;
+      cortesias = adminVM.cortesias;
+      devoluciones = adminVM.devoluciones;
+      cortesiasProducts = cortesias.fold(0, (sum, c) => sum + c.cantidad);
+      returnedProducts = devoluciones.fold(0, (sum, d) => sum + d.cantidad);
+      remainingProducts = assignedProducts - soldProducts - returnedProducts;
       if (mounted) setState(() {});
     }
   }
@@ -114,6 +129,22 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
     }
     if (!mounted) return;
     DialogProductosSobrantes.showDialogSobrantesList(productosRestantes);
+  }
+
+  Future<void> _showCortesiasDialog() async {
+    if (cortesias.isEmpty) {
+      // Implement loading logic if needed
+    }
+    if (!mounted) return;
+    DialogProductosCortesias.showDialogCortesiasList(cortesias);
+  }
+
+  Future<void> _showDevueltosDialog() async {
+    if (devoluciones.isEmpty) {
+      // Implement loading logic if needed
+    }
+    if (!mounted) return;
+    DialogProductosDevueltos.showDialogList(devoluciones);
   }
 
   @override
@@ -160,7 +191,6 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
           if (vm.despachosChofer != null) {
             assignedProducts = vm.despachosChofer!.cantidad_asignada.toInt();
             soldProducts = vm.despachosChofer!.cantidad_entregada.toInt();
-            returnedProducts = vm.despachosChofer!.cantidad_devuelta.toInt();
             remainingProducts = vm.despachosChofer!.cantidad_restante.toInt();
             soldAmount = vm.despachosChofer!.ventas_contado;
             accountsReceivableToday = vm.despachosChofer!.ventas_credito;
@@ -170,6 +200,15 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
             transferencia = vm.despachosChofer!.transferencia;
             expensesToday = vm.despachosChofer!.gastos;
             fechaUltimoDespachoPendiente = vm.despachosChofer!.fecha;
+            cortesias = vm.cortesias;
+            devoluciones = vm.devoluciones;
+            cortesiasProducts = cortesias.fold(0, (sum, c) => sum + c.cantidad);
+            returnedProducts = devoluciones.fold(
+              0,
+              (sum, d) => sum + d.cantidad,
+            );
+            remainingProducts =
+                assignedProducts - soldProducts - returnedProducts;
           }
           return SafeArea(
             child: Column(
@@ -357,11 +396,24 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
             Colors.green.shade700,
           ),
           const SizedBox(height: 12),
-          _buildProductStatRow(
-            'Devueltos/Cambiados',
-            returnedProducts,
-            Icons.keyboard_return,
-            Colors.orange.shade700,
+          InkWell(
+            onTap: _showDevueltosDialog,
+            child: _buildProductStatRow(
+              'Devueltos/Cambiados',
+              returnedProducts,
+              Icons.inventory,
+              Colors.grey.shade600,
+            ),
+          ),
+          const SizedBox(height: 12),
+          InkWell(
+            onTap: _showCortesiasDialog,
+            child: _buildProductStatRow(
+              'Cortesias (yapas)',
+              cortesiasProducts,
+              Icons.inventory,
+              Colors.grey.shade600,
+            ),
           ),
           const SizedBox(height: 12),
           InkWell(

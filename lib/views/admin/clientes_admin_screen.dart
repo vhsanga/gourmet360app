@@ -19,7 +19,7 @@ class ClientesAdminScreen extends StatefulWidget {
 
 class _ClientesAdminScreenState extends State<ClientesAdminScreen> {
   String _searchQuery = '';
-
+  Usuario? _userSession;
   @override
   void initState() {
     super.initState();
@@ -27,9 +27,11 @@ class _ClientesAdminScreenState extends State<ClientesAdminScreen> {
   }
 
   void _loadData() {
-    final user = context.read<UserProvider>().usuario;
-    if (user != null) {
-      context.read<ClienteViewModel>().listarClientesForAdmin(user.accessToken);
+    _userSession = context.read<UserProvider>().usuario;
+    if (_userSession != null) {
+      context.read<ClienteViewModel>().listarClientesForAdmin(
+        _userSession!.accessToken,
+      );
     }
   }
 
@@ -323,6 +325,13 @@ class _ClientesAdminScreenState extends State<ClientesAdminScreen> {
                       _mostrarDialogoEditarCliente(cliente);
                     }
                     if (value == 'eliminar') {
+                      if(_userSession == null || _userSession!.rol != 'admin') {
+                        DialogsWidget.showError(
+                          title: 'Acceso denegado',
+                          message: 'No tienes permisos para eliminar. Solo el administrador puede eliminar clientes.',
+                        );
+                        return;
+                      }
                       _eliminarCliente(cliente);
                     }
                   },

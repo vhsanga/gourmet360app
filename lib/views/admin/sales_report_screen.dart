@@ -12,6 +12,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:Gourmet360/core/themes/app_theme_data.dart';
+import 'package:Gourmet360/models/cortesias.dart';
+import 'package:Gourmet360/models/devoluciones.dart';
+import 'package:Gourmet360/views/templates/dialog_productos_cortesias_list.dart';
+import 'package:Gourmet360/views/templates/dialog_productos_devueltos_list.dart';
 
 class SalesReportScreen extends StatefulWidget {
   CamionAsignado camionAsignado;
@@ -39,6 +43,8 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
 
   int returnedProducts = 0;
 
+  int cortesiasProducts = 0;
+
   int remainingProducts = 0;
 
   // Datos financieros
@@ -55,6 +61,10 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
   double expensesToday = 0.00;
 
   DateTime fechaUltimoDespachoPendiente = DateTime.now();
+
+  List<Cortesias> cortesias = [];
+
+  List<Devoluciones> devoluciones = [];
 
   double get totalToDeliver {
     return soldAmount - expensesToday;
@@ -93,7 +103,13 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
       );
 
       productosRestantes = adminVM.productosRestantes;
-      gastos = adminVM.gastos ?? [];
+      gastos = adminVM.gastos;
+      cortesias = adminVM.cortesias;
+      devoluciones = adminVM.devoluciones;
+      cortesiasProducts = cortesias.fold(0, (sum, c) => sum + c.cantidad);
+      returnedProducts = devoluciones.fold(0, (sum, d) => sum + d.cantidad);
+      remainingProducts =
+                assignedProducts - soldProducts - returnedProducts;
       if (mounted) setState(() {});
     }
   }
@@ -129,6 +145,22 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
     }
     if (!mounted) return;
     DialogoGastosDetalles.showDialogGastosList(gastos);
+  }
+
+  Future<void> _showCortesiasDialog() async {
+    if (cortesias.isEmpty) {
+      // Implement loading logic if needed
+    }
+    if (!mounted) return;
+    DialogProductosCortesias.showDialogCortesiasList(cortesias);
+  }
+
+  Future<void> _showDevueltosDialog() async {
+    if (devoluciones.isEmpty) {
+      // Implement loading logic if needed
+    }
+    if (!mounted) return;
+    DialogProductosDevueltos.showDialogList(devoluciones);
   }
 
   @override
@@ -175,7 +207,6 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
           if (vm.despachosChofer != null) {
             assignedProducts = vm.despachosChofer!.cantidad_asignada.toInt();
             soldProducts = vm.despachosChofer!.cantidad_entregada.toInt();
-            returnedProducts = vm.despachosChofer!.cantidad_devuelta.toInt();
             remainingProducts =
                 assignedProducts - soldProducts - returnedProducts;
             soldAmount = vm.despachosChofer!.ventas_contado;
@@ -465,11 +496,24 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
             Colors.green.shade700,
           ),
           const SizedBox(height: 12),
-          _buildProductStatRow(
-            'Devueltos/Cambiados',
-            returnedProducts,
-            Icons.keyboard_return,
-            Colors.orange.shade700,
+          InkWell(
+            onTap: _showDevueltosDialog,
+            child: _buildProductStatRow(
+              'Devueltos/Cambiados',
+              returnedProducts,
+              Icons.inventory,
+              Colors.grey.shade600,
+            ),
+          ),
+          const SizedBox(height: 12),
+          InkWell(
+            onTap: _showCortesiasDialog,
+            child: _buildProductStatRow(
+              'Cortesias (yapas)',
+              cortesiasProducts,
+              Icons.inventory,
+              Colors.grey.shade600,
+            ),
           ),
           const SizedBox(height: 12),
           InkWell(

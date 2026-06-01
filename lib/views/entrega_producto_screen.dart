@@ -161,7 +161,8 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
       userToken = userState.token ?? '';
     }
 
-    final double efectivo = double.tryParse(efectivoController.text) ?? 0.0;
+    final double efectivo =
+        double.tryParse(efectivoController.text.replaceAll(',', '.')) ?? 0.0;
     final double transferencia =
         double.tryParse(transferenciaController.text) ?? 0.0;
     if (efectivo + transferencia > totalAmount) {
@@ -463,7 +464,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              product.cantidadRestante.toString(),
+                              product.cantidadRestante.round().toString(),
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
@@ -523,7 +524,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
           if (selectedProduct != null) ...[
             const SizedBox(height: 8),
             Text(
-              'Stock disponible: ${selectedProduct!.cantidadRestante} unidades',
+              'Stock disponible: ${selectedProduct!.cantidadRestante.round()} unidades',
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
           ],
@@ -548,10 +549,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                   decoration: InputDecoration(
                     hintText: '0',
                     hintStyle: TextStyle(color: Colors.grey.shade400),
-                    prefixIcon: const Icon(
-                      Icons.inventory_2_outlined,
-                      color: Color(0xFF6B2A02),
-                    ),
+
                     filled: true,
                     fillColor: AppThemeData.backgroundColor,
                     border: OutlineInputBorder(
@@ -575,27 +573,8 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
-              SizedBox(
-                height: 56,
-                child: ElevatedButton.icon(
-                  onPressed: _addProduct,
-                  icon: const Icon(Icons.add, size: 20),
-                  label: Text(
-                    'Agregar',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppThemeData.primaryColor,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
+
+              const SizedBox(width: 10),
               SizedBox(
                 height: 56,
                 child: OutlinedButton.icon(
@@ -608,6 +587,26 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppThemeData.primaryColor,
                     side: const BorderSide(color: Color(0xFF6B2A02)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              SizedBox(
+                height: 50,
+                child: ElevatedButton.icon(
+                  onPressed: _addProduct,
+                  icon: const Icon(Icons.add, size: 20),
+                  label: Text(
+                    'Agregar',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppThemeData.primaryColor,
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -768,11 +767,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Agrega productos para crear la venta',
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
-              ),
+             
             ],
           ),
         ),
@@ -959,7 +954,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
             controller: efectivoController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+              FilteringTextInputFormatter.allow(RegExp(r'^\d+[.,]?\d{0,2}')),
             ],
             decoration: InputDecoration(
               labelText: 'Efectivo',
@@ -976,7 +971,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
               ),
             ),
             onChanged: (value) {
-              final abono = double.tryParse(value) ?? 0;
+              final abono = double.tryParse(value.replaceAll(',', '.')) ?? 0;
               if (abono > totalAmount && totalAmount > 0) {
                 efectivoController.text = totalAmount.toStringAsFixed(2);
                 efectivoController.selection = TextSelection.fromPosition(

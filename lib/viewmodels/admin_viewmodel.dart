@@ -1,9 +1,11 @@
 import 'package:Gourmet360/core/utils/cutom_utils.dart';
 import 'package:Gourmet360/models/cliente_venta_dia.dart';
 import 'package:Gourmet360/models/cliente_ventas.dart';
+import 'package:Gourmet360/models/cortesias.dart';
 import 'package:Gourmet360/models/dashboard_despachos.dart';
 import 'package:Gourmet360/models/dashboard_ventas.dart';
 import 'package:Gourmet360/models/despachos_chofer.dart';
+import 'package:Gourmet360/models/devoluciones.dart';
 import 'package:Gourmet360/models/gastos.dart';
 import 'package:Gourmet360/models/producto_restante.dart';
 import 'package:Gourmet360/models/ventas_totales_dia.dart';
@@ -20,6 +22,8 @@ class AdminViewModel extends ChangeNotifier {
   DashboardVentas? dashboardVentas;
   DespachosChofer? despachosChofer;
   List<Gasto> gastos = [];
+  List<Cortesias> cortesias = [];
+  List<Devoluciones> devoluciones = [];
   List<ClienteVentas> clientesVentas = [];
   List<ClienteVentaDia> clientesVentaDias = [];
   List<ProductoRestante> productosRestantes = [];
@@ -83,13 +87,21 @@ class AdminViewModel extends ChangeNotifier {
       );
       despachosChofer = DespachosChofer.fromJson(
         response.data['despachos'],
-        response.data['devoluciones'],
         response.data['ventasHoy'],
         response.data['cuentasPorCobrar'],
       );
       gastos = (response.data['gastos'] as List<dynamic>)
           .map((e) => Gasto.fromJson(e))
           .toList();
+      cortesias = (response.data['cortesias'] as List<dynamic>)
+          .map((e) => Cortesias.fromJson(e))
+          .toList();
+      devoluciones = (response.data['devoluciones'] as List<dynamic>)
+          .map((e) => Devoluciones.fromJson(e))
+          .toList();
+      print(
+        'Gastos: ${gastos.length}, Cortesias: ${cortesias.length}, Devoluciones: ${devoluciones.length}',
+      );  
     } catch (e) {
       error = e.toString().replaceAll('Exception:', '');
     } finally {

@@ -4,6 +4,7 @@ import 'package:Gourmet360/models/dashboard_ventas.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
 import 'package:Gourmet360/views/admin/cliente_report_screen.dart';
+import 'package:Gourmet360/views/admin/clientes_admin_screen.dart';
 import 'package:Gourmet360/views/admin/clientes_ventas_screen.dart';
 import 'package:Gourmet360/views/admin/drivers_list_screen.dart';
 import 'package:Gourmet360/views/admin/mapa_camiones_screen.dart';
@@ -197,6 +198,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 MaterialPageRoute(builder: (context) => const WelcomeScreen()),
                 (Route<dynamic> route) => false,
               );
+            } else if (value == 4) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ClientesAdminScreen()),
+              );
             }
           },
           itemBuilder: (context) => [
@@ -207,6 +213,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   Icon(Icons.local_shipping_outlined, color: Color(0xFF6B2A02)),
                   SizedBox(width: 10),
                   Text("Conductores"),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 4,
+              child: Row(
+                children: const [
+                  Icon(Icons.person_2_sharp, color: Color(0xFF6B2A02)),
+                  SizedBox(width: 10),
+                  Text("Administracion de Clientes"),
                 ],
               ),
             ),
@@ -690,14 +706,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(
-                      Icons.people_rounded,
+                      Icons.attach_money,
                       color: Colors.blue.shade700,
                       size: 32,
                     ),
                   ),
 
                   const Text(
-                    'Clientes',
+                    'Ventas Clientes',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

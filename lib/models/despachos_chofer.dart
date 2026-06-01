@@ -2,7 +2,6 @@ class DespachosChofer {
   final double cantidad_asignada;
   final double cantidad_entregada;
   final double cantidad_restante;
-  final double cantidad_devuelta;
   final double ventas_credito;
   final double ventas_contado;
   final double efectivo;
@@ -15,7 +14,6 @@ class DespachosChofer {
     required this.cantidad_asignada,
     required this.cantidad_entregada,
     required this.cantidad_restante,
-    required this.cantidad_devuelta,
     required this.ventas_credito,
     required this.ventas_contado,
     required this.efectivo,
@@ -27,7 +25,6 @@ class DespachosChofer {
 
   factory DespachosChofer.fromJson(
     Map<String, dynamic> jsonDespachos,
-    Map<String, dynamic> jsonDevoluciones,
     Map<String, dynamic> jsonVentasHoy,
     Map<String, dynamic> jsonCuentasPorCobrar,
   ) {
@@ -45,11 +42,6 @@ class DespachosChofer {
       cantidad_restante:
           double.tryParse(
             jsonDespachos['cantidad_restante']?.toString() ?? '0',
-          ) ??
-          0,
-      cantidad_devuelta:
-          double.tryParse(
-            jsonDevoluciones['cantidad_devuelta']?.toString() ?? '0',
           ) ??
           0,
       ventas_credito:

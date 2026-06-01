@@ -1,5 +1,6 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/models/cliente.dart';
+import 'package:Gourmet360/models/cliente_ventas.dart';
 import 'package:Gourmet360/models/despacho.dart';
 import 'package:Gourmet360/models/producto_asignados.dart';
 import 'package:Gourmet360/models/usuario.dart';
@@ -8,6 +9,7 @@ import 'package:Gourmet360/viewmodels/home_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/localtion_viewmodel.dart';
 import 'package:Gourmet360/views/admin/clientes_ventas_screen.dart';
 import 'package:Gourmet360/views/chofer_sales_report_screen.dart';
+import 'package:Gourmet360/views/client_history_sales_screen.dart';
 import 'package:Gourmet360/views/entrega_producto_screen.dart';
 import 'package:Gourmet360/views/templates/dialog_cortesia.dart';
 import 'package:Gourmet360/views/templates/dialog_devolucion_productos.dart';
@@ -36,6 +38,9 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   Usuario? userSession;
   Despacho? despacho;
   bool isConected = false;
+  bool _sortByName = false;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -63,6 +68,12 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
         );*/
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -179,7 +190,9 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                             _buildStatsCards(),
                             const SizedBox(height: 24),
                             _buildSectionTitle('Mis Clientes'),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 8),
+                            _buildSearchField(),
+                            const SizedBox(height: 12),
                             _buildDeliveryList(),
                             const SizedBox(height: 16),
                             if (clientes.isEmpty) _buildRegisterButton(context),
@@ -287,7 +300,6 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
       children: [
         Expanded(
           child: _buildStatCard(
-            icon: Icons.attach_money_outlined,
             value: '${despacho?.totalVentas.toStringAsFixed(2) ?? '0.00'}',
             label: 'Efectivo',
             color: Colors.green,
@@ -303,7 +315,6 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
               );
             },
             child: _buildStatCard(
-              icon: Icons.pending_outlined,
               value: '${completedToday}/${clientes.length}',
               label: 'Clientes',
               color: Colors.orange,
@@ -323,7 +334,6 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
               );
             },
             child: _buildStatCard(
-              icon: Icons.bakery_dining_rounded,
               value: despacho?.asignado.toString() ?? '0',
               label: 'Productos',
               color: Colors.blue,
@@ -335,7 +345,6 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   }
 
   Widget _buildStatCard({
-    required IconData icon,
     required String value,
     required String label,
     required Color color,
@@ -355,8 +364,6 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 32),
-          const SizedBox(height: 12),
           Text(
             value,
             style: const TextStyle(
@@ -378,6 +385,36 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
     );
   }
 
+  Widget _buildSearchField() {
+    return TextField(
+      controller: _searchController,
+      onChanged: (value) =>
+          setState(() => _searchQuery = value.trim().toLowerCase()),
+      decoration: InputDecoration(
+        hintText: 'Buscar cliente...',
+        hintStyle: TextStyle(fontSize: 13, color: Colors.grey.shade400),
+        prefixIcon: Icon(Icons.search, size: 18, color: Colors.grey.shade400),
+        suffixIcon: _searchQuery.isNotEmpty
+            ? IconButton(
+                icon: Icon(Icons.close, size: 16, color: Colors.grey.shade400),
+                onPressed: () {
+                  _searchController.clear();
+                  setState(() => _searchQuery = '');
+                },
+              )
+            : null,
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(vertical: 8),
+        filled: true,
+        fillColor: Colors.grey.shade100,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+      ),
+    );
+  }
+
   Widget _buildSectionTitle(String title) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -390,21 +427,55 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
             color: Color(0xFF6B2A02),
           ),
         ),
-        IconButton(
-          onPressed: () {
-            _mostrarDialogoRegistro(context);
-          },
-          icon: const Icon(Icons.add_circle_outline, size: 32),
+        Row(
+          children: [
+            IconButton(
+              tooltip: _sortByName ? 'Quitar orden A-Z' : 'Ordenar A-Z',
+              onPressed: () => setState(() => _sortByName = !_sortByName),
+              icon: Icon(
+                Icons.sort_by_alpha_sharp,
+                size: 28,
+                color: _sortByName ? AppThemeData.primaryColor : Colors.grey,
+              ),
+            ),
+            IconButton(
+              onPressed: () {
+                _mostrarDialogoRegistro(context);
+              },
+              icon: const Icon(Icons.add_circle_outline, size: 32),
+            ),
+          ],
         ),
       ],
     );
   }
 
   Widget _buildDeliveryList() {
-    return Column(
-      children: clientes
-          .map((delivery) => _buildDeliveryCard(delivery))
-          .toList(),
+    var list = _sortByName
+        ? ([...clientes]
+            ..sort((a, b) => a.nombreCliente.compareTo(b.nombreCliente)))
+        : clientes;
+    if (_searchQuery.isNotEmpty) {
+      list = list
+          .where((c) => c.nombreCliente.toLowerCase().contains(_searchQuery))
+          .toList();
+    }
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      transitionBuilder: (child, animation) {
+        final slide = Tween<Offset>(
+          begin: const Offset(0, 0.04),
+          end: Offset.zero,
+        ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut));
+        return FadeTransition(
+          opacity: animation,
+          child: SlideTransition(position: slide, child: child),
+        );
+      },
+      child: Column(
+        key: ValueKey('$_sortByName-$_searchQuery'),
+        children: list.map((delivery) => _buildDeliveryCard(delivery)).toList(),
+      ),
     );
   }
 
@@ -468,6 +539,15 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   }
 
   Widget _buildDeliveryCard(Cliente cliente) {
+    ClienteVentas clienteVentas = ClienteVentas(
+      id: cliente.idCliente,
+      nombre: cliente.nombreCliente,
+      contacto: cliente.telefonoCliente,
+      direccion: cliente.direccionCliente,
+      ventaContadoHoy: 0.0,
+      dedudaAcumulada: 0.0,
+      especial: cliente.especial,
+    );
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -492,12 +572,34 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
             children: [
               Row(
                 children: [
-                  Text(
-                    cliente.nombreCliente,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF6B2A02),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ClientHistorySalesScreen(cliente: clienteVentas),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(6),
+                    splashColor: const Color(0xFF6B2A02).withValues(alpha: 0.2),
+                    highlightColor: const Color(
+                      0xFF6B2A02,
+                    ).withValues(alpha: 0.1),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 2,
+                      ),
+                      child: Text(
+                        cliente.nombreCliente,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF6B2A02),
+                        ),
+                      ),
                     ),
                   ),
                 ],
