@@ -39,8 +39,10 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   Despacho? despacho;
   bool isConected = false;
   bool _sortByName = false;
+  bool _showOtherChoferes = false;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  String choferID = '';
 
   @override
   void initState() {
@@ -50,7 +52,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
       if (userProvider.status == UserStatus.loaded &&
           userProvider.usuario != null) {
         userSession = userProvider.usuario;
-        final choferID = userProvider.usuario!.id;
+        choferID = userProvider.usuario!.id;
         context.read<HomeViewModel>().getDataHome(
           userSession!.id,
           userSession!.accessToken,
@@ -189,7 +191,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                           children: [
                             _buildStatsCards(),
                             const SizedBox(height: 24),
-                            _buildSectionTitle('Mis Clientes'),
+                            _buildSectionTitle(),
                             const SizedBox(height: 8),
                             _buildSearchField(),
                             const SizedBox(height: 12),
@@ -415,20 +417,38 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF6B2A02),
-          ),
+        Row(
+          children: [
+            Text(
+              _showOtherChoferes ? 'Clientes de otros' : 'Mis Clientes',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF6B2A02),
+              ),
+            ),
+          ],
         ),
         Row(
           children: [
+            IconButton(
+              tooltip: _showOtherChoferes
+                  ? 'Ver mis clientes'
+                  : 'Ver otros choferes',
+              onPressed: () =>
+                  setState(() => _showOtherChoferes = !_showOtherChoferes),
+              icon: Icon(
+                _showOtherChoferes
+                    ? Icons.people_alt
+                    : Icons.people_alt_outlined,
+                size: 28,
+                color: _showOtherChoferes ? Colors.orange : Colors.grey,
+              ),
+            ),
             IconButton(
               tooltip: _sortByName ? 'Quitar orden A-Z' : 'Ordenar A-Z',
               onPressed: () => setState(() => _sortByName = !_sortByName),
@@ -455,6 +475,13 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
         ? ([...clientes]
             ..sort((a, b) => a.nombreCliente.compareTo(b.nombreCliente)))
         : clientes;
+    list = list
+        .where(
+          (c) => _showOtherChoferes
+              ? c.idChofer.toString() != choferID
+              : c.idChofer.toString() == choferID,
+        )
+        .toList();
     if (_searchQuery.isNotEmpty) {
       list = list
           .where((c) => c.nombreCliente.toLowerCase().contains(_searchQuery))
@@ -473,7 +500,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
         );
       },
       child: Column(
-        key: ValueKey('$_sortByName-$_searchQuery'),
+        key: ValueKey('$_sortByName-$_searchQuery-$_showOtherChoferes'),
         children: list.map((delivery) => _buildDeliveryCard(delivery)).toList(),
       ),
     );
@@ -567,27 +594,23 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              ClientHistorySalesScreen(cliente: clienteVentas),
-                        ),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(6),
-                    splashColor: const Color(0xFF6B2A02).withValues(alpha: 0.2),
-                    highlightColor: const Color(
-                      0xFF6B2A02,
-                    ).withValues(alpha: 0.1),
-                    child: Padding(
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      ClientHistorySalesScreen(cliente: clienteVentas),
+                ),
+              );
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 4,
                         vertical: 2,
@@ -601,12 +624,18 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              if (cliente.entregado > 0)
-                Icon(Icons.check_circle, color: Colors.green),
-            ],
+                    if (cliente.entregado > 0)
+                      Icon(Icons.verified, color: Colors.blue, size: 22),
+                  ],
+                ),
+                if (cliente.diasDeuda == 0)
+                  Icon(Icons.circle, color: Colors.green, size: 22),
+                if (cliente.diasDeuda == 1)
+                  Icon(Icons.circle, color: Colors.orange, size: 22),
+                if (cliente.diasDeuda > 1)
+                  Icon(Icons.circle, color: Colors.red, size: 22),
+              ],
+            ),
           ),
           const SizedBox(height: 8),
           Row(

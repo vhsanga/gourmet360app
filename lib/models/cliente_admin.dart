@@ -41,8 +41,10 @@ class ClienteAdmin {
       contacto: json['contacto'] ?? '',
       telefono: json['telefono'] ?? '',
       especial: json['especial'] == true || json['especial'] == 1,
-      saldoActual: double.tryParse(json['saldoActual']?.toString() ?? '0') ?? 0.0,
-      fechaRegistro: DateTime.tryParse(json['fechaRegistro'] ?? '') ?? DateTime.now(),
+      saldoActual:
+          double.tryParse(json['saldoActual']?.toString() ?? '0') ?? 0.0,
+      fechaRegistro:
+          DateTime.tryParse(json['fechaRegistro'] ?? '') ?? DateTime.now(),
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
       createdBy: json['createdBy']?.toString(),
@@ -54,6 +56,7 @@ class ClienteAdmin {
 
   Cliente toCliente() => Cliente(
     idCliente: id,
+    idChofer: '',
     nombreCliente: nombre,
     direccionCliente: direccion,
     telefonoCliente: telefono,
@@ -64,6 +67,7 @@ class ClienteAdmin {
     entregado: 0,
     createdAt: createdAt,
     updatedAt: updatedAt,
+    diasDeuda: 0,
   );
 
   Map<String, dynamic> toJson() => {

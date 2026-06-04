@@ -10,6 +10,7 @@ class ProductoAsignado {
   final double cantidadEntregada;
   final double cantidadRestante;
   final double cantidadAsignada;
+  int cantidad = 0;
 
   ProductoAsignado({
     required this.idDespachoDetalle,

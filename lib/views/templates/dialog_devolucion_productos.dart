@@ -3,6 +3,7 @@ import 'package:Gourmet360/core/themes/app_theme_data.dart';
 import 'package:Gourmet360/models/cliente.dart';
 import 'package:Gourmet360/models/despacho.dart';
 import 'package:Gourmet360/models/producto.dart';
+import 'package:Gourmet360/models/producto_asignados.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/producto_viewmodel.dart';
@@ -33,7 +34,7 @@ class DialogoDevolucionProductos extends StatefulWidget {
 class _DialogoDevolucionProductosState
     extends State<DialogoDevolucionProductos> {
   final _formKey = GlobalKey<FormState>();
-  List<Producto> _productos = [];
+  List<ProductoAsignado> _productosAsignados = [];
   final Map<String, TextEditingController> _controllers = {};
   Usuario? userSession;
   final List<Map<String, dynamic>> _itemsAsignados = [];
@@ -53,11 +54,13 @@ class _DialogoDevolucionProductosState
       print("Cargando lista de conductores para admin...");
 
       userSession = userProvider.usuario;
-      context.read<ProductoViewModel>().listarProductosForAdmin(
+      context.read<ProductoViewModel>().listarProductosCliente(
+        int.parse(userSession!.id),
+        int.parse(widget.cliente.idCliente),
         userSession!.accessToken,
       );
-      for (var product in _productos) {
-        _controllers[product.id.toString()] = TextEditingController();
+      for (var product in _productosAsignados) {
+        _controllers[product.productoId.toString()] = TextEditingController();
       }
     }
   }
@@ -71,15 +74,18 @@ class _DialogoDevolucionProductosState
   }
 
   int get totalProducts {
-    return _productos.fold(0, (sum, product) => sum + product.cantidad);
+    return _productosAsignados.fold(
+      0,
+      (sum, product) => sum + product.cantidad,
+    );
   }
 
   void _guardarDevolucion() async {
     if (_formKey.currentState!.validate()) {
       final choferVM = context.read<ChoferViewModel>();
-      final detalles = _productos
+      final detalles = _productosAsignados
           .where((p) => p.cantidad > 0)
-          .map((p) => {'productoId': p.id, 'cantidad': p.cantidad})
+          .map((p) => {'productoId': int.parse(p.productoId), 'cantidad': p.cantidad})
           .toList();
       Map<String, dynamic> data = {
         "cantidad": totalProducts,
@@ -173,7 +179,6 @@ class _DialogoDevolucionProductosState
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.grey[50],
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: Colors.grey[200]!),
                   ),
@@ -251,19 +256,19 @@ class _DialogoDevolucionProductosState
                         ),
                       );
                     }
-                    if (vm.productos.isEmpty) {
+                    if (vm.productosAsignados.isEmpty) {
                       return Center(
                         child: Column(
                           children: [
                             SizedBox(height: 50),
-                            Text('No hay productos para despacho'),
+                            Text('No hay productos para cambios'),
                             SizedBox(height: 4),
                           ],
                         ),
                       );
                     }
-                    if (vm.productos.isNotEmpty) {
-                      _productos = vm.productos;
+                    if (vm.productosAsignados.isNotEmpty) {
+                      _productosAsignados = vm.productosAsignados;
                     }
                     return _buildProductsList();
                   },
@@ -343,13 +348,13 @@ class _DialogoDevolucionProductosState
 
   Widget _buildProductsList() {
     return Column(
-      children: _productos
+      children: _productosAsignados
           .map((product) => _buildProductCard(product))
           .toList(),
     );
   }
 
-  Widget _buildProductCard(Producto product) {
+  Widget _buildProductCard(ProductoAsignado product) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(8),
@@ -383,24 +388,40 @@ class _DialogoDevolucionProductosState
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              product.nombre,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: AppThemeData.primaryColor,
-                              ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 12),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  product.producto,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppThemeData.primaryColor,
+                                  ),
+                                  softWrap: true,
+                                ),
+                                Text(
+                                  'Stock: ${product.cantidadRestante.round()}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: product.cantidadRestante == 0
+                                        ? Colors.red
+                                        : Colors.grey,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                         Container(
-                          width: 120,
+                          width: 110,
                           child: TextField(
-                            controller: _controllers[product.id],
+                            enabled: product.cantidadRestante != 0,
+                            controller: _controllers[product.productoId],
                             keyboardType: TextInputType.number,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
@@ -454,11 +475,13 @@ class _DialogoDevolucionProductosState
     );
   }
 
-  void _updateQuantity(Producto producto, String value) {
+  void _updateQuantity(ProductoAsignado producto, String value) {
     final quantity = int.tryParse(value) ?? 0;
-    int productId = producto.id;
+    String productId = producto.productoId;
     setState(() {
-      final product = _productos.firstWhere((p) => p.id == productId);
+      final product = _productosAsignados.firstWhere(
+        (p) => p.productoId == productId,
+      );
       product.cantidad = quantity;
       _itemsAsignados.add({"producto": producto, "cantidad": quantity});
     });

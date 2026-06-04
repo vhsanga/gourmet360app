@@ -1,5 +1,6 @@
 class Cliente {
   final String idCliente;
+  final String idChofer;
   final String nombreCliente;
   final String direccionCliente;
   final String telefonoCliente;
@@ -8,11 +9,13 @@ class Cliente {
   final bool especial;
   final String observacion;
   final int entregado;
+  final int diasDeuda;
   final DateTime createdAt;
   final DateTime updatedAt;
 
   Cliente({
     required this.idCliente,
+    required this.idChofer,
     required this.nombreCliente,
     required this.direccionCliente,
     required this.telefonoCliente,
@@ -23,11 +26,13 @@ class Cliente {
     required this.createdAt,
     required this.updatedAt,
     required this.entregado,
+    required this.diasDeuda,
   });
 
   factory Cliente.fromJson(Map<String, dynamic> json) {
     return Cliente(
       idCliente: json['idCliente']?.toString() ?? '',
+      idChofer: json['idChofer']?.toString() ?? '',
       nombreCliente: json['nombreCliente'] ?? '',
       direccionCliente: json['direccionCliente'] ?? '',
       telefonoCliente: json['telefonoCliente'] ?? '',
@@ -40,6 +45,7 @@ class Cliente {
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
       entregado: int.tryParse((json['entregado'] ?? 0).toString()) ?? 0,
+      diasDeuda: int.tryParse((json['diasDeuda'] ?? 0).toString()) ?? 0,
     );
   }
 
@@ -53,5 +59,6 @@ class Cliente {
     'observacion': observacion,
     'createdAt': createdAt.toIso8601String(),
     'updatedAt': updatedAt.toIso8601String(),
+    'diasDeuda': diasDeuda,
   };
 }

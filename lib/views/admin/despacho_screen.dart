@@ -292,12 +292,12 @@ class _DespachoScreenState extends State<DespachoScreen> {
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Column(
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 12),
+                            child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -308,6 +308,7 @@ class _DespachoScreenState extends State<DespachoScreen> {
                                     fontWeight: FontWeight.bold,
                                     color: AppThemeData.primaryColor,
                                   ),
+                                  softWrap: true,
                                 ),
                                 Text(
                                   'Categoría: ${product.categoriaNombre}',
@@ -323,46 +324,46 @@ class _DespachoScreenState extends State<DespachoScreen> {
                                     color: Colors.grey,
                                   ),
                                 ),
+                                if (product.cantidad > 0) ...[
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 2,
+                                      horizontal: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green.shade50,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          'Subtotal: ',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          '\$${(product.cantidad * product.precioUnitario).toStringAsFixed(2)}',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.green.shade700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
-                            if (product.cantidad > 0) ...[
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 2,
-                                  horizontal: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.green.shade50,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      'Subtotal: ',
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.grey.shade600,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      '\$${(product.cantidad * product.precioUnitario).toStringAsFixed(2)}',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.green.shade700,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ],
+                          ),
                         ),
                         Row(
                           children: [
                             Container(
-                              width: 120,
+                              width: 110,
                               child: TextField(
                                 controller: _controllers[product.id],
                                 keyboardType: TextInputType.number,

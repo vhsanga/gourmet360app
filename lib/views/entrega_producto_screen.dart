@@ -165,13 +165,6 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
         double.tryParse(efectivoController.text.replaceAll(',', '.')) ?? 0.0;
     final double transferencia =
         double.tryParse(transferenciaController.text) ?? 0.0;
-    if (efectivo + transferencia > totalAmount) {
-      _showSnackBar(
-        'El pago ingresado (\$${(efectivo + transferencia).toStringAsFixed(2)}) supera el total (\$${totalAmount.toStringAsFixed(2)})',
-        isError: true,
-      );
-      return;
-    }
 
     // Aquí iría la lógica para guardar el pedido
     final orderData = {
@@ -767,7 +760,6 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-             
             ],
           ),
         ),
@@ -970,24 +962,6 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                 ),
               ),
             ),
-            onChanged: (value) {
-              final abono = double.tryParse(value.replaceAll(',', '.')) ?? 0;
-              if (abono > totalAmount && totalAmount > 0) {
-                efectivoController.text = totalAmount.toStringAsFixed(2);
-                efectivoController.selection = TextSelection.fromPosition(
-                  TextPosition(offset: efectivoController.text.length),
-                );
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'El efectivo no puede superar el total: \$${totalAmount.toStringAsFixed(2)}',
-                    ),
-                    backgroundColor: Colors.red.shade700,
-                    duration: const Duration(seconds: 2),
-                  ),
-                );
-              }
-            },
           ),
           const SizedBox(height: 16),
           TextFormField(
