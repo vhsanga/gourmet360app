@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/models/cliente.dart';
 import 'package:Gourmet360/models/producto_asignados.dart';
@@ -166,6 +167,22 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
     final double transferencia =
         double.tryParse(transferenciaController.text) ?? 0.0;
 
+    if (efectivo + transferencia == 0) {
+      final completer = Completer<bool>();
+      DialogsWidget.showConfirmation(
+        title: '¿Guardar sin cobrar?',
+        message:
+            '¿Está seguro de guardar la venta sin cobrar? Esta venta se guardará como deuda.',
+        confirmText: 'Sí, guardar',
+        cancelText: 'Cancelar',
+        isDangerous: true,
+        onConfirm: () => completer.complete(true),
+        onCancel: () => completer.complete(false),
+      );
+      final confirmed = await completer.future;
+      if (!confirmed) return;
+    }
+
     // Aquí iría la lógica para guardar el pedido
     final orderData = {
       'detalles': orderItems
@@ -238,18 +255,16 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
     );
   }
 
-  void _loadData() {
+  Future<void> _loadData() async {
     final userProvider = context.read<UserProvider>();
     if (userProvider.status == UserStatus.loaded &&
         userProvider.usuario != null) {
       userSession = userProvider.usuario;
-      context.read<ProductoViewModel>().listarProductosCliente(
+      await context.read<ProductoViewModel>().listarProductosCliente(
         int.parse(userSession!.id),
         int.parse(widget.cliente.idCliente),
         userSession!.accessToken,
       );
-    } else {
-      print("No hay sesión de usuario activa.");
     }
   }
 
@@ -286,32 +301,35 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                   productos = vm.productosAsignados;
                 }
                 return Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildSectionTitle('Agregar Productos'),
-                        const SizedBox(height: 16),
-                        _buildProductForm(),
-                        const SizedBox(height: 24),
-                        _buildSectionTitle('Productos en el Pedido'),
-                        const SizedBox(height: 4),
-                        Text(
-                          '$totalItems unidades',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
-                            fontWeight: FontWeight.w600,
+                  child: RefreshIndicator(
+                    onRefresh: _loadData,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionTitle('Agregar Productos'),
+                          const SizedBox(height: 16),
+                          _buildProductForm(),
+                          const SizedBox(height: 24),
+                          _buildSectionTitle('Productos en el Pedido'),
+                          const SizedBox(height: 4),
+                          Text(
+                            '$totalItems unidades',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        _buildOrderItemsList(),
-                        const SizedBox(height: 24),
-                        _buildTotalCard(),
-                        const SizedBox(height: 24),
-                        _buildBottomBar(),
-                      ],
+                          const SizedBox(height: 12),
+                          _buildOrderItemsList(),
+                          const SizedBox(height: 24),
+                          _buildTotalCard(),
+                          const SizedBox(height: 24),
+                          _buildBottomBar(),
+                        ],
+                      ),
                     ),
                   ),
                 );

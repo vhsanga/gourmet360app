@@ -60,6 +60,8 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
 
   double expensesToday = 0.00;
 
+  double cobrado = 0.00;
+
   DateTime fechaUltimoDespachoPendiente = DateTime.now();
 
   List<Cortesias> cortesias = [];
@@ -108,8 +110,12 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
       devoluciones = adminVM.devoluciones;
       cortesiasProducts = cortesias.fold(0, (sum, c) => sum + c.cantidad);
       returnedProducts = devoluciones.fold(0, (sum, d) => sum + d.cantidad);
+      soldProducts = soldProducts - cortesiasProducts - returnedProducts;
       remainingProducts =
-                assignedProducts - soldProducts - returnedProducts;
+          assignedProducts -
+          soldProducts -
+          cortesiasProducts -
+          returnedProducts;
       if (mounted) setState(() {});
     }
   }
@@ -207,8 +213,13 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
           if (vm.despachosChofer != null) {
             assignedProducts = vm.despachosChofer!.cantidad_asignada.toInt();
             soldProducts = vm.despachosChofer!.cantidad_entregada.toInt();
+            soldProducts = soldProducts - cortesiasProducts - returnedProducts;
+            cobrado = vm.despachosChofer!.cobrado;
             remainingProducts =
-                assignedProducts - soldProducts - returnedProducts;
+                assignedProducts -
+                soldProducts -
+                cortesiasProducts -
+                returnedProducts;
             soldAmount = vm.despachosChofer!.ventas_contado;
             accountsReceivableToday = vm.despachosChofer!.ventas_credito;
             accountsReceivableAccumulated =
@@ -223,26 +234,29 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
               children: [
                 _buildHeader(context),
                 Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildDriverInfoCard(),
-                        const SizedBox(height: 24),
-                        _buildSectionTitle('Reporte de Productos'),
-                        const SizedBox(height: 12),
-                        _buildProductsReportCard(),
-                        const SizedBox(height: 24),
-                        _buildSectionTitle('Reporte Financiero'),
-                        const SizedBox(height: 12),
-                        _buildFinancialReportCard(),
-                        const SizedBox(height: 24),
-                        _buildTotalToDeliverCard(),
-                        const SizedBox(height: 24),
-                        _buildRegisterButton(),
-                        const SizedBox(height: 24),
-                      ],
+                  child: RefreshIndicator(
+                    onRefresh: _loadData,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildDriverInfoCard(),
+                          const SizedBox(height: 24),
+                          _buildSectionTitle('Reporte de Productos'),
+                          const SizedBox(height: 12),
+                          _buildProductsReportCard(),
+                          const SizedBox(height: 24),
+                          _buildSectionTitle('Reporte Financiero'),
+                          const SizedBox(height: 12),
+                          _buildFinancialReportCard(),
+                          const SizedBox(height: 24),
+                          _buildTotalToDeliverCard(),
+                          const SizedBox(height: 24),
+                          _buildRegisterButton(),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -648,6 +662,15 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
           ),
           const SizedBox(height: 12),
           _buildFinancialStatRow(
+            'Cobrado hoy',
+            cobrado,
+            Icons.monetization_on,
+            Colors.blue,
+            isWarning: false,
+            isPositive: true,
+          ),
+          const SizedBox(height: 12),
+          _buildFinancialStatRow(
             'Cuentas por Cobrar (Hoy)',
             accountsReceivableToday,
             Icons.schedule,
@@ -689,16 +712,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
     bool isNegative = false,
     bool isWarning = false,
   }) {
-    Color backgroundColor;
-    if (isPositive) {
-      backgroundColor = Colors.green.shade50;
-    } else if (isNegative) {
-      backgroundColor = Colors.red.shade50;
-    } else if (isWarning) {
-      backgroundColor = Colors.orange.shade50;
-    } else {
-      backgroundColor = const Color(0xFFF5E2C8).withOpacity(0.3);
-    }
+    Color backgroundColor = color.withOpacity(0.1);
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -730,11 +744,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: isPositive
-                  ? Colors.green.shade700
-                  : isNegative
-                  ? Colors.red.shade700
-                  : Colors.orange.shade700,
+              color: color,
             ),
           ),
         ],

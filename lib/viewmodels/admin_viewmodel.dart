@@ -101,7 +101,7 @@ class AdminViewModel extends ChangeNotifier {
           .toList();
       print(
         'Gastos: ${gastos.length}, Cortesias: ${cortesias.length}, Devoluciones: ${devoluciones.length}',
-      );  
+      );
     } catch (e) {
       error = e.toString().replaceAll('Exception:', '');
     } finally {
@@ -135,13 +135,15 @@ class AdminViewModel extends ChangeNotifier {
   Future<void> getResumenVentasClientesForAdminEndpoint(
     String fecha,
     String userToken,
+    String rol,
+    String idUsuario,
   ) async {
     isLoading = true;
     error = null;
     notifyListeners();
     try {
       final response = await HttpService.doGet(
-        ApiConstants.getResumenVentasClientesForAdminEndpoint + fecha,
+        '${ApiConstants.getResumenVentasClientesForAdminEndpoint}$fecha?rol=$rol&idchofer=$idUsuario',
         userToken,
       );
       clientesVentas = (response.data as List<dynamic>)

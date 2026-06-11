@@ -325,10 +325,12 @@ class _ClientesAdminScreenState extends State<ClientesAdminScreen> {
                       _mostrarDialogoEditarCliente(cliente);
                     }
                     if (value == 'eliminar') {
-                      if(_userSession == null || _userSession!.rol != 'admin') {
+                      if (_userSession == null ||
+                          _userSession!.rol != 'admin') {
                         DialogsWidget.showError(
                           title: 'Acceso denegado',
-                          message: 'No tienes permisos para eliminar. Solo el administrador puede eliminar clientes.',
+                          message:
+                              'No tienes permisos para eliminar. Solo el administrador puede eliminar clientes.',
                         );
                         return;
                       }
@@ -376,16 +378,6 @@ class _ClientesAdminScreenState extends State<ClientesAdminScreen> {
               ],
             ),
             const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildSaldoChip(cliente.saldoActual),
-                Text(
-                  'Reg. ${_formatFecha(cliente.fechaRegistro)}',
-                  style: TextStyle(fontSize: 11, color: Colors.grey[500]),
-                ),
-              ],
-            ),
           ],
         ),
       ),
@@ -424,40 +416,6 @@ class _ClientesAdminScreenState extends State<ClientesAdminScreen> {
           fontWeight: FontWeight.bold,
           color: AppThemeData.primaryColor,
         ),
-      ),
-    );
-  }
-
-  Widget _buildSaldoChip(double saldo) {
-    final hasDebt = saldo > 0;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: hasDebt
-            ? const Color(0xFFef4444).withValues(alpha: 0.1)
-            : Colors.green.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            hasDebt
-                ? Icons.account_balance_wallet_outlined
-                : Icons.check_circle_outline,
-            size: 13,
-            color: hasDebt ? const Color(0xFFef4444) : Colors.green,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            'Saldo: \$${saldo.toStringAsFixed(2)}',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: hasDebt ? const Color(0xFFef4444) : Colors.green,
-            ),
-          ),
-        ],
       ),
     );
   }

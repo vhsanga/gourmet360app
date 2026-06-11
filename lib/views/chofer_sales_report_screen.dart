@@ -54,6 +54,8 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
 
   double expensesToday = 0.00;
 
+  double cobrado = 0.00;
+
   DateTime fechaUltimoDespachoPendiente = DateTime.now();
 
   List<ProductoRestante> productosRestantes = [];
@@ -100,9 +102,15 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
       gastos = adminVM.gastos;
       cortesias = adminVM.cortesias;
       devoluciones = adminVM.devoluciones;
+      cobrado = adminVM.despachosChofer?.cobrado ?? 0;
       cortesiasProducts = cortesias.fold(0, (sum, c) => sum + c.cantidad);
       returnedProducts = devoluciones.fold(0, (sum, d) => sum + d.cantidad);
-      remainingProducts = assignedProducts - soldProducts - returnedProducts;
+      soldProducts = soldProducts - cortesiasProducts - returnedProducts;
+      remainingProducts =
+          assignedProducts -
+          soldProducts -
+          cortesiasProducts -
+          returnedProducts;
       if (mounted) setState(() {});
     }
   }
@@ -191,13 +199,19 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
           if (vm.despachosChofer != null) {
             assignedProducts = vm.despachosChofer!.cantidad_asignada.toInt();
             soldProducts = vm.despachosChofer!.cantidad_entregada.toInt();
-            remainingProducts = vm.despachosChofer!.cantidad_restante.toInt();
+            soldProducts = soldProducts - cortesiasProducts - returnedProducts;
+            remainingProducts =
+                assignedProducts -
+                soldProducts -
+                cortesiasProducts -
+                returnedProducts;
             soldAmount = vm.despachosChofer!.ventas_contado;
             accountsReceivableToday = vm.despachosChofer!.ventas_credito;
             accountsReceivableAccumulated =
                 vm.despachosChofer!.cuentas_por_cobrar;
             efectivo = vm.despachosChofer!.efectivo;
             transferencia = vm.despachosChofer!.transferencia;
+            cobrado = vm.despachosChofer!.cobrado;
             expensesToday = vm.despachosChofer!.gastos;
             fechaUltimoDespachoPendiente = vm.despachosChofer!.fecha;
             cortesias = vm.cortesias;
@@ -207,30 +221,31 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
               0,
               (sum, d) => sum + d.cantidad,
             );
-            remainingProducts =
-                assignedProducts - soldProducts - returnedProducts;
           }
           return SafeArea(
             child: Column(
               children: [
                 _buildHeader(context),
                 Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildSectionTitle('Reporte de Productos'),
-                        const SizedBox(height: 12),
-                        _buildProductsReportCard(),
-                        const SizedBox(height: 24),
-                        _buildSectionTitle('Reporte Financiero'),
-                        const SizedBox(height: 12),
-                        _buildFinancialReportCard(),
-                        const SizedBox(height: 24),
-                        _buildTotalToDeliverCard(),
-                        const SizedBox(height: 24),
-                      ],
+                  child: RefreshIndicator(
+                    onRefresh: _loadData,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionTitle('Reporte de Productos'),
+                          const SizedBox(height: 12),
+                          _buildProductsReportCard(),
+                          const SizedBox(height: 24),
+                          _buildSectionTitle('Reporte Financiero'),
+                          const SizedBox(height: 12),
+                          _buildFinancialReportCard(),
+                          const SizedBox(height: 24),
+                          _buildTotalToDeliverCard(),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -507,6 +522,15 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
           ),
           const SizedBox(height: 12),
           _buildFinancialStatRow(
+            'Cobrado hoy',
+            cobrado,
+            Icons.monetization_on,
+            Colors.blue,
+            isWarning: false,
+            isPositive: true,
+          ),
+          const SizedBox(height: 12),
+          _buildFinancialStatRow(
             'Cuentas por Cobrar (Hoy)',
             accountsReceivableToday,
             Icons.schedule,
@@ -542,16 +566,7 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
     bool isNegative = false,
     bool isWarning = false,
   }) {
-    Color backgroundColor;
-    if (isPositive) {
-      backgroundColor = Colors.green.shade50;
-    } else if (isNegative) {
-      backgroundColor = Colors.red.shade50;
-    } else if (isWarning) {
-      backgroundColor = Colors.orange.shade50;
-    } else {
-      backgroundColor = const Color(0xFFF5E2C8).withOpacity(0.3);
-    }
+    Color backgroundColor = color.withOpacity(0.1);
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -583,11 +598,7 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: isPositive
-                  ? Colors.green.shade700
-                  : isNegative
-                  ? Colors.red.shade700
-                  : Colors.orange.shade700,
+              color: color,
             ),
           ),
         ],

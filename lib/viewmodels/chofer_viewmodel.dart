@@ -72,6 +72,7 @@ class ChoferViewModel extends ChangeNotifier {
         ApiConstants.saveRegistrarClienteEndpoint,
         params,
         userToken,
+        queueIfOffline: true,
       );
       msj = response.mensaje;
       notifyListeners();
@@ -122,6 +123,7 @@ class ChoferViewModel extends ChangeNotifier {
         ApiConstants.saveRegistrarGastoEndpoint,
         params,
         userToken,
+        queueIfOffline: true,
       );
       msj = response.mensaje;
       notifyListeners();
@@ -202,6 +204,7 @@ class ChoferViewModel extends ChangeNotifier {
         ApiConstants.saveDevolucionesClienteEndpoint,
         params,
         userToken,
+        queueIfOffline: true,
       );
       msj = response.mensaje;
       notifyListeners();

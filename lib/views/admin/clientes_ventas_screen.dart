@@ -76,21 +76,23 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
     });
   }
 
-  void _loadData() {
+  Future<void> _loadData() async {
     final userProvider = context.read<UserProvider>();
 
     if (userProvider.status == UserStatus.loaded &&
         userProvider.usuario != null) {
       userSession = userProvider.usuario;
 
-      context.read<AdminViewModel>().getResumenVentasClientesForAdminEndpoint(
-        _fechaSeleccionada != null
-            ? CustomUils.formatDateToString(_fechaSeleccionada!)
-            : CustomUils.fechaActual(),
-        userSession!.accessToken,
-      );
-    } else {
-      print("No hay sesión de usuario activa.");
+      await context
+          .read<AdminViewModel>()
+          .getResumenVentasClientesForAdminEndpoint(
+            _fechaSeleccionada != null
+                ? CustomUils.formatDateToString(_fechaSeleccionada!)
+                : CustomUils.fechaActual(),
+            userSession!.accessToken,
+            userSession!.rol,
+            userSession!.id.toString()
+          );
     }
   }
 
@@ -255,7 +257,9 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
   }
 
   Widget _buildDataTable() {
-    return SingleChildScrollView(
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      child: SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -376,6 +380,7 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 

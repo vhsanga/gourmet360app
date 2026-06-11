@@ -1,12 +1,13 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/models/cliente.dart';
+import 'package:Gourmet360/services/connectivity_service.dart';
+import 'package:Gourmet360/services/sync_queue_service.dart';
 import 'package:Gourmet360/models/cliente_ventas.dart';
 import 'package:Gourmet360/models/despacho.dart';
 import 'package:Gourmet360/models/producto_asignados.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/home_viewmodel.dart';
-import 'package:Gourmet360/viewmodels/localtion_viewmodel.dart';
 import 'package:Gourmet360/views/admin/clientes_ventas_screen.dart';
 import 'package:Gourmet360/views/chofer_sales_report_screen.dart';
 import 'package:Gourmet360/views/client_history_sales_screen.dart';
@@ -81,8 +82,10 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<HomeViewModel>();
-    final locationVm = context.watch<LocationViewModel>();
     final userProvider = context.read<UserProvider>();
+    final connectivity = context.watch<ConnectivityService>();
+    final syncQueue = context.watch<SyncQueueService>();
+    isConected = connectivity.isOnline;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -90,7 +93,23 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
+            _buildHeader(syncQueue),
+            if (!isConected)
+              Container(
+                width: double.infinity,
+                color: Colors.orange.shade700,
+                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+                child: const Row(
+                  children: [
+                    Icon(Icons.offline_bolt, color: Colors.white, size: 16),
+                    SizedBox(width: 8),
+                    Text(
+                      'Sin conexión — mostrando datos guardados',
+                      style: TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
             Expanded(
               child: RefreshIndicator(
                 onRefresh: _onRefresh,
@@ -182,10 +201,6 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                           );
                           despacho = vm.despacho;
                         }
-                        if (locationVm.currentPosition != null) {
-                          isConected = true;
-                        }
-
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -219,7 +234,7 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
     ); // ← TU método (API + estados)
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(SyncQueueService syncQueue) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -262,7 +277,45 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
               children: [nombreChofer()],
             ),
           ),
-          Icon(isConected ? Icons.wifi : Icons.wifi_off, color: Colors.white),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              if (syncQueue.isSyncing)
+                const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              else
+                Icon(
+                  isConected ? Icons.wifi : Icons.wifi_off,
+                  color: Colors.white,
+                ),
+              if (syncQueue.pendingCount > 0)
+                Positioned(
+                  right: -5,
+                  top: -5,
+                  child: Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: const BoxDecoration(
+                      color: Colors.orange,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '${syncQueue.pendingCount}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
           IconButton(
             onPressed: () {
               _scaffoldKey.currentState?.openEndDrawer();
@@ -418,13 +471,20 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   }
 
   Widget _buildSectionTitle() {
+    final myCount =
+        clientes.where((c) => c.idChofer.toString() == choferID).length;
+    final othersCount =
+        clientes.where((c) => c.idChofer.toString() != choferID).length;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           children: [
             Text(
-              _showOtherChoferes ? 'Clientes de otros' : 'Mis Clientes',
+              _showOtherChoferes
+                  ? 'Clientes de otros ($othersCount)'
+                  : 'Mis Clientes ($myCount)',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,

@@ -23,6 +23,7 @@ class ProductoViewModel extends ChangeNotifier {
         ApiConstants.saveVentaEndpoint,
         params,
         userToken,
+        queueIfOffline: true,
       );
       msj = response.mensaje;
       notifyListeners();
