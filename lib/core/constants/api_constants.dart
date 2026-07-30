@@ -42,6 +42,8 @@ class ApiConstants {
       '/admin/ventas-totales-dia';
 
   static const String getVentasChoferHoy = '/admin/ventas-chofer-hoy/';
+  static const String getVentasCreditoChoferHoy =
+      '/admin/ventas-chofer-credito-hoy/';
   static const String getCobrosChoferHoy = '/admin/cobros-chofer-hoy/';
 
   static const int connectTimeout = 5000;

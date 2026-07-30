@@ -9,6 +9,7 @@ import 'package:Gourmet360/models/despachos_chofer.dart';
 import 'package:Gourmet360/models/devoluciones.dart';
 import 'package:Gourmet360/models/gastos.dart';
 import 'package:Gourmet360/models/producto_restante.dart';
+import 'package:Gourmet360/models/venta_chofer_credito_hoy.dart';
 import 'package:Gourmet360/models/venta_chofer_hoy.dart';
 import 'package:Gourmet360/models/ventas_totales_dia.dart';
 import 'package:Gourmet360/services/http_service.dart';
@@ -31,6 +32,7 @@ class AdminViewModel extends ChangeNotifier {
   List<ProductoRestante> productosRestantes = [];
   List<VentasTotalesDia> ventasTotalesDias = [];
   List<VentaChoferHoy> ventasChoferHoy = [];
+  List<VentaChoferCreditoHoy> ventasChoferCreditoHoy = [];
   List<CobroChoferHoy> cobrosChoferHoy = [];
 
   Future<void> fetchDashboardDataToday(String userToken) async {
@@ -222,6 +224,26 @@ class AdminViewModel extends ChangeNotifier {
       );
       ventasChoferHoy = (response.data as List<dynamic>)
           .map((e) => VentaChoferHoy.fromJson(e))
+          .toList();
+    } catch (e) {
+      error = e.toString().replaceAll('Exception:', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> getVentasCreditoChoferHoy(int choferId, String userToken) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+    try {
+      final response = await HttpService.doGet(
+        ApiConstants.getVentasCreditoChoferHoy + choferId.toString(),
+        userToken,
+      );
+      ventasChoferCreditoHoy = (response.data as List<dynamic>)
+          .map((e) => VentaChoferCreditoHoy.fromJson(e))
           .toList();
     } catch (e) {
       error = e.toString().replaceAll('Exception:', '');

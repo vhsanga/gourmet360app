@@ -5,10 +5,12 @@ import 'package:Gourmet360/models/cobro_chofer_hoy.dart';
 import 'package:Gourmet360/models/gastos.dart';
 import 'package:Gourmet360/models/producto_restante.dart';
 import 'package:Gourmet360/models/usuario.dart';
+import 'package:Gourmet360/models/venta_chofer_credito_hoy.dart';
 import 'package:Gourmet360/models/venta_chofer_hoy.dart';
 import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
 import 'package:Gourmet360/views/templates/dialog_gastos_detalles.dart';
 import 'package:Gourmet360/views/templates/dialog_productos_sobrantes_list.dart';
+import 'package:Gourmet360/views/templates/dialog_ventas_chofer_credito_hoy.dart';
 import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -35,6 +37,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
   List<ProductoRestante> productosRestantes = [];
   List<VentaChoferHoy> ventasChoferHoy = [];
   List<CobroChoferHoy> cobrosChoferHoy = [];
+  List<VentaChoferCreditoHoy> ventasChoferCreditoHoy = [];
   List<Gasto> gastos = [];
 
   // Datos del conductor
@@ -118,10 +121,18 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
         userSession!.accessToken,
       );
 
+      await adminVM.getVentasCreditoChoferHoy(
+        int.parse(userSession!.id),
+        userSession!.accessToken,
+      );
+
       productosRestantes = adminVM.productosRestantes;
       gastos = adminVM.gastos;
       cortesias = adminVM.cortesias;
       devoluciones = adminVM.devoluciones;
+      ventasChoferHoy = adminVM.ventasChoferHoy;
+      cobrosChoferHoy = adminVM.cobrosChoferHoy;
+      ventasChoferCreditoHoy = adminVM.ventasChoferCreditoHoy;
       cortesiasProducts = cortesias.fold(0, (sum, c) => sum + c.cantidad);
       returnedProducts = devoluciones.fold(0, (sum, d) => sum + d.cantidad);
       soldProducts = soldProducts - cortesiasProducts - returnedProducts;
@@ -185,6 +196,25 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
     }
   }
 
+  Future<void> _loadVentasCreditoChoferHoy() async {
+    final userProvider = context.read<UserProvider>();
+    if (userProvider.status == UserStatus.loaded &&
+        userProvider.usuario != null) {
+      print("Cargando lista de ventas a crédito para admin...");
+
+      userSession = userProvider.usuario;
+      await context.read<AdminViewModel>().getVentasCreditoChoferHoy(
+        int.parse(userSession!.id),
+        userSession!.accessToken,
+      );
+      ventasChoferCreditoHoy = context
+          .read<AdminViewModel>()
+          .ventasChoferCreditoHoy;
+      gastos = context.read<AdminViewModel>().gastos ?? [];
+      if (mounted) setState(() {});
+    }
+  }
+
   Future<void> _showSobrantesDialog() async {
     if (productosRestantes.isEmpty) {
       await _loadSobrantesList();
@@ -204,6 +234,14 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
     }
     if (!mounted) return;
     DialogVentasChoferHoy.showDialogVentasList(ventasChoferHoy);
+  }
+
+  Future<void> _showVentasCreditoHoyDialog() async {
+    if (ventasChoferCreditoHoy.isEmpty) {
+      await _loadVentasCreditoChoferHoy();
+    }
+    if (!mounted) return;
+    DialogVentasChoferCreditoHoy.showDialogVentasList(ventasChoferCreditoHoy);
   }
 
   Future<void> _showCobrosHoyDialog() async {
@@ -276,6 +314,9 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
             soldProducts = vm.despachosChofer!.cantidad_entregada.toInt();
             soldProducts = soldProducts - cortesiasProducts - returnedProducts;
             cobrado = vm.despachosChofer!.cobrado;
+            ventasChoferHoy = vm.ventasChoferHoy;
+            cobrosChoferHoy = vm.cobrosChoferHoy;
+            ventasChoferCreditoHoy = vm.ventasChoferCreditoHoy;
             remainingProducts =
                 assignedProducts -
                 soldProducts -
@@ -737,12 +778,15 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          _buildFinancialStatRow(
-            'Cuentas por Cobrar (Hoy)',
-            accountsReceivableToday,
-            Icons.schedule,
-            Colors.orange,
-            isWarning: true,
+          InkWell(
+            onTap: _showVentasCreditoHoyDialog,
+            child: _buildFinancialStatRow(
+              'Cuentas por Cobrar (Hoy)',
+              accountsReceivableToday,
+              Icons.schedule,
+              Colors.orange,
+              isWarning: true,
+            ),
           ),
           const SizedBox(height: 12),
           _buildFinancialStatRow(
