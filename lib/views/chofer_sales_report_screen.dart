@@ -1,16 +1,20 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/core/utils/cutom_utils.dart';
+import 'package:Gourmet360/models/cobro_chofer_hoy.dart';
 import 'package:Gourmet360/models/cortesias.dart';
 import 'package:Gourmet360/models/devoluciones.dart';
 import 'package:Gourmet360/models/gastos.dart';
 import 'package:Gourmet360/models/producto_restante.dart';
 import 'package:Gourmet360/models/usuario.dart';
+import 'package:Gourmet360/models/venta_chofer_hoy.dart';
 import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/chofer_viewmodel.dart';
+import 'package:Gourmet360/views/templates/dialog_cobros_chofer_hoy.dart';
 import 'package:Gourmet360/views/templates/dialog_productos_cortesias_list.dart';
 import 'package:Gourmet360/views/templates/dialog_productos_devueltos_list.dart';
 import 'package:Gourmet360/views/templates/dialog_productos_sobrantes_list.dart';
 import 'package:Gourmet360/views/templates/dialog_registro_gasto.dart';
+import 'package:Gourmet360/views/templates/dialog_ventas_chofer_hoy.dart';
 import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -65,6 +69,8 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
   List<Cortesias> cortesias = [];
 
   List<Devoluciones> devoluciones = [];
+  List<VentaChoferHoy> ventasChoferHoy = [];
+  List<CobroChoferHoy> cobrosChoferHoy = [];
 
   double get totalToDeliver {
     return soldAmount - expensesToday;
@@ -94,6 +100,14 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
         userSession!.accessToken,
       );
       await adminVM.getDetalleProductosSobrantes(
+        int.parse(userSession!.id),
+        userSession!.accessToken,
+      );
+      await adminVM.getCobrosChoferHoy(
+        int.parse(userSession!.id),
+        userSession!.accessToken,
+      );
+      await adminVM.getVentasChoferHoy(
         int.parse(userSession!.id),
         userSession!.accessToken,
       );
@@ -131,6 +145,40 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
     }
   }
 
+  Future<void> _loadCobrosChoferHoy() async {
+    final userProvider = context.read<UserProvider>();
+    if (userProvider.status == UserStatus.loaded &&
+        userProvider.usuario != null) {
+      print("Cargando lista de cobros para admin...");
+
+      userSession = userProvider.usuario;
+      await context.read<AdminViewModel>().getCobrosChoferHoy(
+        int.parse(userSession!.id),
+        userSession!.accessToken,
+      );
+      cobrosChoferHoy = context.read<AdminViewModel>().cobrosChoferHoy;
+      gastos = context.read<AdminViewModel>().gastos ?? [];
+      if (mounted) setState(() {});
+    }
+  }
+
+  Future<void> _loadVentasChoferHoy() async {
+    final userProvider = context.read<UserProvider>();
+    if (userProvider.status == UserStatus.loaded &&
+        userProvider.usuario != null) {
+      print("Cargando lista de ventas para admin...");
+
+      userSession = userProvider.usuario;
+      await context.read<AdminViewModel>().getVentasChoferHoy(
+        int.parse(userSession!.id),
+        userSession!.accessToken,
+      );
+      ventasChoferHoy = context.read<AdminViewModel>().ventasChoferHoy;
+      gastos = context.read<AdminViewModel>().gastos ?? [];
+      if (mounted) setState(() {});
+    }
+  }
+
   Future<void> _showSobrantesDialog() async {
     if (productosRestantes.isEmpty) {
       await _loadSobrantesList();
@@ -153,6 +201,22 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
     }
     if (!mounted) return;
     DialogProductosDevueltos.showDialogList(devoluciones);
+  }
+
+  Future<void> _showVentasHoyDialog() async {
+    if (ventasChoferHoy.isEmpty) {
+      await _loadVentasChoferHoy();
+    }
+    if (!mounted) return;
+    DialogVentasChoferHoy.showDialogVentasList(ventasChoferHoy);
+  }
+
+  Future<void> _showCobrosHoyDialog() async {
+    if (cobrosChoferHoy.isEmpty) {
+      await _loadCobrosChoferHoy();
+    }
+    if (!mounted) return;
+    DialogCobrosChoferHoy.showDialogCobrosList(cobrosChoferHoy);
   }
 
   @override
@@ -287,7 +351,7 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Reporte de Ventas',
+                  'Reporte de Ventas.',
                   style: GoogleFonts.montserrat(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -511,23 +575,29 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildVentasHoyRow(
-            'Dinero Vendido Hoy',
-            soldAmount,
-            Icons.point_of_sale,
-            Colors.green,
-            isPositive: true,
-            efectivo: efectivo,
-            transferencia: transferencia,
+          InkWell(
+            onTap: _showVentasHoyDialog,
+            child: _buildVentasHoyRow(
+              'Dinero Vendido Hoy',
+              soldAmount,
+              Icons.point_of_sale,
+              Colors.green,
+              isPositive: true,
+              efectivo: efectivo,
+              transferencia: transferencia,
+            ),
           ),
           const SizedBox(height: 12),
-          _buildFinancialStatRow(
-            'Cobrado hoy',
-            cobrado,
-            Icons.monetization_on,
-            Colors.blue,
-            isWarning: false,
-            isPositive: true,
+          InkWell(
+            onTap: _showCobrosHoyDialog,
+            child: _buildFinancialStatRow(
+              'Cobrado hoy',
+              cobrado,
+              Icons.monetization_on,
+              Colors.blue,
+              isWarning: false,
+              isPositive: true,
+            ),
           ),
           const SizedBox(height: 12),
           _buildFinancialStatRow(

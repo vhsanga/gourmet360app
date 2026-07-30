@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 
 class DialogoCobroDeuda extends StatefulWidget {
   final int ventaId;
+  final int choferId;
 
   /// Deuda total pendiente — obligatorio para validar que el cobro no la supere
   final double deudaTotal;
@@ -14,6 +15,7 @@ class DialogoCobroDeuda extends StatefulWidget {
     super.key,
     required this.ventaId,
     required this.deudaTotal,
+    required this.choferId,
   });
 
   @override
@@ -24,6 +26,7 @@ class _DialogoCobroDeudaState extends State<DialogoCobroDeuda> {
   final _formKey = GlobalKey<FormState>();
   final _montoCtrl = TextEditingController();
   bool _guardando = false;
+  String _metodoPago = 'EFECTIVO';
 
   @override
   void dispose() {
@@ -38,7 +41,12 @@ class _DialogoCobroDeudaState extends State<DialogoCobroDeuda> {
 
     setState(() => _guardando = true);
 
-    final json = {'ventaId': widget.ventaId, 'monto': _monto};
+    final json = {
+      'ventaId': widget.ventaId,
+      'monto': _monto,
+      'metodoPago': _metodoPago,
+      'choferId': widget.choferId,
+    };
 
     // Pequeño delay para feedback visual
     Future.delayed(const Duration(milliseconds: 300), () {
@@ -63,7 +71,10 @@ class _DialogoCobroDeudaState extends State<DialogoCobroDeuda> {
               _Body(
                 montoCtrl: _montoCtrl,
                 deudaTotal: widget.deudaTotal,
+                metodoPago: _metodoPago,
                 onChanged: () => setState(() {}),
+                onMetodoPagoChanged: (value) =>
+                    setState(() => _metodoPago = value),
               ),
               _Footer(
                 monto: _monto,
@@ -145,12 +156,16 @@ class _Header extends StatelessWidget {
 class _Body extends StatelessWidget {
   final TextEditingController montoCtrl;
   final double deudaTotal;
+  final String metodoPago;
   final VoidCallback onChanged;
+  final ValueChanged<String> onMetodoPagoChanged;
 
   const _Body({
     required this.montoCtrl,
     required this.deudaTotal,
+    required this.metodoPago,
     required this.onChanged,
+    required this.onMetodoPagoChanged,
   });
 
   @override
@@ -279,6 +294,36 @@ class _Body extends StatelessWidget {
             },
             onChanged: (_) => onChanged(),
           ),
+          const SizedBox(height: 20),
+
+          // Label
+          Text(
+            'Método de pago',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+              letterSpacing: 0.3,
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // Selector de método de pago
+          SegmentedButton<String>(
+            segments: const [
+              ButtonSegment(
+                value: 'EFECTIVO',
+                label: Text('Efectivo'),
+                icon: Icon(Icons.payments_outlined, size: 18),
+              ),
+              ButtonSegment(
+                value: 'TRANSFERENCIA',
+                label: Text('Transferencia'),
+                icon: Icon(Icons.account_balance_outlined, size: 18),
+              ),
+            ],
+            selected: {metodoPago},
+            onSelectionChanged: (selection) =>
+                onMetodoPagoChanged(selection.first),
+          ),
         ],
       ),
     );
@@ -363,6 +408,6 @@ class _Footer extends StatelessWidget {
 //
 //   if (result != null) {
 //     debugPrint(result);
-//     // {"ventaId": 123, "monto": 5.0}
+//     // {"ventaId": 123, "monto": 5.0, "metodoPago": "EFECTIVO"}
 //     // Aquí puedes hacer el POST a tu API
 //   }

@@ -91,7 +91,7 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
                 : CustomUils.fechaActual(),
             userSession!.accessToken,
             userSession!.rol,
-            userSession!.id.toString()
+            userSession!.id.toString(),
           );
     }
   }
@@ -260,127 +260,127 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
     return RefreshIndicator(
       onRefresh: _loadData,
       child: SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Título con fecha y botón de calendario
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  CustomUils.formatearFecha(_fechaSeleccionada!),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF6B2A02),
+        scrollDirection: Axis.vertical,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Título con fecha y botón de calendario
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    CustomUils.formatearFecha(_fechaSeleccionada!),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF6B2A02),
+                    ),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.calendar_month),
-                  color: AppThemeData.primaryColor,
-                  tooltip: 'Seleccionar fecha',
-                  onPressed: () => _seleccionarFecha(context),
-                ),
-              ],
+                  IconButton(
+                    icon: const Icon(Icons.calendar_month),
+                    color: AppThemeData.primaryColor,
+                    tooltip: 'Seleccionar fecha',
+                    onPressed: () => _seleccionarFecha(context),
+                  ),
+                ],
+              ),
             ),
-          ),
 
-          // Tabla
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              headingRowColor: MaterialStateProperty.all(Colors.grey[50]),
-              headingRowHeight: 48,
-              dataRowMinHeight: 48,
-              dataRowMaxHeight: 90,
-              columnSpacing: 4,
-              horizontalMargin: 8,
-              columns: [
-                DataColumn(label: _buildColumnHeader('Cliente', 'nombre')),
-                DataColumn(
-                  label: _buildColumnHeader('Venta', 'ventaContadoHoy'),
-                  numeric: true,
-                ),
-                DataColumn(
-                  label: _buildColumnHeader('Crédito', 'dedudaAcumulada'),
-                  numeric: true,
-                ),
-                DataColumn(
-                  label: _buildColumnHeader('Devolución', 'devolucionHoy'),
-                  numeric: true,
-                ),
-              ],
-              rows: _clientesFiltrados.map((cliente) {
-                void onRowTap() {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          ClientHistorySalesScreen(cliente: cliente),
-                    ),
-                  );
-                }
+            // Tabla
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                headingRowColor: MaterialStateProperty.all(Colors.grey[50]),
+                headingRowHeight: 48,
+                dataRowMinHeight: 48,
+                dataRowMaxHeight: 90,
+                columnSpacing: 4,
+                horizontalMargin: 8,
+                columns: [
+                  DataColumn(label: _buildColumnHeader('Cliente', 'nombre')),
+                  DataColumn(
+                    label: _buildColumnHeader('Venta dia', 'ventaContadoHoy'),
+                    numeric: true,
+                  ),
+                  DataColumn(
+                    label: _buildColumnHeader('Total deuda', 'dedudaAcumulada'),
+                    numeric: true,
+                  ),
+                  DataColumn(
+                    label: _buildColumnHeader('Devolución', 'devolucionHoy'),
+                    numeric: true,
+                  ),
+                ],
+                rows: _clientesFiltrados.map((cliente) {
+                  void onRowTap() {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ClientHistorySalesScreen(cliente: cliente),
+                      ),
+                    );
+                  }
 
-                return DataRow(
-                  cells: [
-                    DataCell(
-                      SizedBox(
-                        width: 110,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                cliente.nombre,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 12,
+                  return DataRow(
+                    cells: [
+                      DataCell(
+                        SizedBox(
+                          width: 110,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  cliente.nombre,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                  ),
+                                  overflow: TextOverflow.visible,
+                                  softWrap: true,
+                                  maxLines: 3,
                                 ),
-                                overflow: TextOverflow.visible,
-                                softWrap: true,
-                                maxLines: 3,
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
+                        onTap: onRowTap,
                       ),
-                      onTap: onRowTap,
-                    ),
-                    DataCell(
-                      _buildMoneyChip(
-                        cliente.ventaContadoHoy,
-                        const Color(0xFF10b981),
+                      DataCell(
+                        _buildMoneyChip(
+                          cliente.ventaContadoHoy,
+                          const Color(0xFF10b981),
+                        ),
+                        onTap: onRowTap,
                       ),
-                      onTap: onRowTap,
-                    ),
-                    DataCell(
-                      _buildMoneyChip(
-                        cliente.dedudaAcumulada,
-                        cliente.dedudaAcumulada > 0
-                            ? const Color(0xFFef4444)
-                            : const Color(0xFF6b7280),
+                      DataCell(
+                        _buildMoneyChip(
+                          cliente.dedudaAcumulada,
+                          cliente.dedudaAcumulada > 0
+                              ? const Color(0xFFef4444)
+                              : const Color(0xFF6b7280),
+                        ),
+                        onTap: onRowTap,
                       ),
-                      onTap: onRowTap,
-                    ),
-                    DataCell(
-                      _buildAccountChip(
-                        cliente.devolucionHoy,
-                        const Color(0xFFf59e0b),
+                      DataCell(
+                        _buildAccountChip(
+                          cliente.devolucionHoy,
+                          const Color(0xFFf59e0b),
+                        ),
+                        onTap: onRowTap,
                       ),
-                      onTap: onRowTap,
-                    ),
-                  ],
-                );
-              }).toList(),
+                    ],
+                  );
+                }).toList(),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
 

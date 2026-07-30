@@ -197,7 +197,7 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
     bool isToday = false,
     bool isSelected = false,
   }) {
-    bool hayDeuda = (data != null && data.totalDeuda > 0);
+    bool hayDeuda = (data != null && (data.totalDeuda - data.totalPagado) > 0);
     return Container(
       width: 65,
       margin: const EdgeInsets.all(4),
@@ -238,7 +238,7 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
     );
     final data = ventasPorDia[normalized];
     final fechaLegible = CustomUils.formatearFecha(_selectedDay!);
-    bool hayDeuda = (data != null && data.totalDeuda > 0);
+    bool hayDeuda = (data != null && (data.totalDeuda - data.totalPagado) > 0);
 
     if (data == null) {
       return Card(
@@ -262,36 +262,45 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
       );
     }
 
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              'Fecha: $fechaLegible',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Cobrado: \$${data.totalContado.toStringAsFixed(2)}',
-              textAlign: TextAlign.center,
-            ),
-            Text(
-              'Deuda: \$${data.totalDeuda.toStringAsFixed(2)}',
-              textAlign: TextAlign.center,
-            ),
-            if (hayDeuda) ...[
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: () => _cobrarDeuda(data.idVenta, data.totalDeuda),
-                child: const Text('Cobrar Deuda'),
+    return Center(
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                'Fecha: $fechaLegible',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
+              const SizedBox(height: 8),
+              Text(
+                'Valor venta: \$${data.totalDeuda.toStringAsFixed(2)}',
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                'Cobrado: \$${data.totalPagado.toStringAsFixed(2)}',
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                'Deuda: \$${(data.totalDeuda - data.totalPagado).toStringAsFixed(2)}',
+                textAlign: TextAlign.center,
+              ),
+              if (hayDeuda) ...[
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () => _cobrarDeuda(
+                    data.idVenta,
+                    data.totalDeuda - data.totalPagado,
+                  ),
+                  child: const Text('Cobrar Deuda'),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -480,10 +489,13 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
     final admVM = context.read<AdminViewModel>();
     final navigator = Navigator.of(context, rootNavigator: true);
 
-    final result = await showDialog<Map<String, num>>(
+    final result = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (_) =>
-          DialogoCobroDeuda(ventaId: idVenta, deudaTotal: valorDeuda),
+      builder: (_) => DialogoCobroDeuda(
+        ventaId: idVenta,
+        deudaTotal: valorDeuda,
+        choferId: int.parse(userSession!.id),
+      ),
     );
 
     if (result != null) {

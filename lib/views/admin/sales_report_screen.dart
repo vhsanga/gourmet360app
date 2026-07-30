@@ -1,9 +1,11 @@
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/core/utils/cutom_utils.dart';
 import 'package:Gourmet360/models/camion_asignado.dart';
+import 'package:Gourmet360/models/cobro_chofer_hoy.dart';
 import 'package:Gourmet360/models/gastos.dart';
 import 'package:Gourmet360/models/producto_restante.dart';
 import 'package:Gourmet360/models/usuario.dart';
+import 'package:Gourmet360/models/venta_chofer_hoy.dart';
 import 'package:Gourmet360/viewmodels/admin_viewmodel.dart';
 import 'package:Gourmet360/views/templates/dialog_gastos_detalles.dart';
 import 'package:Gourmet360/views/templates/dialog_productos_sobrantes_list.dart';
@@ -16,6 +18,8 @@ import 'package:Gourmet360/models/cortesias.dart';
 import 'package:Gourmet360/models/devoluciones.dart';
 import 'package:Gourmet360/views/templates/dialog_productos_cortesias_list.dart';
 import 'package:Gourmet360/views/templates/dialog_productos_devueltos_list.dart';
+import 'package:Gourmet360/views/templates/dialog_ventas_chofer_hoy.dart';
+import 'package:Gourmet360/views/templates/dialog_cobros_chofer_hoy.dart';
 
 class SalesReportScreen extends StatefulWidget {
   CamionAsignado camionAsignado;
@@ -29,6 +33,8 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
   Usuario? userSession;
 
   List<ProductoRestante> productosRestantes = [];
+  List<VentaChoferHoy> ventasChoferHoy = [];
+  List<CobroChoferHoy> cobrosChoferHoy = [];
   List<Gasto> gastos = [];
 
   // Datos del conductor
@@ -103,6 +109,14 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
         widget.camionAsignado.choferId,
         userSession!.accessToken,
       );
+      await adminVM.getCobrosChoferHoy(
+        widget.camionAsignado.choferId,
+        userSession!.accessToken,
+      );
+      await adminVM.getVentasChoferHoy(
+        widget.camionAsignado.choferId,
+        userSession!.accessToken,
+      );
 
       productosRestantes = adminVM.productosRestantes;
       gastos = adminVM.gastos;
@@ -137,6 +151,40 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
     }
   }
 
+  Future<void> _loadCobrosChoferHoy() async {
+    final userProvider = context.read<UserProvider>();
+    if (userProvider.status == UserStatus.loaded &&
+        userProvider.usuario != null) {
+      print("Cargando lista de cobros para admin...");
+
+      userSession = userProvider.usuario;
+      await context.read<AdminViewModel>().getCobrosChoferHoy(
+        widget.camionAsignado.choferId,
+        userSession!.accessToken,
+      );
+      cobrosChoferHoy = context.read<AdminViewModel>().cobrosChoferHoy;
+      gastos = context.read<AdminViewModel>().gastos ?? [];
+      if (mounted) setState(() {});
+    }
+  }
+
+  Future<void> _loadVentasChoferHoy() async {
+    final userProvider = context.read<UserProvider>();
+    if (userProvider.status == UserStatus.loaded &&
+        userProvider.usuario != null) {
+      print("Cargando lista de cobros para admin...");
+
+      userSession = userProvider.usuario;
+      await context.read<AdminViewModel>().getVentasChoferHoy(
+        widget.camionAsignado.choferId,
+        userSession!.accessToken,
+      );
+      ventasChoferHoy = context.read<AdminViewModel>().ventasChoferHoy;
+      gastos = context.read<AdminViewModel>().gastos ?? [];
+      if (mounted) setState(() {});
+    }
+  }
+
   Future<void> _showSobrantesDialog() async {
     if (productosRestantes.isEmpty) {
       await _loadSobrantesList();
@@ -146,11 +194,24 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
   }
 
   Future<void> _showGastosDialog() async {
-    if (gastos.isEmpty) {
-      await _loadSobrantesList();
-    }
     if (!mounted) return;
     DialogoGastosDetalles.showDialogGastosList(gastos);
+  }
+
+  Future<void> _showVentasHoyDialog() async {
+    if (ventasChoferHoy.isEmpty) {
+      await _loadVentasChoferHoy();
+    }
+    if (!mounted) return;
+    DialogVentasChoferHoy.showDialogVentasList(ventasChoferHoy);
+  }
+
+  Future<void> _showCobrosHoyDialog() async {
+    if (cobrosChoferHoy.isEmpty) {
+      await _loadCobrosChoferHoy();
+    }
+    if (!mounted) return;
+    DialogCobrosChoferHoy.showDialogCobrosList(cobrosChoferHoy);
   }
 
   Future<void> _showCortesiasDialog() async {
@@ -651,23 +712,29 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
             ],
           ),
           const SizedBox(height: 20),
-          _buildVentasHoyRow(
-            'Dinero Vendido Hoy',
-            soldAmount,
-            Icons.point_of_sale,
-            Colors.green,
-            isPositive: true,
-            efectivo: efectivo,
-            transferencia: transferencia,
+          InkWell(
+            onTap: _showVentasHoyDialog,
+            child: _buildVentasHoyRow(
+              'Dinero Vendido Hoy',
+              soldAmount,
+              Icons.point_of_sale,
+              Colors.green,
+              isPositive: true,
+              efectivo: efectivo,
+              transferencia: transferencia,
+            ),
           ),
           const SizedBox(height: 12),
-          _buildFinancialStatRow(
-            'Cobrado hoy',
-            cobrado,
-            Icons.monetization_on,
-            Colors.blue,
-            isWarning: false,
-            isPositive: true,
+          InkWell(
+            onTap: _showCobrosHoyDialog,
+            child: _buildFinancialStatRow(
+              'Cobrado hoy',
+              cobrado,
+              Icons.monetization_on,
+              Colors.blue,
+              isWarning: false,
+              isPositive: true,
+            ),
           ),
           const SizedBox(height: 12),
           _buildFinancialStatRow(
