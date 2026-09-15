@@ -208,7 +208,7 @@ class _ClientesAdminScreenState extends State<ClientesAdminScreen> {
     showDialog(
       context: context,
       builder: (_) => DialogoRegistroCliente(
-        idChofer: 0,
+        idChofer: int.parse(userSession!.id),
         userSession: userSession,
         onSuccess: _loadData,
       ),

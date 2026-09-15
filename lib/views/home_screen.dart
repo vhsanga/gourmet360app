@@ -90,29 +90,29 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
     return Scaffold(
       key: _scaffoldKey,
       endDrawer: const DrawerDriverWidget(),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(syncQueue),
-            if (!isConected)
-              Container(
-                width: double.infinity,
-                color: Colors.orange.shade700,
-                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-                child: const Row(
-                  children: [
-                    Icon(Icons.offline_bolt, color: Colors.white, size: 16),
-                    SizedBox(width: 8),
-                    Text(
-                      'Sin conexión — mostrando datos guardados',
-                      style: TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                  ],
+      body: RefreshIndicator(
+        onRefresh: _onRefresh,
+        child: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(syncQueue),
+              if (!isConected)
+                Container(
+                  width: double.infinity,
+                  color: Colors.orange.shade700,
+                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.offline_bolt, color: Colors.white, size: 16),
+                      SizedBox(width: 8),
+                      Text(
+                        'Sin conexión — mostrando datos guardados',
+                        style: TextStyle(color: Colors.white, fontSize: 12),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: _onRefresh,
+              Expanded(
                 child: SingleChildScrollView(
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
@@ -220,8 +220,8 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
