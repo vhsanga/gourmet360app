@@ -157,8 +157,9 @@ class _VentaTile extends StatelessWidget {
   const _VentaTile({required this.venta});
 
   String get _hora {
-    final h = venta.fecha.hour.toString().padLeft(2, '0');
-    final m = venta.fecha.minute.toString().padLeft(2, '0');
+    final local = venta.fecha.toLocal();
+    final h = local.hour.toString().padLeft(2, '0');
+    final m = local.minute.toString().padLeft(2, '0');
     return '$h:$m';
   }
 

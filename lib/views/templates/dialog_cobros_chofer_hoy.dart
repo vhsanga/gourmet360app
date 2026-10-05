@@ -148,8 +148,9 @@ class _CobroTile extends StatelessWidget {
   const _CobroTile({required this.cobro});
 
   String get _hora {
-    final h = cobro.fechaCobro.hour.toString().padLeft(2, '0');
-    final m = cobro.fechaCobro.minute.toString().padLeft(2, '0');
+    final local = cobro.fechaCobro.toLocal();
+    final h = local.hour.toString().padLeft(2, '0');
+    final m = local.minute.toString().padLeft(2, '0');
     return '$h:$m';
   }
 

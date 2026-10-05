@@ -90,7 +90,7 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
                 children: [
                   Text(vm.error!),
                   ElevatedButton(
-                    onPressed: () => _loadData(DateTime.now()),
+                    onPressed: () => _loadData(_focusedDay),
                     child: const Text('Reintentar'),
                   ),
                 ],
@@ -513,7 +513,7 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
           message: admVM.msj ?? 'Guardado correctamente',
           onClose: () {
             if (!mounted) return;
-            _loadData(DateTime.now());
+            _loadData(_focusedDay);
           },
         );
       } else {
