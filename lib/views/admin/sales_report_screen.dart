@@ -122,7 +122,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
       );
 
       await adminVM.getVentasCreditoChoferHoy(
-        int.parse(userSession!.id),
+        widget.camionAsignado.choferId,
         userSession!.accessToken,
       );
 
@@ -155,6 +155,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
       await context.read<AdminViewModel>().getDetalleProductosSobrantes(
         widget.camionAsignado.choferId,
         userSession!.accessToken,
+        silent: true,
       );
       productosRestantes = context.read<AdminViewModel>().productosRestantes;
       gastos = context.read<AdminViewModel>().gastos ?? [];
@@ -172,6 +173,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
       await context.read<AdminViewModel>().getCobrosChoferHoy(
         widget.camionAsignado.choferId,
         userSession!.accessToken,
+        silent: true,
       );
       cobrosChoferHoy = context.read<AdminViewModel>().cobrosChoferHoy;
       gastos = context.read<AdminViewModel>().gastos ?? [];
@@ -189,6 +191,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
       await context.read<AdminViewModel>().getVentasChoferHoy(
         widget.camionAsignado.choferId,
         userSession!.accessToken,
+        silent: true,
       );
       ventasChoferHoy = context.read<AdminViewModel>().ventasChoferHoy;
       gastos = context.read<AdminViewModel>().gastos ?? [];
@@ -204,8 +207,9 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
 
       userSession = userProvider.usuario;
       await context.read<AdminViewModel>().getVentasCreditoChoferHoy(
-        int.parse(userSession!.id),
+        widget.camionAsignado.choferId,
         userSession!.accessToken,
+        silent: true,
       );
       ventasChoferCreditoHoy = context
           .read<AdminViewModel>()

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/models/cliente.dart';
 import 'package:Gourmet360/services/connectivity_service.dart';
@@ -44,10 +46,43 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String choferID = '';
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _scrollViewKey = GlobalKey();
+  final Map<Object, GlobalKey> _cardKeys = {};
+  final List<Cliente> _renderedList = [];
+  final ValueNotifier<String?> _letterBubble = ValueNotifier<String?>(null);
+  Timer? _bubbleTimer;
+
+  void _onScrollLetter() {
+    if (!_sortByName || _renderedList.isEmpty) return;
+    final viewportBox =
+        _scrollViewKey.currentContext?.findRenderObject() as RenderBox?;
+    if (viewportBox == null || !viewportBox.attached) return;
+    final viewportTop = viewportBox.localToGlobal(Offset.zero).dy;
+    String? letter;
+    for (final c in _renderedList) {
+      final ctx = _cardKeys[c.idCliente]?.currentContext;
+      final box = ctx?.findRenderObject() as RenderBox?;
+      if (box == null || !box.attached) continue;
+      final bottom = box.localToGlobal(Offset.zero).dy + box.size.height;
+      if (bottom > viewportTop + 1) {
+        final name = c.nombreCliente.trim();
+        letter = name.isEmpty ? '#' : name[0].toUpperCase();
+        break;
+      }
+    }
+    if (letter == null) return;
+    _letterBubble.value = letter;
+    _bubbleTimer?.cancel();
+    _bubbleTimer = Timer(const Duration(milliseconds: 900), () {
+      _letterBubble.value = null;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScrollLetter);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final userProvider = context.read<UserProvider>();
       if (userProvider.status == UserStatus.loaded &&
@@ -76,6 +111,9 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _bubbleTimer?.cancel();
+    _scrollController.dispose();
+    _letterBubble.dispose();
     super.dispose();
   }
 
@@ -113,7 +151,11 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                   ),
                 ),
               Expanded(
-                child: SingleChildScrollView(
+                child: Stack(
+                  children: [
+                    SingleChildScrollView(
+                  key: _scrollViewKey,
+                  controller: _scrollController,
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Builder(
@@ -218,6 +260,47 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                       },
                     ),
                   ),
+                ),
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: Center(
+                          child: ValueListenableBuilder<String?>(
+                            valueListenable: _letterBubble,
+                            builder: (_, letter, __) => AnimatedOpacity(
+                              opacity: letter == null ? 0 : 1,
+                              duration: const Duration(milliseconds: 150),
+                              child: Container(
+                                width: 84,
+                                height: 84,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: AppThemeData.primaryColor.withOpacity(
+                                    0.92,
+                                  ),
+                                  borderRadius: BorderRadius.circular(24),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black26,
+                                      blurRadius: 10,
+                                      offset: Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Text(
+                                  letter ?? '',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 44,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -354,31 +437,22 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
     return Row(
       children: [
         Expanded(
-          child: _buildStatCard(
-            value: '${despacho?.totalVentas.toStringAsFixed(2) ?? '0.00'}',
-            label: 'Efectivo',
-            color: Colors.green,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: InkWell(
+          child: _buildActionButton(
+            label: 'Clientes hoy',
+            icon: Icons.people_alt_outlined,
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => ClientesVentasScreen()),
               );
             },
-            child: _buildStatCard(
-              value: '${completedToday}/${clientes.length}',
-              label: 'Clientes',
-              color: Colors.orange,
-            ),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: InkWell(
+          child: _buildActionButton(
+            label: 'Ventas hoy',
+            icon: Icons.receipt_long_outlined,
             onTap: () {
               Navigator.push(
                 context,
@@ -388,54 +462,46 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                 ),
               );
             },
-            child: _buildStatCard(
-              value: despacho?.asignado.toString() ?? '0',
-              label: 'Productos',
-              color: Colors.blue,
-            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildStatCard({
-    required String value,
+  Widget _buildActionButton({
     required String label,
-    required Color color,
+    required IconData icon,
+    required VoidCallback onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5E2C8),
+    return Material(
+      color: const Color(0xFFF5E2C8),
+      borderRadius: BorderRadius.circular(16),
+      elevation: 1,
+      shadowColor: Colors.black.withOpacity(0.05),
+      child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 20, color: const Color(0xFF6B2A02)),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  label,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF6B2A02),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 21,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF6B2A02),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: AppThemeData.primaryColor.withOpacity(0.7),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -547,6 +613,9 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
           .where((c) => c.nombreCliente.toLowerCase().contains(_searchQuery))
           .toList();
     }
+    _renderedList
+      ..clear()
+      ..addAll(list);
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       transitionBuilder: (child, animation) {
@@ -561,7 +630,17 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
       },
       child: Column(
         key: ValueKey('$_sortByName-$_searchQuery-$_showOtherChoferes'),
-        children: list.map((delivery) => _buildDeliveryCard(delivery)).toList(),
+        children: list
+            .map(
+              (delivery) => KeyedSubtree(
+                key: _cardKeys.putIfAbsent(
+                  delivery.idCliente,
+                  () => GlobalKey(),
+                ),
+                child: _buildDeliveryCard(delivery),
+              ),
+            )
+            .toList(),
       ),
     );
   }

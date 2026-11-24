@@ -293,9 +293,9 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
               scrollDirection: Axis.horizontal,
               child: DataTable(
                 headingRowColor: MaterialStateProperty.all(Colors.grey[50]),
-                headingRowHeight: 48,
-                dataRowMinHeight: 48,
-                dataRowMaxHeight: 90,
+                headingRowHeight: 40,
+                dataRowMinHeight: 30,
+                dataRowMaxHeight: 56,
                 columnSpacing: 4,
                 horizontalMargin: 8,
                 columns: [
@@ -454,7 +454,7 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
   Widget _buildMoneyChip(double amount, Color color) {
     if (amount == 0) {
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
         decoration: BoxDecoration(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(8),
@@ -470,7 +470,7 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
       );
     }
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
@@ -488,7 +488,7 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
 
   Widget _buildAccountChip(double amount, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
       decoration: BoxDecoration(
         color: amount > 0 ? color.withOpacity(0.1) : color.withOpacity(0),
         borderRadius: BorderRadius.circular(8),

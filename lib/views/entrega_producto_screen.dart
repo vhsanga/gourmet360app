@@ -165,7 +165,20 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
     final double efectivo =
         double.tryParse(efectivoController.text.replaceAll(',', '.')) ?? 0.0;
     final double transferencia =
-        double.tryParse(transferenciaController.text) ?? 0.0;
+        double.tryParse(transferenciaController.text.replaceAll(',', '.')) ??
+        0.0;
+
+    // No se permite cobrar más del total (se compara en centavos para evitar
+    // errores de redondeo de punto flotante).
+    final int cobradoCentavos = ((efectivo + transferencia) * 100).round();
+    final int totalCentavos = (totalAmount * 100).round();
+    if (cobradoCentavos > totalCentavos) {
+      _showSnackBar(
+        'El valor del cobro no puede ser mayor al total (\$${totalAmount.toStringAsFixed(2)})',
+        isError: true,
+      );
+      return;
+    }
 
     if (efectivo + transferencia == 0) {
       final completer = Completer<bool>();
@@ -501,6 +514,7 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
                             ),
                           if (product.precioCliente != null)
                             Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
                                   '\$${product.precioCliente!.toStringAsFixed(2)}',

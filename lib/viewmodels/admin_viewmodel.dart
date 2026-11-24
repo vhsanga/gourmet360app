@@ -191,11 +191,14 @@ class AdminViewModel extends ChangeNotifier {
 
   Future<void> getDetalleProductosSobrantes(
     int choferId,
-    String userToken,
-  ) async {
-    isLoading = true;
-    error = null;
-    notifyListeners();
+    String userToken, {
+    bool silent = false,
+  }) async {
+    if (!silent) {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+    }
     try {
       final response = await HttpService.doGet(
         ApiConstants.getDetalleProductosRestantesForAdminEndpoint +
@@ -206,17 +209,25 @@ class AdminViewModel extends ChangeNotifier {
           .map((e) => ProductoRestante.fromJson(e))
           .toList();
     } catch (e) {
-      error = e.toString().replaceAll('Exception:', '');
+      if (!silent) error = e.toString().replaceAll('Exception:', '');
     } finally {
-      isLoading = false;
-      notifyListeners();
+      if (!silent) {
+        isLoading = false;
+        notifyListeners();
+      }
     }
   }
 
-  Future<void> getVentasChoferHoy(int choferId, String userToken) async {
-    isLoading = true;
-    error = null;
-    notifyListeners();
+  Future<void> getVentasChoferHoy(
+    int choferId,
+    String userToken, {
+    bool silent = false,
+  }) async {
+    if (!silent) {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+    }
     try {
       final response = await HttpService.doGet(
         ApiConstants.getVentasChoferHoy + choferId.toString(),
@@ -226,17 +237,25 @@ class AdminViewModel extends ChangeNotifier {
           .map((e) => VentaChoferHoy.fromJson(e))
           .toList();
     } catch (e) {
-      error = e.toString().replaceAll('Exception:', '');
+      if (!silent) error = e.toString().replaceAll('Exception:', '');
     } finally {
-      isLoading = false;
-      notifyListeners();
+      if (!silent) {
+        isLoading = false;
+        notifyListeners();
+      }
     }
   }
 
-  Future<void> getVentasCreditoChoferHoy(int choferId, String userToken) async {
-    isLoading = true;
-    error = null;
-    notifyListeners();
+  Future<void> getVentasCreditoChoferHoy(
+    int choferId,
+    String userToken, {
+    bool silent = false,
+  }) async {
+    if (!silent) {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+    }
     try {
       final response = await HttpService.doGet(
         ApiConstants.getVentasCreditoChoferHoy + choferId.toString(),
@@ -246,17 +265,25 @@ class AdminViewModel extends ChangeNotifier {
           .map((e) => VentaChoferCreditoHoy.fromJson(e))
           .toList();
     } catch (e) {
-      error = e.toString().replaceAll('Exception:', '');
+      if (!silent) error = e.toString().replaceAll('Exception:', '');
     } finally {
-      isLoading = false;
-      notifyListeners();
+      if (!silent) {
+        isLoading = false;
+        notifyListeners();
+      }
     }
   }
 
-  Future<void> getCobrosChoferHoy(int choferId, String userToken) async {
-    isLoading = true;
-    error = null;
-    notifyListeners();
+  Future<void> getCobrosChoferHoy(
+    int choferId,
+    String userToken, {
+    bool silent = false,
+  }) async {
+    if (!silent) {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+    }
     try {
       final response = await HttpService.doGet(
         ApiConstants.getCobrosChoferHoy + choferId.toString(),
@@ -266,10 +293,12 @@ class AdminViewModel extends ChangeNotifier {
           .map((e) => CobroChoferHoy.fromJson(e))
           .toList();
     } catch (e) {
-      error = e.toString().replaceAll('Exception:', '');
+      if (!silent) error = e.toString().replaceAll('Exception:', '');
     } finally {
-      isLoading = false;
-      notifyListeners();
+      if (!silent) {
+        isLoading = false;
+        notifyListeners();
+      }
     }
   }
 

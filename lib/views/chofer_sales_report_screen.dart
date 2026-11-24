@@ -149,6 +149,7 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
       await context.read<AdminViewModel>().getDetalleProductosSobrantes(
         int.parse(userSession!.id),
         userSession!.accessToken,
+        silent: true,
       );
       productosRestantes = context.read<AdminViewModel>().productosRestantes;
       if (mounted) setState(() {});
@@ -165,6 +166,7 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
       await context.read<AdminViewModel>().getCobrosChoferHoy(
         int.parse(userSession!.id),
         userSession!.accessToken,
+        silent: true,
       );
       cobrosChoferHoy = context.read<AdminViewModel>().cobrosChoferHoy;
       gastos = context.read<AdminViewModel>().gastos ?? [];
@@ -182,6 +184,7 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
       await context.read<AdminViewModel>().getVentasChoferHoy(
         int.parse(userSession!.id),
         userSession!.accessToken,
+        silent: true,
       );
       ventasChoferHoy = context.read<AdminViewModel>().ventasChoferHoy;
       gastos = context.read<AdminViewModel>().gastos ?? [];
@@ -199,6 +202,7 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
       await context.read<AdminViewModel>().getVentasCreditoChoferHoy(
         int.parse(userSession!.id),
         userSession!.accessToken,
+        silent: true,
       );
       ventasChoferCreditoHoy = context
           .read<AdminViewModel>()
@@ -313,6 +317,9 @@ class _ChoferSalesReportScreenState extends State<ChoferSalesReportScreen> {
             efectivo = vm.despachosChofer!.efectivo;
             transferencia = vm.despachosChofer!.transferencia;
             cobrado = vm.despachosChofer!.cobrado;
+            ventasChoferHoy = vm.ventasChoferHoy;
+            cobrosChoferHoy = vm.cobrosChoferHoy;
+            ventasChoferCreditoHoy = vm.ventasChoferCreditoHoy;
             expensesToday = vm.despachosChofer!.gastos;
             fechaUltimoDespachoPendiente = vm.despachosChofer!.fecha;
             cortesias = vm.cortesias;

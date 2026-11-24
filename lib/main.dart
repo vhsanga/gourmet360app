@@ -169,18 +169,37 @@ class _AdminBiometricGateState extends State<AdminBiometricGate> {
   Future<void> _authenticate() async {
     final auth = LocalAuthentication();
 
+    if (mounted) setState(() => _checked = false);
+
     try {
-      bool didAuthenticate = await auth.authenticate(
+      // Si el dispositivo no tiene ningún bloqueo (huella, PIN, patrón),
+      // no hay forma de autenticar localmente: se permite el acceso, ya que
+      // el usuario ya inició sesión con sus credenciales.
+      final isSupported = await auth.isDeviceSupported();
+      if (!isSupported) {
+        if (!mounted) return;
+        setState(() {
+          _authorized = true;
+          _checked = true;
+        });
+        return;
+      }
+
+      // biometricOnly: false -> usa huella/rostro si están activos y, si no,
+      // cae al PIN / patrón / contraseña del dispositivo.
+      final didAuthenticate = await auth.authenticate(
         localizedReason: 'Acceso solo para administradores',
-        options: const AuthenticationOptions(biometricOnly: true),
+        options: const AuthenticationOptions(biometricOnly: false),
       );
 
+      if (!mounted) return;
       setState(() {
         _authorized = didAuthenticate;
         _checked = true;
       });
     } catch (e) {
-      print('Error en autenticación biométrica: $e');
+      debugPrint('Error en autenticación biométrica: $e');
+      if (!mounted) return;
       setState(() {
         _authorized = false;
         _checked = true;
@@ -198,6 +217,23 @@ class _AdminBiometricGateState extends State<AdminBiometricGate> {
       return const AdminDashboardScreen();
     }
 
-    return const Scaffold(body: Center(child: Text('Acceso denegado')));
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.lock_outline, size: 48),
+            const SizedBox(height: 12),
+            const Text('Acceso denegado'),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: _authenticate,
+              icon: const Icon(Icons.fingerprint),
+              label: const Text('Reintentar'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
