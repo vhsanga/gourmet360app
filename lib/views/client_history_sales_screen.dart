@@ -32,6 +32,10 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
   @override
   void initState() {
     super.initState();
+    // Los ViewModels son globales: descartar los datos del cliente anterior
+    // antes del primer build para no mostrarlos mezclados.
+    context.read<AdminViewModel>().limpiarResumenVentaClienteDia();
+    context.read<VentasViewModel>().limpiarDatos();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadData(DateTime.now());
     });
@@ -58,7 +62,15 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
     for (var item in clientesVentaDias) {
       final date = DateTime.parse(item.dia);
       final normalized = DateTime(date.year, date.month, date.day);
-      ventasPorDia[normalized] = item;
+      final existente = ventasPorDia[normalized];
+      ventasPorDia[normalized] = existente == null
+          ? item
+          : existente.copyWith(
+              totalContado: existente.totalContado + item.totalContado,
+              totalDeuda: existente.totalDeuda + item.totalDeuda,
+              totalPagado: existente.totalPagado + item.totalPagado,
+              totalVenta: existente.totalVenta + item.totalVenta,
+            );
     }
   }
 
@@ -98,10 +110,10 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
             );
           }
 
-          if (vm.clientesVentaDias.isNotEmpty) {
-            clientesVentaDias = vm.clientesVentaDias;
-            _mapearDatos();
-          }
+          // Siempre re-mapear (incluso si viene vacío) para no conservar
+          // datos de una consulta anterior.
+          clientesVentaDias = vm.clientesVentaDias;
+          _mapearDatos();
 
           return SingleChildScrollView(
             child: Column(
@@ -121,6 +133,9 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
                     loadVentaProductoFecha(selectedDay);
                   },
                   onPageChanged: (focusedDay) {
+                    setState(() {
+                      _selectedDay = null;
+                    });
                     _focusedDay = focusedDay;
                     _loadData(focusedDay);
                   },
@@ -158,17 +173,21 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
                         const SizedBox(height: 20),
                         const Divider(thickness: 2, height: 30),
                         _buildProductosList(
-                          ventasVM.productosVendidos,
+                          ventasVM.productosVendidos
+                              .where((p) => p.subtotal > 0)
+                              .toList(),
                           ventasVM.isLoading,
                           "Productos vendidos",
+                          true,
                         ),
                         if (ventasVM.productosCortesia.isNotEmpty) ...[
                           const SizedBox(height: 20),
                           const Divider(thickness: 2, height: 30),
                           _buildProductosList(
-                            ventasVM.productosCortesia,
+                            _agruparProductos(ventasVM.productosCortesia),
                             ventasVM.isLoading,
                             "Productos de cortesía (Yapas)",
+                            false,
                           ),
                         ],
                         if (ventasVM.productosDevueltos.isNotEmpty) ...[
@@ -178,6 +197,7 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
                             ventasVM.productosDevueltos,
                             ventasVM.isLoading,
                             "Productos devueltos",
+                            false,
                           ),
                         ],
                       ],
@@ -197,11 +217,11 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
     bool isToday = false,
     bool isSelected = false,
   }) {
-    bool hayDeuda = (data != null && (data.totalDeuda - data.totalPagado) > 0);
+    bool hayDeuda = (data != null && (data.totalVenta - data.totalPagado) > 0);
     return Container(
       width: 65,
-      margin: const EdgeInsets.all(4),
-      padding: const EdgeInsets.all(6),
+      margin: const EdgeInsets.all(2),
+      padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         color: hayDeuda
             ? Colors.red.shade200
@@ -222,7 +242,7 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
           ),
           if (data != null)
             Text(
-              '${data.totalContado.toStringAsFixed(2)}',
+              '${data.totalPagado.toStringAsFixed(2)}',
               style: const TextStyle(fontSize: 10),
             ),
         ],
@@ -238,7 +258,7 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
     );
     final data = ventasPorDia[normalized];
     final fechaLegible = CustomUils.formatearFecha(_selectedDay!);
-    bool hayDeuda = (data != null && (data.totalDeuda - data.totalPagado) > 0);
+    bool hayDeuda = (data != null && (data.totalVenta - data.totalPagado) > 0);
 
     if (data == null) {
       return Card(
@@ -278,7 +298,7 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Valor venta: \$${data.totalDeuda.toStringAsFixed(2)}',
+                'Valor venta: \$${data.totalVenta.toStringAsFixed(2)}',
                 textAlign: TextAlign.center,
               ),
               Text(
@@ -286,7 +306,7 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
                 textAlign: TextAlign.center,
               ),
               Text(
-                'Deuda: \$${(data.totalDeuda - data.totalPagado).toStringAsFixed(2)}',
+                'Deuda: \$${(data.totalVenta - data.totalPagado).toStringAsFixed(2)}',
                 textAlign: TextAlign.center,
               ),
               if (hayDeuda) ...[
@@ -294,7 +314,7 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
                 ElevatedButton(
                   onPressed: () => _cobrarDeuda(
                     data.idVenta,
-                    data.totalDeuda - data.totalPagado,
+                    (data.totalVenta - data.totalPagado),
                   ),
                   child: const Text('Cobrar Deuda'),
                 ),
@@ -306,10 +326,28 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
     );
   }
 
+  List<VentaProducto> _agruparProductos(List<VentaProducto> productos) {
+    final agrupados = <int, VentaProducto>{};
+    for (final p in productos) {
+      final existente = agrupados[p.id];
+      agrupados[p.id] = existente == null
+          ? p
+          : VentaProducto(
+              id: p.id,
+              nombre: existente.nombre,
+              cantidad: existente.cantidad + p.cantidad,
+              precioUnitario: existente.precioUnitario,
+              subtotal: existente.subtotal + p.subtotal,
+            );
+    }
+    return agrupados.values.toList();
+  }
+
   Widget _buildProductosList(
     List<VentaProducto> productos,
     bool isLoading,
     titulo,
+    bool mostrarTotales,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -373,7 +411,7 @@ class _ClientHistorySalesScreenState extends State<ClientHistorySalesScreen> {
         else ...[
           ...productos.map((p) => _buildProductoItem(p)),
           const SizedBox(height: 4),
-          _buildTotalRow(productos),
+          if (mostrarTotales) _buildTotalRow(productos),
         ],
       ],
     );

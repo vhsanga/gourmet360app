@@ -38,14 +38,12 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
       int comparison;
       switch (_sortBy) {
         case 'ventaContadoHoy':
-          comparison = a.ventaContadoHoy.compareTo(b.ventaContadoHoy);
+          comparison = a.totalVentas.compareTo(b.totalVentas);
           break;
         case 'dedudaAcumulada':
-          comparison = a.dedudaAcumulada.compareTo(b.dedudaAcumulada);
+          comparison = a.deudaTotal.compareTo(b.deudaTotal);
           break;
-        case 'devolucionHoy':
-          comparison = a.devolucionHoy.compareTo(b.devolucionHoy);
-          break;
+
         default: // nombre
           comparison = a.nombre.toLowerCase().compareTo(b.nombre.toLowerCase());
       }
@@ -57,14 +55,14 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
   double get _totalVentaContado {
     return _clientesFiltrados.fold(
       0,
-      (sum, cliente) => sum + cliente.ventaContadoHoy,
+      (sum, cliente) => sum + cliente.totalVentas,
     );
   }
 
   double get _totalDeudaAcumulada {
     return _clientesFiltrados.fold(
       0,
-      (sum, cliente) => sum + cliente.dedudaAcumulada,
+      (sum, cliente) => sum + cliente.deudaTotal,
     );
   }
 
@@ -289,93 +287,114 @@ class _ClientesVentasScreenState extends State<ClientesVentasScreen> {
             ),
 
             // Tabla
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                headingRowColor: MaterialStateProperty.all(Colors.grey[50]),
-                headingRowHeight: 40,
-                dataRowMinHeight: 30,
-                dataRowMaxHeight: 56,
-                columnSpacing: 4,
-                horizontalMargin: 8,
-                columns: [
-                  DataColumn(label: _buildColumnHeader('Cliente', 'nombre')),
-                  DataColumn(
-                    label: _buildColumnHeader('Venta dia', 'ventaContadoHoy'),
-                    numeric: true,
-                  ),
-                  DataColumn(
-                    label: _buildColumnHeader('Total deuda', 'dedudaAcumulada'),
-                    numeric: true,
-                  ),
-                  DataColumn(
-                    label: _buildColumnHeader('Devolución', 'devolucionHoy'),
-                    numeric: true,
-                  ),
-                ],
-                rows: _clientesFiltrados.map((cliente) {
-                  void onRowTap() {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            ClientHistorySalesScreen(cliente: cliente),
+            LayoutBuilder(
+              builder: (context, constraints) => SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                // La tabla ocupa como mínimo todo el ancho disponible; si el
+                // contenido es más ancho, se mantiene el scroll horizontal.
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: DataTable(
+                    headingRowColor: MaterialStateProperty.all(Colors.grey[50]),
+                    headingRowHeight: 40,
+                    dataRowMinHeight: 30,
+                    dataRowMaxHeight: 56,
+                    columnSpacing: 4,
+                    horizontalMargin: 8,
+                    columns: [
+                      DataColumn(
+                        label: _buildColumnHeader('Cliente', 'nombre'),
                       ),
-                    );
-                  }
-
-                  return DataRow(
-                    cells: [
-                      DataCell(
-                        SizedBox(
-                          width: 110,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  cliente.nombre,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 12,
-                                  ),
-                                  overflow: TextOverflow.visible,
-                                  softWrap: true,
-                                  maxLines: 3,
-                                ),
-                              ),
-                            ],
-                          ),
+                      DataColumn(
+                        label: _buildColumnHeader(
+                          'Venta dia',
+                          'ventaContadoHoy',
                         ),
-                        onTap: onRowTap,
+                        numeric: true,
                       ),
-                      DataCell(
-                        _buildMoneyChip(
-                          cliente.ventaContadoHoy,
-                          const Color(0xFF10b981),
+                      DataColumn(
+                        label: _buildColumnHeader(
+                          'Total deuda',
+                          'dedudaAcumulada',
                         ),
-                        onTap: onRowTap,
-                      ),
-                      DataCell(
-                        _buildMoneyChip(
-                          cliente.dedudaAcumulada,
-                          cliente.dedudaAcumulada > 0
-                              ? const Color(0xFFef4444)
-                              : const Color(0xFF6b7280),
-                        ),
-                        onTap: onRowTap,
-                      ),
-                      DataCell(
-                        _buildAccountChip(
-                          cliente.devolucionHoy,
-                          const Color(0xFFf59e0b),
-                        ),
-                        onTap: onRowTap,
+                        numeric: true,
                       ),
                     ],
-                  );
-                }).toList(),
+                    rows: _clientesFiltrados.map((cliente) {
+                      void onRowTap() {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ClientHistorySalesScreen(cliente: cliente),
+                          ),
+                        );
+                      }
+
+                      return DataRow(
+                        cells: [
+                          DataCell(
+                            SizedBox(
+                              width: 110,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          cliente.nombre,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 12,
+                                          ),
+                                          overflow: TextOverflow.visible,
+                                          softWrap: true,
+                                          maxLines: 3,
+                                        ),
+                                        SizedBox(height: 2),
+                                        Text(
+                                          cliente.direccion,
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            color: Color(0xFF6B2A02),
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                          softWrap: false,
+                                          maxLines: 1,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            onTap: onRowTap,
+                          ),
+                          DataCell(
+                            _buildMoneyChip(
+                              cliente.totalVentas,
+                              const Color(0xFF10b981),
+                            ),
+                            onTap: onRowTap,
+                          ),
+                          DataCell(
+                            _buildMoneyChip(
+                              cliente.deudaTotal,
+                              cliente.deudaTotal > 0
+                                  ? const Color(0xFFef4444)
+                                  : const Color(0xFF6b7280),
+                            ),
+                            onTap: onRowTap,
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ),
               ),
             ),
           ],

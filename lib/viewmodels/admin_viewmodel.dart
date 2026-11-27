@@ -35,6 +35,27 @@ class AdminViewModel extends ChangeNotifier {
   List<VentaChoferCreditoHoy> ventasChoferCreditoHoy = [];
   List<CobroChoferHoy> cobrosChoferHoy = [];
 
+  /// Limpia todos los datos sin notificar (seguro en initState/logout).
+  void limpiarDatos() {
+    isLoading = false;
+    isSuccess = false;
+    msj = null;
+    error = null;
+    dashboardDespachos = null;
+    dashboardVentas = null;
+    despachosChofer = null;
+    gastos = [];
+    cortesias = [];
+    devoluciones = [];
+    clientesVentas = [];
+    clientesVentaDias = [];
+    productosRestantes = [];
+    ventasTotalesDias = [];
+    ventasChoferHoy = [];
+    ventasChoferCreditoHoy = [];
+    cobrosChoferHoy = [];
+  }
+
   Future<void> fetchDashboardDataToday(String userToken) async {
     isLoading = true;
     error = null;
@@ -163,6 +184,12 @@ class AdminViewModel extends ChangeNotifier {
     }
   }
 
+  /// Limpia el resumen de ventas por día sin notificar (seguro en initState).
+  void limpiarResumenVentaClienteDia() {
+    clientesVentaDias = [];
+    error = null;
+  }
+
   Future<void> getResumenVentaClienteDiaRango(
     int idCliente,
     String finicio,
@@ -171,6 +198,7 @@ class AdminViewModel extends ChangeNotifier {
   ) async {
     isLoading = true;
     error = null;
+    clientesVentaDias = [];
     notifyListeners();
     try {
       final response = await HttpService.doPost(

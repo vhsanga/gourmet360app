@@ -1,3 +1,4 @@
+import 'package:Gourmet360/core/providers/session_reset.dart';
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/views/admin/clientes_admin_screen.dart';
 import 'package:Gourmet360/views/admin/clientes_ventas_screen.dart';
@@ -132,6 +133,8 @@ class _DrawerDriverWidgetState extends State<DrawerDriverWidget> {
                     iconColor: Colors.red,
                     textColor: Colors.red,
                     onTap: () async {
+                      // Limpiar antes del pop, mientras el context sigue válido.
+                      SessionReset.limpiarTodo(context);
                       Navigator.pop(context);
                       await context.read<UserProvider>().logout();
                       Navigator.pushAndRemoveUntil(

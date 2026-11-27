@@ -13,6 +13,13 @@ class LocationChoferViewModel extends ChangeNotifier {
   Set<Marker> get markers => _markers;
   bool get isLoadingMap => _isLoadingMap;
 
+  /// Limpia todos los datos sin notificar (seguro en initState/logout).
+  void limpiarDatos() {
+    _camiones = [];
+    _markers = {};
+    _isLoadingMap = false;
+  }
+
   Future<void> consultarUbicaciones(String userToken) async {
     _isLoadingMap = true;
     notifyListeners();

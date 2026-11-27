@@ -13,6 +13,16 @@ class HomeViewModel extends ChangeNotifier {
   Despacho? despacho;
   bool cerrarSesion = false;
 
+  /// Limpia todos los datos sin notificar (seguro en initState/logout).
+  void limpiarDatos() {
+    isLoading = false;
+    error = null;
+    productos = [];
+    clientes = [];
+    despacho = null;
+    cerrarSesion = false;
+  }
+
   Future<bool> getDataHome(String idChofer, String token) async {
     isLoading = true;
     error = null;

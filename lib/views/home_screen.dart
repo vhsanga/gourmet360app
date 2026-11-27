@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:Gourmet360/core/providers/session_reset.dart';
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/models/cliente.dart';
 import 'package:Gourmet360/services/connectivity_service.dart';
@@ -14,8 +15,8 @@ import 'package:Gourmet360/views/admin/clientes_ventas_screen.dart';
 import 'package:Gourmet360/views/chofer_sales_report_screen.dart';
 import 'package:Gourmet360/views/client_history_sales_screen.dart';
 import 'package:Gourmet360/views/entrega_producto_screen.dart';
-import 'package:Gourmet360/views/templates/dialog_cortesia.dart';
-import 'package:Gourmet360/views/templates/dialog_devolucion_productos.dart';
+import 'package:Gourmet360/views/templates/cortesia_launcher.dart';
+import 'package:Gourmet360/views/templates/devolucion_launcher.dart';
 import 'package:Gourmet360/views/templates/dialog_editar_cliente.dart';
 import 'package:Gourmet360/views/templates/dialog_registro_cliente.dart';
 import 'package:Gourmet360/views/templates/drawer_driver_widget.dart';
@@ -138,7 +139,10 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                 Container(
                   width: double.infinity,
                   color: Colors.orange.shade700,
-                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 6,
+                    horizontal: 16,
+                  ),
                   child: const Row(
                     children: [
                       Icon(Icons.offline_bolt, color: Colors.white, size: 16),
@@ -154,113 +158,122 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                 child: Stack(
                   children: [
                     SingleChildScrollView(
-                  key: _scrollViewKey,
-                  controller: _scrollController,
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Builder(
-                      builder: (_) {
-                        if (vm.cerrarSesion) {
-                          context.read<UserProvider>().logout().then((_) {
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const WelcomeScreen(),
-                              ),
-                              (Route<dynamic> route) => false,
+                      key: _scrollViewKey,
+                      controller: _scrollController,
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Builder(
+                          builder: (_) {
+                            if (vm.cerrarSesion) {
+                              context.read<UserProvider>().logout().then((_) {
+                                if (!context.mounted) return;
+                                SessionReset.limpiarTodo(context);
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const WelcomeScreen(),
+                                  ),
+                                  (Route<dynamic> route) => false,
+                                );
+                              });
+                            }
+                            if (vm.isLoading) {
+                              return Column(
+                                children: [
+                                  SizedBox(height: 52),
+                                  const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                ],
+                              );
+                            }
+
+                            if (vm.error != null) {
+                              return Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(height: 40),
+                                    Text(vm.error!),
+                                    SizedBox(height: 12),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        context
+                                            .read<HomeViewModel>()
+                                            .getDataHome(
+                                              userSession!.id,
+                                              userSession!.accessToken,
+                                            );
+                                      },
+                                      child: const Text('Reintentar'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+
+                            if (vm.productos.isEmpty) {
+                              return Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(height: 82),
+                                    Text(
+                                      'Todavia no hay productos asignados para hoy',
+                                    ),
+                                    SizedBox(height: 12),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        userSession = userProvider.usuario;
+                                        context
+                                            .read<HomeViewModel>()
+                                            .getDataHome(
+                                              userSession!.id,
+                                              userSession!.accessToken,
+                                            );
+                                      },
+
+                                      child: const Text('Actualizar'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                            if (vm.productos.isNotEmpty) {
+                              productos = vm.productos;
+                            }
+                            if (vm.clientes.isNotEmpty) {
+                              clientes = vm.clientes;
+                              completedToday = clientes
+                                  .where((cliente) => cliente.entregado > 0)
+                                  .toList()
+                                  .length;
+                            }
+                            if (vm.despacho != null) {
+                              context.read<UserProvider>().setDespacho(
+                                vm.despacho!.id,
+                              );
+                              despacho = vm.despacho;
+                            }
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildStatsCards(),
+                                const SizedBox(height: 24),
+                                _buildSectionTitle(),
+                                const SizedBox(height: 8),
+                                _buildSearchField(),
+                                const SizedBox(height: 12),
+                                _buildDeliveryList(),
+                                const SizedBox(height: 16),
+                                if (clientes.isEmpty)
+                                  _buildRegisterButton(context),
+                              ],
                             );
-                          });
-                        }
-                        if (vm.isLoading) {
-                          return Column(
-                            children: [
-                              SizedBox(height: 52),
-                              const Center(child: CircularProgressIndicator()),
-                            ],
-                          );
-                        }
-
-                        if (vm.error != null) {
-                          return Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(height: 40),
-                                Text(vm.error!),
-                                SizedBox(height: 12),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    context.read<HomeViewModel>().getDataHome(
-                                      userSession!.id,
-                                      userSession!.accessToken,
-                                    );
-                                  },
-                                  child: const Text('Reintentar'),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-
-                        if (vm.productos.isEmpty) {
-                          return Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(height: 82),
-                                Text(
-                                  'Todavia no hay productos asignados para hoy',
-                                ),
-                                SizedBox(height: 12),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    userSession = userProvider.usuario;
-                                    context.read<HomeViewModel>().getDataHome(
-                                      userSession!.id,
-                                      userSession!.accessToken,
-                                    );
-                                  },
-
-                                  child: const Text('Actualizar'),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-                        if (vm.productos.isNotEmpty) {
-                          productos = vm.productos;
-                        }
-                        if (vm.clientes.isNotEmpty) {
-                          clientes = vm.clientes;
-                          completedToday = clientes
-                              .where((cliente) => cliente.entregado > 0)
-                              .toList()
-                              .length;
-                        }
-                        if (vm.despacho != null) {
-                          context.read<UserProvider>().setDespacho(
-                            vm.despacho!.id,
-                          );
-                          despacho = vm.despacho;
-                        }
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildStatsCards(),
-                            const SizedBox(height: 24),
-                            _buildSectionTitle(),
-                            const SizedBox(height: 8),
-                            _buildSearchField(),
-                            const SizedBox(height: 12),
-                            _buildDeliveryList(),
-                            const SizedBox(height: 16),
-                            if (clientes.isEmpty) _buildRegisterButton(context),
-                          ],
-                        );
-                      },
+                          },
+                        ),
+                      ),
                     ),
-                  ),
-                ),
                     Positioned.fill(
                       child: IgnorePointer(
                         child: Center(
@@ -537,10 +550,12 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
   }
 
   Widget _buildSectionTitle() {
-    final myCount =
-        clientes.where((c) => c.idChofer.toString() == choferID).length;
-    final othersCount =
-        clientes.where((c) => c.idChofer.toString() != choferID).length;
+    final myCount = clientes
+        .where((c) => c.idChofer.toString() == choferID)
+        .length;
+    final othersCount = clientes
+        .where((c) => c.idChofer.toString() != choferID)
+        .length;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -555,6 +570,19 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF6B2A02),
+              ),
+            ),
+            IconButton(
+              tooltip: 'Actualizar lista',
+              visualDensity: VisualDensity.compact,
+              onPressed: _actualizarLista,
+              icon: Icon(
+                Icons.refresh,
+                size: 24,
+                // Si no tiene clientes propios, se resalta para invitar a actualizar
+                color: myCount == 0 && !_showOtherChoferes
+                    ? Colors.orange
+                    : AppThemeData.primaryColor,
               ),
             ),
           ],
@@ -596,6 +624,15 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
     );
   }
 
+  void _actualizarLista() {
+    userSession ??= context.read<UserProvider>().usuario;
+    if (userSession == null) return;
+    context.read<HomeViewModel>().getDataHome(
+      userSession!.id,
+      userSession!.accessToken,
+    );
+  }
+
   Widget _buildDeliveryList() {
     var list = _sortByName
         ? ([...clientes]
@@ -616,6 +653,25 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
     _renderedList
       ..clear()
       ..addAll(list);
+    if (list.isEmpty) {
+      final sinClientesPropios =
+          !_showOtherChoferes &&
+          clientes.where((c) => c.idChofer.toString() == choferID).isEmpty;
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 32),
+        child: Center(
+          child: Text(
+            _searchQuery.isNotEmpty
+                ? 'Sin resultados para "$_searchQuery"'
+                : sinClientesPropios
+                ? 'No tienes clientes asignados. \nPresiona actualizar para recargar la lista.'
+                : 'No hay clientes para mostrar.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey.shade600),
+          ),
+        ),
+      );
+    }
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       transitionBuilder: (child, animation) {
@@ -637,7 +693,10 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                   delivery.idCliente,
                   () => GlobalKey(),
                 ),
-                child: _buildDeliveryCard(delivery),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: _buildDeliveryCard(delivery),
+                ),
               ),
             )
             .toList(),
@@ -674,76 +733,41 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
     );
   }
 
-  void _mostrarDialogoDevolucion(BuildContext context, Cliente cliente) {
-    if (userSession == null) {
-      final userProvider = context.read<UserProvider>();
-      userSession = userProvider.usuario;
-    }
-    showDialog(
-      context: context,
-      builder: (context) => DialogoDevolucionProductos(
-        cliente: cliente,
-        userSession: userSession!,
-        despacho: despacho!,
-      ),
-    );
-  }
-
-  void _mostrarDialogoCortesia(BuildContext context, Cliente cliente) {
-    if (userSession == null) {
-      final userProvider = context.read<UserProvider>();
-      userSession = userProvider.usuario;
-    }
-    showDialog(
-      context: context,
-      builder: (context) => DialogoCortesia(
-        cliente: cliente,
-        userSession: userSession!,
-        despacho: despacho!,
-      ),
-    );
-  }
-
   Widget _buildDeliveryCard(Cliente cliente) {
-    ClienteVentas clienteVentas = ClienteVentas(
-      id: cliente.idCliente,
-      nombre: cliente.nombreCliente,
-      contacto: cliente.telefonoCliente,
-      direccion: cliente.direccionCliente,
-      ventaContadoHoy: 0.0,
-      dedudaAcumulada: 0.0,
-      especial: cliente.especial,
-    );
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.transparent, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                EntregaProductoScreen(cliente: cliente, despacho: despacho),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 12),
-          InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      ClientHistorySalesScreen(cliente: clienteVentas),
-                ),
-              );
-            },
-            child: Row(
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 2),
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: cliente.entregado > 0 ? const Color(0xFFEEF1FB) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: cliente.entregado > 0
+                ? const Color(0xFFD5DBF3)
+                : Colors.transparent,
+            width: 2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
@@ -764,7 +788,14 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                       ),
                     ),
                     if (cliente.entregado > 0)
-                      Icon(Icons.verified, color: Colors.blue, size: 22),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Icon(
+                          Icons.check,
+                          color: Color(0xFF6B2A02),
+                          size: 20,
+                        ),
+                      ),
                   ],
                 ),
                 if (cliente.diasDeuda == 0)
@@ -775,116 +806,25 @@ class _HomePortalScreenState extends State<HomePortalScreen> {
                   Icon(Icons.circle, color: Colors.red, size: 22),
               ],
             ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(
-                Icons.location_on_outlined,
-                size: 16,
-                color: Colors.grey,
-              ),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  cliente.direccionCliente,
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(
+                  Icons.location_on_outlined,
+                  size: 16,
+                  color: Colors.grey,
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    _mostrarDialogoDevolucion(context, cliente);
-                  },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppThemeData.primaryColor,
-                    side: const BorderSide(color: Color(0xFF6B2A02)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 12,
-                      horizontal: 8,
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.compare_arrows, size: 18),
-                      SizedBox(width: 4),
-                      Text('Cambios'),
-                    ],
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    cliente.direccionCliente,
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                 ),
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    _mostrarDialogoCortesia(context, cliente);
-                  },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppThemeData.primaryColor,
-                    side: const BorderSide(color: Color(0xFF6B2A02)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 12,
-                      horizontal: 8,
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.favorite, size: 18),
-                      SizedBox(width: 4),
-                      Text('Cortesia'),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            EntregaProductoScreen(cliente: cliente),
-                      ),
-                    );
-                  },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppThemeData.primaryColor,
-                    side: const BorderSide(color: Color(0xFF6B2A02)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 12,
-                      horizontal: 8,
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.arrow_circle_right_outlined, size: 18),
-                      SizedBox(width: 4),
-                      Text('Entregar'),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:Gourmet360/core/providers/session_reset.dart';
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/models/dashboard_despachos.dart';
 import 'package:Gourmet360/models/dashboard_ventas.dart';
@@ -193,6 +194,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               );
             } else if (value == 3) {
               await context.read<UserProvider>().logout();
+              if (!context.mounted) return;
+              SessionReset.limpiarTodo(context);
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => const WelcomeScreen()),

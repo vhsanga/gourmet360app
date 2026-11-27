@@ -1,10 +1,15 @@
 import 'dart:async';
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/models/cliente.dart';
+import 'package:Gourmet360/models/cliente_ventas.dart';
+import 'package:Gourmet360/models/despacho.dart';
 import 'package:Gourmet360/models/producto_asignados.dart';
 import 'package:Gourmet360/models/usuario.dart';
 import 'package:Gourmet360/viewmodels/home_viewmodel.dart';
 import 'package:Gourmet360/viewmodels/producto_viewmodel.dart';
+import 'package:Gourmet360/views/client_history_sales_screen.dart';
+import 'package:Gourmet360/views/templates/cortesia_launcher.dart';
+import 'package:Gourmet360/views/templates/devolucion_launcher.dart';
 import 'package:Gourmet360/views/templates/dialogs_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -30,8 +35,13 @@ enum PaymentType { contado, credito }
 
 class EntregaProductoScreen extends StatefulWidget {
   Cliente cliente;
+  Despacho? despacho;
 
-  EntregaProductoScreen({super.key, required this.cliente});
+  EntregaProductoScreen({
+    super.key,
+    required this.cliente,
+    required this.despacho,
+  });
 
   @override
   State<EntregaProductoScreen> createState() => _EntregaProductoScreenState();
@@ -371,36 +381,79 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: const Icon(
-                  Icons.arrow_back,
-                  color: AppThemeData.primaryColor,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Registrar Venta',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: AppThemeData.primaryColor,
-                      ),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: AppThemeData.primaryColor,
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      widget.cliente.nombreCliente,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white.withValues(alpha: 0.9),
+                  ),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.cliente.nombreCliente,
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: AppThemeData.primaryColor,
+                        ),
                       ),
+                      const SizedBox(height: 6),
+                      ElevatedButton(
+                        onPressed: mostrarClienteVentasCalendario,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: widget.cliente.diasDeuda == 0
+                              ? Colors.green
+                              : widget.cliente.diasDeuda == 1
+                              ? Colors.orange
+                              : Colors.red,
+                          foregroundColor: Colors.white,
+                          shape: const StadiumBorder(),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 6,
+                          ),
+                          minimumSize: const Size(0, 32),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Text(
+                          'Ver calendario',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              IntrinsicWidth(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildHeaderButton(
+                      icon: Icons.compare_arrows,
+                      label: 'Cambio',
+                      onPressed: () =>
+                          _mostrarDialogoDevolucion(context, widget.cliente),
+                    ),
+                    const SizedBox(height: 4),
+                    _buildHeaderButton(
+                      icon: Icons.favorite,
+                      label: 'Cortesia',
+                      onPressed: () =>
+                          _mostrarDialogoCortesia(context, widget.cliente),
                     ),
                   ],
                 ),
@@ -408,6 +461,26 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildHeaderButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 16),
+      label: Text(label),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppThemeData.primaryColor,
+        foregroundColor: Colors.white,
+        minimumSize: const Size(0, 32),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
@@ -1018,7 +1091,11 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
             ),
             onChanged: (value) {
               final transferencia = double.tryParse(value) ?? 0;
-              if (transferencia > totalAmount && totalAmount > 0) {
+              // Comparar en centavos: totalAmount puede traer decimales
+              // flotantes (ej. 8.3800000001) y 8.38 > 8.38000001 sería true.
+              final transferenciaCentavos = (transferencia * 100).round();
+              final totalCentavos = (totalAmount * 100).round();
+              if (transferenciaCentavos > totalCentavos && totalCentavos > 0) {
                 transferenciaController.text = totalAmount.toStringAsFixed(2);
                 transferenciaController.selection = TextSelection.fromPosition(
                   TextPosition(offset: transferenciaController.text.length),
@@ -1084,6 +1161,53 @@ class _EntregaProductoScreenState extends State<EntregaProductoScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _mostrarDialogoDevolucion(BuildContext context, Cliente cliente) {
+    if (userSession == null) {
+      final userProvider = context.read<UserProvider>();
+      userSession = userProvider.usuario;
+    }
+    DevolucionLauncher.mostrar(
+      context: context,
+      cliente: cliente,
+      userSession: userSession!,
+      despacho: widget.despacho!,
+    );
+  }
+
+  void _mostrarDialogoCortesia(BuildContext context, Cliente cliente) {
+    if (userSession == null) {
+      final userProvider = context.read<UserProvider>();
+      userSession = userProvider.usuario;
+    }
+    CortesiaLauncher.mostrar(
+      context: context,
+      cliente: cliente,
+      userSession: userSession!,
+      despacho: widget.despacho!,
+    );
+  }
+
+  void mostrarClienteVentasCalendario() {
+    ClienteVentas clienteVentas = ClienteVentas(
+      id: widget.cliente.idCliente,
+      nombre: widget.cliente.nombreCliente,
+      contacto: widget.cliente.telefonoCliente,
+      direccion: widget.cliente.direccionCliente,
+      totalVentas: 0.0,
+      totalPagado: 0.0,
+      totalEfectivo: 0.0,
+      totalTransferencia: 0.0,
+      deudaTotal: 0.0,
+      repartidor: "",
+    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ClientHistorySalesScreen(cliente: clienteVentas),
       ),
     );
   }

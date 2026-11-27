@@ -1,3 +1,4 @@
+import 'package:Gourmet360/core/providers/session_reset.dart';
 import 'package:Gourmet360/core/providers/user_provider.dart';
 import 'package:Gourmet360/viewmodels/auth_viewmodel.dart';
 import 'package:Gourmet360/views/admin/admin_dashboard_screen.dart';
@@ -57,6 +58,8 @@ class _LoginPinScreenState extends State<LoginPinScreen> {
   }
 
   void _handleLogin() async {
+    // Descartar datos de cualquier sesión anterior antes de iniciar la nueva.
+    SessionReset.limpiarTodo(context);
     final auth = context.read<AuthViewModel>();
     final phone = _usernameController.text;
     final pin = _pinControllers.map((c) => c.text).join();
@@ -70,8 +73,11 @@ class _LoginPinScreenState extends State<LoginPinScreen> {
       );
       return;
     }
+    if (!mounted) return;
+    // Esperar a que el usuario quede guardado y el estado sea "loaded"
+    // antes de navegar; si no, HomePortalScreen lee un UserProvider vacío.
+    await context.read<UserProvider>().saveUser(auth.usuario!);
     if (mounted) {
-      context.read<UserProvider>().saveUser(auth.usuario!);
       if (auth.usuario!.rol == 'admin') {
         Navigator.pushAndRemoveUntil(
           context,

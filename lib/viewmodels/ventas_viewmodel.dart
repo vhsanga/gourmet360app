@@ -11,13 +11,22 @@ class VentasViewModel extends ChangeNotifier {
   List<VentaProducto> productosCortesia = [];
   List<VentaProducto> productosDevueltos = [];
 
+  /// Limpia los datos sin notificar (seguro de llamar desde initState).
+  void limpiarDatos() {
+    msj = null;
+    error = null;
+    productosVendidos = [];
+    productosCortesia = [];
+    productosDevueltos = [];
+  }
+
   Future<bool> listarVentaProductosFecha(
     String idCliente,
     String fecha,
     String userToken,
   ) async {
     isLoading = true;
-    msj = null;
+    limpiarDatos();
     notifyListeners();
     try {
       final response = await HttpService.doGet(

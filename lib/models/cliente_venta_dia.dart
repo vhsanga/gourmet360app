@@ -4,6 +4,7 @@ class ClienteVentaDia {
   final double totalContado;
   final double totalDeuda;
   final double totalPagado;
+  final double totalVenta;
 
   ClienteVentaDia({
     required this.idVenta,
@@ -11,6 +12,7 @@ class ClienteVentaDia {
     required this.totalContado,
     required this.totalDeuda,
     required this.totalPagado,
+    required this.totalVenta,
   });
 
   factory ClienteVentaDia.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,7 @@ class ClienteVentaDia {
       totalContado: _parseDouble(json['total_contado']),
       totalDeuda: _parseDouble(json['total_credito']),
       totalPagado: _parseDouble(json['total_pagado']),
+      totalVenta: _parseDouble(json['valor_venta']),
     );
   }
 
@@ -50,7 +53,9 @@ class ClienteVentaDia {
     String? dia,
     int? idVenta,
     double? totalContado,
-    double? totalCredito,
+    double? totalDeuda,
+    double? totalPagado,
+    double? totalVenta,
   }) {
     return ClienteVentaDia(
       dia: dia ?? this.dia,
@@ -58,6 +63,7 @@ class ClienteVentaDia {
       totalContado: totalContado ?? this.totalContado,
       totalDeuda: totalDeuda ?? this.totalDeuda,
       totalPagado: totalPagado ?? this.totalPagado,
+      totalVenta: totalVenta ?? this.totalVenta,
     );
   }
 

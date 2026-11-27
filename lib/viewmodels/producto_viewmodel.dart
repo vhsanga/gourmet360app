@@ -11,6 +11,15 @@ class ProductoViewModel extends ChangeNotifier {
   List<Producto> productos = [];
   List<ProductoAsignado> productosAsignados = [];
 
+  /// Limpia todos los datos sin notificar (seguro en initState/logout).
+  void limpiarDatos() {
+    isLoading = false;
+    msj = null;
+    error = null;
+    productos = [];
+    productosAsignados = [];
+  }
+
   Future<bool> entregarProductos(
     Map<String, dynamic> params,
     String userToken,

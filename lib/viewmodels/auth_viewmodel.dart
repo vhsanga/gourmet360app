@@ -8,6 +8,13 @@ class AuthViewModel extends ChangeNotifier {
   String? error;
   Usuario? usuario;
 
+  /// Limpia todos los datos sin notificar (seguro en initState/logout).
+  void limpiarDatos() {
+    isLoading = false;
+    error = null;
+    usuario = null;
+  }
+
   Future<bool> login(String user, String pass) async {
     isLoading = true;
     error = null;

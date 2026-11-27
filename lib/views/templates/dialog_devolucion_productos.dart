@@ -85,7 +85,12 @@ class _DialogoDevolucionProductosState
       final choferVM = context.read<ChoferViewModel>();
       final detalles = _productosAsignados
           .where((p) => p.cantidad > 0)
-          .map((p) => {'productoId': int.parse(p.productoId), 'cantidad': p.cantidad})
+          .map(
+            (p) => {
+              'productoId': int.parse(p.productoId),
+              'cantidad': p.cantidad,
+            },
+          )
           .toList();
       Map<String, dynamic> data = {
         "cantidad": totalProducts,
@@ -104,12 +109,21 @@ class _DialogoDevolucionProductosState
       if (!mounted) return;
       navigator.pop();
       if (success) {
-        DialogsWidget.showSuccess(
-          title: 'Muy bien',
-          message: choferVM.msj ?? 'Cliente registrado correctfamente',
-          onClose: () {
-            Navigator.pop(context);
-          },
+        final messenger = ScaffoldMessenger.of(context);
+        Navigator.pop(context);
+        messenger.showSnackBar(
+          SnackBar(
+            content: const Text(
+              'Guardado',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            backgroundColor: Colors.green.shade700,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
         );
         return;
       } else {

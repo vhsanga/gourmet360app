@@ -12,6 +12,15 @@ class ChoferViewModel extends ChangeNotifier {
   List<CamionAsignado> camiones = [];
   List<ClienteVentas> clientesVentas = [];
 
+  /// Limpia todos los datos sin notificar (seguro en initState/logout).
+  void limpiarDatos() {
+    isLoading = false;
+    error = null;
+    msj = null;
+    camiones = [];
+    clientesVentas = [];
+  }
+
   Future<void> listarProductosForAdmin(String userToken) async {
     isLoading = true;
     error = null;

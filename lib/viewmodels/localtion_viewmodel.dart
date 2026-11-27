@@ -14,6 +14,13 @@ class LocationViewModel extends ChangeNotifier {
   bool _isFetchingSingleLocation = false;
   bool get isFetchingSingleLocation => _isFetchingSingleLocation;
 
+  /// Limpia todos los datos sin notificar (seguro en initState/logout).
+  void limpiarDatos() {
+    _currentPosition = null;
+    _errorMessage = '';
+    _isFetchingSingleLocation = false;
+  }
+
   void startTracking({Function(double lat, double lng)? onLocationChanged}) {
     if (_positionSubscription != null) return;
 
